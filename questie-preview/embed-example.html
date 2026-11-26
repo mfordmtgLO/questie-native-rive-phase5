@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Questie Living Mascot — Portable SDK Embed Example</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle at 50% 35%, #162235, #0a1019 72%);
+      color: #edf2f8;
+      font: 14px/1.5 system-ui, -apple-system, sans-serif;
+    }
+    .card {
+      width: min(420px, 92vw);
+      padding: 20px;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(15, 22, 34, 0.78);
+      text-align: center;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      touch-action: none;
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 12px;
+    }
+    button {
+      padding: 7px 11px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.06);
+      color: #edf2f8;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    button[aria-pressed="true"] {
+      background: #e95d65;
+      border-color: #e95d65;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <canvas id="mascot" aria-label="Embedded Questie living mascot"></canvas>
+    <div id="controls" class="row"></div>
+  </div>
+  <script type="module">
+    import { createPlayer } from './index.js';
+    import { mountQuestieMascot } from './questie-sdk.js';
+
+    const mascot = await mountQuestieMascot({
+      canvas: document.getElementById('mascot'),
+      createPlayer,
+      initialBehavior: 'IDLE-PARKED',
+    });
+
+    const states = ['IDLE-PARKED', 'WORK-THINK', 'TYPE-PONDER', 'TYPE-LISTEN', 'ARRIVED', 'FAVORITE', 'ACHIEVEMENT'];
+    const controls = document.getElementById('controls');
+    for (const id of states) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = id;
+      btn.setAttribute('aria-pressed', String(id === 'IDLE-PARKED'));
+      btn.onclick = () => {
+        mascot.setBehavior(id);
+        controls.querySelectorAll('button').forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+      };
+      controls.append(btn);
+    }
+  </script>
+</body>
+</html>

@@ -44,6 +44,19 @@ for (const template of [questiePin, questieGeo]) {
     mkdirSync(dirname(dest), { recursive: true });
     writeFileSync(dest, f.data);
   }
+  // Ship portable Questie JS + React Living Mascot SDK and companion demo inside each standalone bundle
+  for (const sdkFile of [
+    'questie-sdk.js',
+    'questie-react.js',
+    'questie-sdk.d.ts',
+    'behavior-engine.js',
+    'guide-contract.js',
+    'locked-voice.js',
+    'embed-example.html',
+    'companion-demo.html',
+  ]) {
+    writeFileSync(join(out, template.id, sdkFile), readFileSync(join('questie-preview', sdkFile)));
+  }
   console.log(template.id, bytes.length, 'bytes; IDENTICAL round-trip; 8 visemes; 13 reactions; 13 properties');
 }
 
@@ -64,9 +77,14 @@ for (const file of [
   'index.html',
   'styles.css',
   'studio.js',
+  'questie-sdk.js',
+  'questie-react.js',
+  'questie-sdk.d.ts',
   'behavior-engine.js',
   'guide-contract.js',
   'locked-voice.js',
+  'embed-example.html',
+  'companion-demo.html',
 ]) {
   writeFileSync(join(out, file), readFileSync(join('questie-preview', file)));
 }

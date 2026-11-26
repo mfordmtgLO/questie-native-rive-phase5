@@ -1,10 +1,17 @@
-// Phase 5 Reactive Behavior Engine — Muse-style living mascot motion layers.
-// Composes 5 independent, non-blocking layers into the 13-property GuideVM:
-//   1. Autonomic breathing (dual-harmonic organic curve)
-//   2. Natural blinking + occasional double-blinking (never interrupted by speech)
-//   3. Independent eye/pupil tracking + micro-saccades + damped head follow-through
-//   4. Emotional anticipation & recovery envelope across 12 behavior states
-//   5. Subtle conversational & listening micro-accents (nonverbal states stay silent)
+// Phase 5.2 Host Behavior Orchestrator — complements native .riv autonomous layers.
+// Native .riv State Machine 'Guide' already runs 4 simultaneous layers with zero host JS:
+//   - Idle (7.6s serene breathing across 6 planes + shoulder sway + status ball aura)
+//   - AutoBlink (9.8s irregular single & double natural blinking)
+//   - AutoGaze (12.4s subtle autonomous micro-glances)
+//   - Emotion (13 looping native reactive performances incl. articulated arms, hands & laptop)
+//
+// This host orchestrator layers interactive responsiveness on top without competing:
+//   1. Gentle additive breath responsiveness (native .riv Idle carries primary breathing)
+//   2. Interactive & turn-blink reflexes (native .riv AutoBlink carries autonomous idle blinks)
+//   3. Gaze anticipation before head turns (~190ms lead buffer: eyes shift first, head follows)
+//   4. Quasi-periodic non-repeating subtle poise & pointer/touch follow with graceful return
+//   5. Soft anticipation & recovery envelope across all 12 independent behavior states
+//   6. Subtle non-competing resting facial microexpressions (yields cleanly during speech)
 
 export const BEHAVIOR_STATES = [
   {
@@ -13,18 +20,20 @@ export const BEHAVIOR_STATES = [
     emotion: 0,
     verbal: false,
     category: 'Presence',
-    note: 'Quietly alive resting companion with soft breathing and organic blinks.',
-    breathHz: 0.22,
-    breathAmp: 0.72,
-    gazeWanderX: 0.14,
-    gazeWanderY: 0.08,
+    note: 'Quietly alive resting companion — native .riv breathing, blinking, and soft ambient poise.',
+    breathHz: 0.135,
+    breathAmp: 0.18,
+    gazeWanderX: 0.1,
+    gazeWanderY: 0.05,
     headBiasX: 0,
     headBiasY: 0,
-    saccadeRange: [2.4, 5.2],
-    blinkRange: [3.0, 5.6],
-    doubleBlinkChance: 0.18,
-    anticipationY: 0.04,
-    peakY: -0.05,
+    saccadeRange: [4.6, 9.2],
+    blinkRange: [4.2, 8.2],
+    doubleBlinkChance: 0.14,
+    anticipationY: 0.02,
+    peakY: -0.03,
+    microSmileWide: 0.03,
+    microSmileOpen: -0.012,
   },
   {
     id: 'IDLE-LOOKOUT',
@@ -32,18 +41,20 @@ export const BEHAVIOR_STATES = [
     emotion: 10,
     verbal: false,
     category: 'Presence',
-    note: 'Gentle horizon scanning with subtle head follow-through.',
-    breathHz: 0.24,
-    breathAmp: 0.76,
-    gazeWanderX: 0.48,
-    gazeWanderY: 0.16,
-    headBiasX: -0.1,
-    headBiasY: -0.06,
-    saccadeRange: [1.6, 3.6],
-    blinkRange: [2.8, 5.0],
-    doubleBlinkChance: 0.2,
-    anticipationY: 0.05,
-    peakY: -0.1,
+    note: 'Calm horizon scanning where eyes lead smoothly before gentle head follow-through.',
+    breathHz: 0.145,
+    breathAmp: 0.2,
+    gazeWanderX: 0.42,
+    gazeWanderY: 0.14,
+    headBiasX: -0.08,
+    headBiasY: -0.05,
+    saccadeRange: [3.2, 6.4],
+    blinkRange: [3.8, 7.2],
+    doubleBlinkChance: 0.16,
+    anticipationY: 0.03,
+    peakY: -0.07,
+    microSmileWide: 0.02,
+    microSmileOpen: -0.01,
   },
   {
     id: 'NAV-EXPLORE',
@@ -51,18 +62,20 @@ export const BEHAVIOR_STATES = [
     emotion: 6,
     verbal: false,
     category: 'Navigation',
-    note: 'Purposeful forward curiosity scanning new routes and listings.',
-    breathHz: 0.28,
-    breathAmp: 0.82,
-    gazeWanderX: 0.52,
-    gazeWanderY: 0.2,
-    headBiasX: 0.14,
-    headBiasY: -0.08,
-    saccadeRange: [1.2, 2.8],
-    blinkRange: [2.7, 4.8],
-    doubleBlinkChance: 0.16,
-    anticipationY: 0.06,
-    peakY: -0.12,
+    note: 'Unrushed forward curiosity with articulated scouting stride and soft gaze anticipation.',
+    breathHz: 0.165,
+    breathAmp: 0.22,
+    gazeWanderX: 0.46,
+    gazeWanderY: 0.15,
+    headBiasX: 0.12,
+    headBiasY: -0.06,
+    saccadeRange: [2.4, 4.8],
+    blinkRange: [3.6, 6.8],
+    doubleBlinkChance: 0.14,
+    anticipationY: 0.035,
+    peakY: -0.08,
+    microSmileWide: 0.03,
+    microSmileOpen: 0.0,
   },
   {
     id: 'TYPE-LISTEN',
@@ -70,19 +83,21 @@ export const BEHAVIOR_STATES = [
     emotion: 2,
     verbal: false,
     category: 'Attention',
-    note: 'Nonverbal attentive listening with warm eye contact and gentle micro-nods.',
-    breathHz: 0.23,
-    breathAmp: 0.68,
-    gazeWanderX: 0.08,
-    gazeWanderY: 0.06,
-    headBiasX: 0.08,
-    headBiasY: 0.04,
-    saccadeRange: [2.6, 5.0],
-    blinkRange: [2.6, 4.6],
-    doubleBlinkChance: 0.22,
-    anticipationY: 0.04,
-    peakY: 0.1,
+    note: 'Nonverbal warm listening with attentive posture, steady gaze, and gentle micro-nods.',
+    breathHz: 0.14,
+    breathAmp: 0.16,
+    gazeWanderX: 0.06,
+    gazeWanderY: 0.04,
+    headBiasX: 0.05,
+    headBiasY: 0.03,
+    saccadeRange: [4.4, 8.0],
+    blinkRange: [3.6, 6.8],
+    doubleBlinkChance: 0.18,
+    anticipationY: 0.025,
+    peakY: 0.065,
     listenNod: true,
+    microSmileWide: 0.045,
+    microSmileOpen: -0.012,
   },
   {
     id: 'TYPE-PONDER',
@@ -90,20 +105,22 @@ export const BEHAVIOR_STATES = [
     emotion: 11,
     verbal: false,
     category: 'Attention',
-    note: 'Nonverbal quiet reflection with soft upward gaze drift.',
-    breathHz: 0.19,
-    breathAmp: 0.78,
-    gazeWanderX: 0.18,
-    gazeWanderY: 0.1,
-    headBiasX: -0.18,
-    headBiasY: -0.18,
-    gazeBiasX: 0.34,
-    gazeBiasY: -0.34,
-    saccadeRange: [2.2, 4.4],
-    blinkRange: [3.2, 5.8],
-    doubleBlinkChance: 0.15,
-    anticipationY: 0.06,
-    peakY: -0.14,
+    note: 'Nonverbal reflection over the open laptop with chin-resting hand and thoughtful gaze drift.',
+    breathHz: 0.13,
+    breathAmp: 0.18,
+    gazeWanderX: 0.16,
+    gazeWanderY: 0.09,
+    headBiasX: -0.09,
+    headBiasY: -0.06,
+    gazeBiasX: 0.24,
+    gazeBiasY: -0.18,
+    saccadeRange: [3.8, 7.2],
+    blinkRange: [4.2, 8.4],
+    doubleBlinkChance: 0.12,
+    anticipationY: 0.035,
+    peakY: -0.08,
+    microSmileWide: -0.04,
+    microSmileOpen: -0.02,
   },
   {
     id: 'WORK-THINK',
@@ -111,20 +128,22 @@ export const BEHAVIOR_STATES = [
     emotion: 1,
     verbal: false,
     category: 'Attention',
-    note: 'Nonverbal focused analysis with calm analytical gaze sweeps.',
-    breathHz: 0.2,
-    breathAmp: 0.7,
-    gazeWanderX: 0.28,
-    gazeWanderY: 0.1,
-    headBiasX: -0.14,
-    headBiasY: -0.12,
-    gazeBiasX: -0.22,
-    gazeBiasY: -0.24,
-    saccadeRange: [1.5, 3.2],
-    blinkRange: [3.1, 5.5],
-    doubleBlinkChance: 0.14,
-    anticipationY: 0.05,
-    peakY: -0.1,
+    note: 'Nonverbal focused laptop session with articulated typing hands and smooth reading eye sweeps.',
+    breathHz: 0.135,
+    breathAmp: 0.16,
+    gazeWanderX: 0.26,
+    gazeWanderY: 0.07,
+    headBiasX: -0.04,
+    headBiasY: 0.12,
+    gazeBiasX: 0.0,
+    gazeBiasY: 0.28,
+    saccadeRange: [2.2, 4.4],
+    blinkRange: [4.0, 7.8],
+    doubleBlinkChance: 0.12,
+    anticipationY: 0.03,
+    peakY: 0.06,
+    microSmileWide: -0.05,
+    microSmileOpen: -0.025,
   },
   {
     id: 'SPEAK-ATTEND',
@@ -132,18 +151,20 @@ export const BEHAVIOR_STATES = [
     emotion: 12,
     verbal: true,
     category: 'Speech',
-    note: 'Conversational presence; speaking never interrupts blinking, breathing, or gaze.',
-    breathHz: 0.25,
-    breathAmp: 0.66,
-    gazeWanderX: 0.16,
-    gazeWanderY: 0.08,
-    headBiasX: 0.05,
+    note: 'Natural conversational presence; speech blends smoothly without interrupting blink or breath.',
+    breathHz: 0.16,
+    breathAmp: 0.16,
+    gazeWanderX: 0.12,
+    gazeWanderY: 0.06,
+    headBiasX: 0.04,
     headBiasY: -0.02,
-    saccadeRange: [1.9, 3.9],
-    blinkRange: [2.5, 4.7],
-    doubleBlinkChance: 0.22,
-    anticipationY: 0.03,
-    peakY: -0.06,
+    saccadeRange: [3.0, 5.8],
+    blinkRange: [3.0, 6.0],
+    doubleBlinkChance: 0.18,
+    anticipationY: 0.02,
+    peakY: -0.045,
+    microSmileWide: 0.04,
+    microSmileOpen: 0.0,
   },
   {
     id: 'FAVORITE',
@@ -151,18 +172,20 @@ export const BEHAVIOR_STATES = [
     emotion: 3,
     verbal: false,
     category: 'Milestone',
-    note: 'Warm affectionate delight with gentle anticipation and calm settle.',
-    breathHz: 0.26,
-    breathAmp: 0.84,
-    gazeWanderX: 0.14,
-    gazeWanderY: 0.08,
-    headBiasX: 0.12,
-    headBiasY: -0.06,
-    saccadeRange: [2.2, 4.4],
-    blinkRange: [2.8, 5.0],
-    doubleBlinkChance: 0.24,
-    anticipationY: 0.14,
-    peakY: -0.22,
+    note: 'Warm affectionate delight with gentle anticipation, heart-hold gesture, and calm settle.',
+    breathHz: 0.165,
+    breathAmp: 0.22,
+    gazeWanderX: 0.12,
+    gazeWanderY: 0.06,
+    headBiasX: 0.1,
+    headBiasY: -0.05,
+    saccadeRange: [3.4, 6.4],
+    blinkRange: [3.2, 6.2],
+    doubleBlinkChance: 0.2,
+    anticipationY: 0.09,
+    peakY: -0.14,
+    microSmileWide: 0.12,
+    microSmileOpen: 0.035,
   },
   {
     id: 'PRICE DROP',
@@ -170,18 +193,20 @@ export const BEHAVIOR_STATES = [
     emotion: 4,
     verbal: false,
     category: 'Milestone',
-    note: 'Nonverbal surprised intrigue with crisp anticipation and smooth recovery.',
-    breathHz: 0.27,
-    breathAmp: 0.8,
-    gazeWanderX: 0.18,
-    gazeWanderY: 0.1,
-    headBiasX: -0.1,
-    headBiasY: -0.12,
-    saccadeRange: [1.6, 3.2],
-    blinkRange: [2.9, 5.1],
-    doubleBlinkChance: 0.25,
-    anticipationY: 0.16,
-    peakY: -0.28,
+    note: 'Nonverbal bright intrigue with crisp gaze anticipation and smooth settled recovery.',
+    breathHz: 0.17,
+    breathAmp: 0.2,
+    gazeWanderX: 0.15,
+    gazeWanderY: 0.08,
+    headBiasX: -0.08,
+    headBiasY: -0.09,
+    saccadeRange: [2.6, 5.0],
+    blinkRange: [3.4, 6.5],
+    doubleBlinkChance: 0.22,
+    anticipationY: 0.1,
+    peakY: -0.17,
+    microSmileWide: -0.03,
+    microSmileOpen: 0.065,
   },
   {
     id: 'NEW HOME',
@@ -189,18 +214,20 @@ export const BEHAVIOR_STATES = [
     emotion: 5,
     verbal: false,
     category: 'Milestone',
-    note: 'Bright hopeful discovery with welcoming gaze and warm halo.',
-    breathHz: 0.26,
-    breathAmp: 0.82,
-    gazeWanderX: 0.22,
-    gazeWanderY: 0.12,
-    headBiasX: 0.12,
-    headBiasY: -0.09,
-    saccadeRange: [1.8, 3.6],
-    blinkRange: [2.8, 4.9],
-    doubleBlinkChance: 0.2,
-    anticipationY: 0.12,
-    peakY: -0.22,
+    note: 'Hopeful discovery with articulated presenting gesture, warm gaze, and luminous glow.',
+    breathHz: 0.165,
+    breathAmp: 0.2,
+    gazeWanderX: 0.18,
+    gazeWanderY: 0.1,
+    headBiasX: 0.1,
+    headBiasY: -0.07,
+    saccadeRange: [2.8, 5.4],
+    blinkRange: [3.2, 6.2],
+    doubleBlinkChance: 0.18,
+    anticipationY: 0.08,
+    peakY: -0.14,
+    microSmileWide: 0.11,
+    microSmileOpen: 0.03,
   },
   {
     id: 'ARRIVED',
@@ -208,18 +235,20 @@ export const BEHAVIOR_STATES = [
     emotion: 7,
     verbal: false,
     category: 'Milestone',
-    note: 'Calm grounded arrival with poised greeting and smooth rest.',
-    breathHz: 0.23,
-    breathAmp: 0.78,
-    gazeWanderX: 0.12,
-    gazeWanderY: 0.08,
-    headBiasX: 0.08,
-    headBiasY: -0.04,
-    saccadeRange: [2.4, 4.8],
-    blinkRange: [3.0, 5.4],
-    doubleBlinkChance: 0.18,
-    anticipationY: 0.1,
-    peakY: -0.18,
+    note: 'Calm grounded arrival with articulated right-hand greeting wave and serene settle.',
+    breathHz: 0.15,
+    breathAmp: 0.2,
+    gazeWanderX: 0.1,
+    gazeWanderY: 0.06,
+    headBiasX: 0.06,
+    headBiasY: -0.03,
+    saccadeRange: [3.8, 7.2],
+    blinkRange: [3.5, 6.8],
+    doubleBlinkChance: 0.15,
+    anticipationY: 0.065,
+    peakY: -0.11,
+    microSmileWide: 0.09,
+    microSmileOpen: 0.02,
   },
   {
     id: 'ACHIEVEMENT',
@@ -227,18 +256,20 @@ export const BEHAVIOR_STATES = [
     emotion: 8,
     verbal: false,
     category: 'Milestone',
-    note: 'Poised pride with gentle celebratory lift and serene settle.',
-    breathHz: 0.26,
-    breathAmp: 0.86,
-    gazeWanderX: 0.16,
-    gazeWanderY: 0.1,
-    headBiasX: 0.1,
-    headBiasY: -0.1,
-    saccadeRange: [2.0, 4.0],
-    blinkRange: [2.7, 4.8],
-    doubleBlinkChance: 0.22,
-    anticipationY: 0.15,
-    peakY: -0.26,
+    note: 'Dignified warmth and celebratory hand lift without exaggerated bounce.',
+    breathHz: 0.165,
+    breathAmp: 0.22,
+    gazeWanderX: 0.14,
+    gazeWanderY: 0.08,
+    headBiasX: 0.08,
+    headBiasY: -0.08,
+    saccadeRange: [3.2, 6.0],
+    blinkRange: [3.2, 6.2],
+    doubleBlinkChance: 0.18,
+    anticipationY: 0.085,
+    peakY: -0.15,
+    microSmileWide: 0.13,
+    microSmileOpen: 0.04,
   },
 ];
 
@@ -252,39 +283,68 @@ function randRange(min, max) {
   return min + Math.random() * (max - min);
 }
 
+// Skewed organic interval (produces natural clusters + occasional serene long pauses)
+function naturalInterval(min, max) {
+  const u = (Math.random() + Math.random()) * 0.5;
+  const tail = Math.random() < 0.16 ? randRange(1.15, 1.48) : 1.0;
+  return (min + u * (max - min)) * tail;
+}
+
 function clamp(v, min, max) {
   return Math.max(min, Math.min(max, v));
+}
+
+function smootherstep(u) {
+  const x = clamp(u, 0, 1);
+  return x * x * x * (x * (x * 6 - 15) + 10);
 }
 
 export function createBehaviorEngine() {
   let active = BEHAVIOR_STATES[0];
   let elapsed = 0;
+  let breathPhase = 0;
   let stateTime = 10; // settled at start
 
-  // Natural blink + occasional double-blink state machine
-  let blinkPhase = 'open'; // 'open' | 'closing' | 'opening' | 'gap' | 'closing2' | 'opening2'
+  // Natural irregular blinking state machine (includes soft contact hold + occasional double-blink)
+  let blinkPhase = 'open'; // 'open' | 'closing' | 'hold' | 'opening' | 'gap' | 'closing2' | 'hold2' | 'opening2'
   let blinkTimer = 0;
-  let nextBlinkIn = randRange(2.4, 4.4);
+  let nextBlinkIn = naturalInterval(2.8, 5.8);
   let willDoubleBlink = false;
   let blinkValue = 0;
 
-  // Organic autonomous micro-saccade state
+  // Unhurried autonomous saccade state
   let saccadeTimer = 0;
-  let nextSaccadeIn = randRange(1.4, 3.2);
+  let nextSaccadeIn = naturalInterval(2.6, 5.6);
   let saccadeX = 0;
   let saccadeY = 0;
+
+  // Gaze anticipation ring buffer: eyes move first, head receives the gaze ~190ms later
+  const gazeHistory = [];
+  const GAZE_LEAD_SECONDS = 0.19;
+
+  // Pointer / touch tracking with graceful slow resting return
   let pointerActive = false;
   let pointerIdleTime = 10;
   let pointerX = 0;
   let pointerY = 0;
 
+  // Irregular listening nod scheduler
+  let nextNodAt = randRange(3.8, 6.6);
+  let nodProgress = 1;
+
+  // Periodic natural downward keyboard glances while typing/working at the miniature laptop
+  let nextKeyboardGlanceAt = randRange(1.4, 2.8);
+  let keyboardGlanceProgress = 1;
+  let keyboardGlanceX = 0;
+
   // Live rig dynamics (configurable in Studio Rig controls)
   const dynamics = {
-    blinkCadence: 1.0,       // 0.6..1.6 (higher = slightly more frequent blinks)
-    doubleBlinkRate: 1.0,    // 0..2.0 multiplier
+    blinkCadence: 1.0,       // 0.6..1.6
+    doubleBlinkRate: 1.0,    // 0..2.0
     headInertia: 1.0,        // 0.5..1.8 (higher = silkier slower head follow)
     breathDepth: 1.0,        // 0.4..1.5
     speechAccent: 1.0,       // 0..1.5 subtle head accents during speech
+    reducedMotion: false,    // scales dynamic motion smoothly for prefers-reduced-motion
   };
 
   function setState(id) {
@@ -292,44 +352,54 @@ export function createBehaviorEngine() {
     if (!next) return active;
     active = next;
     stateTime = 0;
-    // Slight immediate gaze refresh on state change
-    nextSaccadeIn = Math.min(nextSaccadeIn, 0.35);
+    nextSaccadeIn = Math.min(nextSaccadeIn, 0.55);
     return active;
   }
 
   function setPointer(x, y, isInside) {
     pointerActive = !!isInside;
     if (isInside) {
-      pointerX = clamp(x, -1, 1);
-      pointerY = clamp(y, -1, 1);
+      const nx = clamp(x, -1, 1);
+      const ny = clamp(y, -1, 1);
+      pointerX = nx;
+      pointerY = ny;
       pointerIdleTime = 0;
     }
   }
 
   function updateBlink(dt) {
-    const closeDur = 0.062;
-    const openDur = 0.088;
-    const gapDur = 0.135;
+    // Native .riv AutoBlink layer handles serene periodic & double idle blinks autonomously.
+    // Host GuideVM.blink stays at 0 unless triggered interactively (click, double-tap, turn-blink
+    // reflex, or rare extra double-blink when doubleBlinkRate > 1.2) so both layers never collide.
+    const closeDur = 0.076;
+    const holdDur = 0.026;
+    const openDur = 0.132;
+    const gapDur = 0.165;
 
     blinkTimer += dt;
     if (blinkPhase === 'open') {
       blinkValue = 0;
-      if (blinkTimer >= nextBlinkIn) {
+      if (dynamics.doubleBlinkRate > 1.25 && blinkTimer >= nextBlinkIn * 1.9) {
         blinkPhase = 'closing';
         blinkTimer = 0;
-        const chance = clamp(active.doubleBlinkChance * dynamics.doubleBlinkRate, 0, 0.65);
-        willDoubleBlink = Math.random() < chance;
+        willDoubleBlink = true;
       }
     } else if (blinkPhase === 'closing' || blinkPhase === 'closing2') {
       const u = clamp(blinkTimer / closeDur, 0, 1);
-      blinkValue = u * u * (3 - 2 * u);
+      blinkValue = smootherstep(u);
       if (u >= 1) {
-        blinkPhase = blinkPhase === 'closing' ? 'opening' : 'opening2';
+        blinkPhase = blinkPhase === 'closing' ? 'hold' : 'hold2';
+        blinkTimer = 0;
+      }
+    } else if (blinkPhase === 'hold' || blinkPhase === 'hold2') {
+      blinkValue = 1;
+      if (blinkTimer >= holdDur) {
+        blinkPhase = blinkPhase === 'hold' ? 'opening' : 'opening2';
         blinkTimer = 0;
       }
     } else if (blinkPhase === 'opening') {
       const u = clamp(blinkTimer / openDur, 0, 1);
-      blinkValue = 1 - u * u * (3 - 2 * u);
+      blinkValue = 1 - smootherstep(u);
       if (u >= 1) {
         blinkValue = 0;
         blinkTimer = 0;
@@ -338,7 +408,7 @@ export function createBehaviorEngine() {
         } else {
           blinkPhase = 'open';
           const [bMin, bMax] = active.blinkRange;
-          nextBlinkIn = randRange(bMin, bMax) / clamp(dynamics.blinkCadence, 0.5, 2.0);
+          nextBlinkIn = naturalInterval(bMin, bMax) / clamp(dynamics.blinkCadence, 0.5, 2.0);
         }
       }
     } else if (blinkPhase === 'gap') {
@@ -349,13 +419,13 @@ export function createBehaviorEngine() {
       }
     } else if (blinkPhase === 'opening2') {
       const u = clamp(blinkTimer / openDur, 0, 1);
-      blinkValue = 1 - u * u * (3 - 2 * u);
+      blinkValue = 1 - smootherstep(u);
       if (u >= 1) {
         blinkValue = 0;
         blinkPhase = 'open';
         blinkTimer = 0;
         const [bMin, bMax] = active.blinkRange;
-        nextBlinkIn = randRange(bMin, bMax) / clamp(dynamics.blinkCadence, 0.5, 2.0);
+        nextBlinkIn = naturalInterval(bMin, bMax) / clamp(dynamics.blinkCadence, 0.5, 2.0);
       }
     }
     return blinkValue;
@@ -367,95 +437,154 @@ export function createBehaviorEngine() {
     willDoubleBlink = doubleBlink;
   }
 
-  // Smooth anticipation (0..0.12s) -> expressive peak (0.12..0.46s) -> gentle recovery (0.46..1.15s)
-  function anticipationEnvelope(t) {
-    if (t >= 1.2) return 0;
-    if (t < 0.12) {
-      const u = t / 0.12;
-      return active.anticipationY * Math.sin(u * Math.PI * 0.5);
+  // Asymmetric organic breath curve: gentle 42% inhale, serene 58% exhale settle
+  function organicBreathCurve(phase01) {
+    const p = ((phase01 % 1) + 1) % 1;
+    if (p < 0.42) {
+      const u = p / 0.42;
+      return -1 + 2 * smootherstep(u);
     }
-    if (t < 0.44) {
-      const u = (t - 0.12) / 0.32;
-      const ease = u * u * (3 - 2 * u);
+    const u = (p - 0.42) / 0.58;
+    return 1 - 2 * smootherstep(u);
+  }
+
+  // Soft anticipation (0..0.18s) -> poised peak (0.18..0.62s) -> serene recovery (0.62..1.65s)
+  function anticipationEnvelope(t) {
+    if (t >= 1.7) return 0;
+    if (t < 0.18) {
+      return active.anticipationY * smootherstep(t / 0.18);
+    }
+    if (t < 0.62) {
+      const ease = smootherstep((t - 0.18) / 0.44);
       return active.anticipationY * (1 - ease) + active.peakY * ease;
     }
-    const u = (t - 0.44) / 0.76;
-    const ease = 1 - Math.pow(1 - clamp(u, 0, 1), 3);
+    const ease = smootherstep((t - 0.62) / 1.08);
     return active.peakY * (1 - ease);
   }
 
+  function sampleDelayedGaze(now, fallbackX, fallbackY) {
+    const targetTime = now - GAZE_LEAD_SECONDS;
+    while (gazeHistory.length > 2 && gazeHistory[1].t <= targetTime) {
+      gazeHistory.shift();
+    }
+    if (!gazeHistory.length) return { x: fallbackX, y: fallbackY };
+    return { x: gazeHistory[0].x, y: gazeHistory[0].y };
+  }
+
   /**
-   * Computes autonomous targets for the current frame.
-   * Note: `speakingLevel` (0..1) adds subtle conversational cadence WITHOUT
-   * ever suppressing natural blinking, breathing, or independent eye tracking.
+   * Computes serene, coordinated targets for the current frame.
+   * Speaking adds subtle conversational warmth without ever interrupting blinking,
+   * breathing, or independent eye tracking.
    */
   function step(dt, { speakingLevel = 0, mouthEnergy = 0 } = {}) {
     elapsed += dt;
     stateTime += dt;
     if (!pointerActive) pointerIdleTime += dt;
 
-    // 1. Dual-harmonic organic breathing (quiet, non-robotic)
-    const w = elapsed * Math.PI * 2 * active.breathHz;
-    const rawBreath = Math.sin(w) * 0.76 + Math.sin(w * 0.5 + 1.1) * 0.24;
-    const breath = clamp(rawBreath * active.breathAmp * dynamics.breathDepth, -1, 1);
+    const rmScale = dynamics.reducedMotion ? 0.28 : 1.0;
 
-    // 2. Natural blinking & occasional double-blinking (runs continuously even while speaking)
+    // 1. Slow asymmetric organic breathing (~6.5-7.5s calm rhythm with tiny harmonic breath depth)
+    breathPhase += dt * active.breathHz;
+    const primaryBreath = organicBreathCurve(breathPhase);
+    const breathMod = 0.88 + 0.12 * Math.sin(elapsed * 0.21 + 0.9);
+    const breath = clamp(primaryBreath * breathMod * active.breathAmp * dynamics.breathDepth * rmScale, -1, 1);
+
+    // 2. Irregular natural blinking (continuous across all states including speech)
     const blink = updateBlink(dt);
 
-    // 3. Organic micro-saccades when idle or subtly layered under focus
+    // 3. Unhurried autonomous gaze shifts + organic turn-blink reflex on wide eye sweeps
     saccadeTimer += dt;
     if (saccadeTimer >= nextSaccadeIn) {
       saccadeTimer = 0;
       const [sMin, sMax] = active.saccadeRange;
-      nextSaccadeIn = randRange(sMin, sMax);
-      saccadeX = randRange(-active.gazeWanderX, active.gazeWanderX);
-      saccadeY = randRange(-active.gazeWanderY, active.gazeWanderY);
+      nextSaccadeIn = naturalInterval(sMin, sMax);
+      const nextX = randRange(-active.gazeWanderX, active.gazeWanderX) * rmScale;
+      const nextY = randRange(-active.gazeWanderY, active.gazeWanderY) * rmScale;
+      const jump = Math.hypot(nextX - saccadeX, nextY - saccadeY);
+      saccadeX = nextX;
+      saccadeY = nextY;
+      // Subtle human blink reflex on wide saccade shifts
+      if (jump > 0.5 && blinkPhase === 'open' && Math.random() < 0.34) {
+        blinkPhase = 'closing';
+        blinkTimer = 0;
+        willDoubleBlink = false;
+      }
     }
 
-    // Smooth resting return after pointer leaves (blends gracefully back over ~1.4s)
-    const pointerWeight = pointerActive ? 1 : Math.exp(-pointerIdleTime * 1.4);
+    // Graceful slow resting return after pointer/touch leaves (~2.4s calm fade back)
+    const pointerWeight = pointerActive ? 1 : Math.exp(-pointerIdleTime * 0.72);
 
-    // 4. Subtle listening micro-nods & conversational speech accents
+    // 4. Subtle listening micro-nods, keyboard glances during typing, & restrained speech poise
     let accentX = 0;
-    let accentY = anticipationEnvelope(stateTime);
+    let accentY = anticipationEnvelope(stateTime) * rmScale;
+    let keyboardGlanceWeight = 0;
+
+    if (active.id === 'WORK-THINK' && speakingLevel < 0.05) {
+      if (elapsed >= nextKeyboardGlanceAt && keyboardGlanceProgress >= 1) {
+        keyboardGlanceProgress = 0;
+        keyboardGlanceX = randRange(-0.26, 0.26);
+        nextKeyboardGlanceAt = elapsed + randRange(2.1, 4.2);
+      }
+      if (keyboardGlanceProgress < 1) {
+        keyboardGlanceProgress = Math.min(1, keyboardGlanceProgress + dt / 1.15);
+        keyboardGlanceWeight = Math.sin(smootherstep(keyboardGlanceProgress) * Math.PI) * rmScale;
+        accentY += keyboardGlanceWeight * 0.14;
+      }
+    }
 
     if (active.listenNod && speakingLevel < 0.05) {
-      // Gentle occasional affirmative micro-nod every ~3.4s while listening
-      const nodCycle = elapsed % 3.4;
-      if (nodCycle < 0.75) {
-        accentY += Math.sin((nodCycle / 0.75) * Math.PI) * 0.14;
+      if (elapsed >= nextNodAt && nodProgress >= 1) {
+        nodProgress = 0;
+        nextNodAt = elapsed + randRange(4.2, 7.6);
+      }
+      if (nodProgress < 1) {
+        nodProgress = Math.min(1, nodProgress + dt / 1.05);
+        accentY += Math.sin(smootherstep(nodProgress) * Math.PI) * 0.1 * rmScale;
       }
     }
 
     if (speakingLevel > 0.05) {
-      // Subtle organic speech emphasis head motion (restrained, Muse-style)
-      const cadence = (0.04 + mouthEnergy * 0.12) * speakingLevel * dynamics.speechAccent;
-      accentY += Math.sin(elapsed * 4.2) * cadence;
-      accentX += Math.sin(elapsed * 1.9 + 0.6) * cadence * 0.75;
+      // Gentle, dignified conversational sway (no frantic bobbing)
+      const cadence = (0.025 + mouthEnergy * 0.075) * speakingLevel * dynamics.speechAccent * rmScale;
+      accentY += Math.sin(elapsed * 2.4) * cadence;
+      accentX += Math.sin(elapsed * 1.13 + 0.7) * cadence * 0.8;
     }
 
-    // Gentle quiet torso/head idle sway
-    const idleDriftX = Math.sin(elapsed * 0.63) * 0.07 + Math.sin(elapsed * 0.29 + 1.7) * 0.04;
-    const idleDriftY = Math.cos(elapsed * 0.47) * 0.05;
+    // Quasi-periodic non-repeating subtle torso/head idle poise (irrational frequencies)
+    const idleDriftX = (Math.sin(elapsed * 0.31) * 0.042 + Math.sin(elapsed * 0.17 + 1.9) * 0.026) * rmScale;
+    const idleDriftY = (Math.cos(elapsed * 0.23 + 0.5) * 0.028 + Math.sin(elapsed * 0.13) * 0.018) * rmScale;
 
-    const baseLookX = (active.gazeBiasX ?? active.headBiasX) + saccadeX + idleDriftX * 0.6;
-    const baseLookY = (active.gazeBiasY ?? active.headBiasY) + saccadeY + idleDriftY * 0.5;
+    const baseLookX = (active.gazeBiasX ?? active.headBiasX) * rmScale + saccadeX + idleDriftX * 0.45;
+    const baseLookY = (active.gazeBiasY ?? active.headBiasY) * rmScale + saccadeY + idleDriftY * 0.4;
 
-    const lookX = clamp(baseLookX * (1 - pointerWeight) + pointerX * pointerWeight + accentX * 0.35, -1, 1);
-    const lookY = clamp(baseLookY * (1 - pointerWeight) + pointerY * pointerWeight + accentY * 0.25, -1, 1);
+    // Eyes acquire gaze immediately (gaze anticipation!) and glance down at keys while typing
+    const rawLookX = baseLookX * (1 - pointerWeight) + pointerX * pointerWeight * rmScale + accentX * 0.25;
+    const rawLookY = baseLookY * (1 - pointerWeight) + pointerY * pointerWeight * rmScale + accentY * 0.2;
+    const lookX = clamp(rawLookX * (1 - keyboardGlanceWeight * 0.65) + keyboardGlanceX * keyboardGlanceWeight * 0.65, -1, 1);
+    const lookY = clamp(rawLookY * (1 - keyboardGlanceWeight * 0.7) + 0.54 * keyboardGlanceWeight * 0.7, -1, 1);
 
-    // Head follows gaze with slightly reduced amplitude + independent bias + subtle anticipation/recovery
+    // Record gaze for ~190ms delayed head follow-through
+    gazeHistory.push({ t: elapsed, x: lookX, y: lookY });
+    const delayedGaze = sampleDelayedGaze(elapsed, lookX, lookY);
+
+    // Head follows delayed gaze smoothly with subtle natural inertia & coordinated poise
     const headX = clamp(
-      (active.headBiasX + idleDriftX) * (1 - pointerWeight * 0.65) + lookX * 0.62 + accentX,
+      (active.headBiasX * rmScale + idleDriftX) * (1 - pointerWeight * 0.6) + delayedGaze.x * 0.56 + accentX,
       -1,
       1,
     );
     const headY = clamp(
-      (active.headBiasY + idleDriftY) * (1 - pointerWeight * 0.65) + lookY * 0.58 + accentY,
+      (active.headBiasY * rmScale + idleDriftY) * (1 - pointerWeight * 0.6) + delayedGaze.y * 0.52 + accentY,
       -1,
       1,
     );
 
+    // 5. Gentle resting facial microexpressions (subtle organic warmth breathing in mouth corners)
+    const microWave = Math.sin(elapsed * 0.38 + 0.4) * 0.5 + 0.5;
+    const microSmileWide = (active.microSmileWide ?? 0) * (0.78 + microWave * 0.22);
+    const microSmileOpen = (active.microSmileOpen ?? 0) * (0.8 + microWave * 0.2);
+
+    const inertia = clamp(dynamics.headInertia, 0.5, 2.0);
     return {
       breath,
       blink,
@@ -464,8 +593,12 @@ export function createBehaviorEngine() {
       headX,
       headY,
       emotion: active.emotion,
-      eyeFollowSpeed: 13.5,
-      headFollowSpeed: 4.8 / clamp(dynamics.headInertia, 0.5, 2.0),
+      microSmileWide,
+      microSmileOpen,
+      // Natural angular frequencies (rad/s) for critically damped 2nd-order springs
+      eyeOmega: 11.5,
+      headOmega: 3.4 / inertia,
+      breathOmega: 3.2,
     };
   }
 

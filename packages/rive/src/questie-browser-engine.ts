@@ -2,7 +2,7 @@
 // Runs OpenRive's DOM-free native .riv serializer directly in the browser with zero server calls.
 import { exportRiv, importRiv } from './document';
 import { properties } from './databind';
-import { buildBundle, type BundleFile } from './bundle';
+import { bundleFiles, zip, type BundleFile } from './bundle';
 import {
   buildQuestieGuide,
   defaultQuestieCustomization,
@@ -19,6 +19,7 @@ export {
   GUIDE_PROPERTIES,
   GUIDE_REACTIONS,
   type QuestieCustomization,
+  type BundleFile,
 };
 
 export function compileCustomMascot(preset: 'Pin' | 'Geo', custom?: Partial<QuestieCustomization>) {
@@ -45,9 +46,10 @@ export function exportCustomBundleZip(
   preset: 'Pin' | 'Geo',
   custom: Partial<QuestieCustomization> | undefined,
   runtimeFiles?: BundleFile[],
+  extraFiles?: BundleFile[],
 ): Uint8Array<ArrayBuffer> {
   const { doc, bytes } = compileCustomMascot(preset, custom);
-  return buildBundle({
+  const files = bundleFiles({
     name,
     doc,
     riv: bytes,
@@ -55,4 +57,8 @@ export function exportCustomBundleZip(
     runtimeVersion: runtimeFiles && runtimeFiles.length ? 'vendored OpenRive runtime' : '2.50.0',
     runtimeFiles,
   });
+  if (extraFiles && extraFiles.length) {
+    files.push(...extraFiles);
+  }
+  return zip(files);
 }

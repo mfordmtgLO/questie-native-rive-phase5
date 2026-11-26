@@ -1,9 +1,12 @@
-// Questie Native Mascot Studio — Phase 5
-// Native Rive WASM runtime + in-browser OpenRive native authoring engine + 12-state Muse behavior engine.
-// Zero backend API keys; all locked voice files remain local and SHA-1 verified in browser.
-import { limits, defaults, viseme, clamp, sampleCues, validateCues } from './guide-contract.js';
+// Questie Native Mascot Studio — Phase 5.2
+// Uses the exact same portable Questie Living Mascot SDK (questie-sdk.js) that ships inside
+// exported standalone bundles, ensuring zero studio-only cosmetic motion.
+// Native .riv handles articulated anatomy, arms/hands, laptop prop, breathing, blinking, gaze
+// drift, and 13 reactive performances; the SDK orchestrates events, pointer gaze, and audio sync.
+import { limits, defaults, viseme, validateCues } from './guide-contract.js';
 import { importLockedPack } from './locked-voice.js';
 import { BEHAVIOR_STATES, behaviorForEmotion, createBehaviorEngine } from './behavior-engine.js';
+import { mountQuestieMascot } from './questie-sdk.js';
 import {
   compileCustomMascot,
   defaultQuestieCustomization,
@@ -17,6 +20,8 @@ const reactions = [
   'traveling', 'arrived', 'achievement', 'guide', 'lookout', 'ponder', 'speaking',
 ];
 const mouths = ['rest', 'MBP', 'AI', 'E', 'OU', 'FV', 'THL', 'teeth'];
+const BACKDROPS = ['dark', 'slate', 'light'];
+const BACKDROP_LABELS = { dark: 'Dark', slate: 'Slate', light: 'Light' };
 
 for (const [id, list] of [['reaction', reactions], ['mouth', mouths]]) {
   list.forEach((label, i) => $(id).add(new Option(`${i} · ${label}`, String(i))));
@@ -36,9 +41,9 @@ const APPEARANCE_PRESETS = {
   ],
 };
 
-// State
+// Shared behavior engine persists seamlessly across mascot switches & live .riv recompiles
 const behavior = createBehaviorEngine();
-let player = null;
+let mascot = null;
 let epoch = 0;
 let speechEpoch = 0;
 let paused = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -47,37 +52,90 @@ let objectURL = null;
 let downloadURL = null;
 let lockedPack = [];
 let packEpoch = 0;
-let activeSpeaking = false;
-let currentBytes = null;
+let presentationMode = false;
 let currentCustom = defaultQuestieCustomization('Pin');
 let compileTimer = 0;
 let runtimeFileCache = null;
+let sdkBundleCache = null;
 
 const audio = $('speech');
 const report = (s) => { $('status').textContent = s; };
 
-const values = { ...defaults };
-const target = { ...defaults };
-
-const setProp = (k, v) => {
-  const x = clamp(k, v);
-  if (player && values[k] !== x) player.setProperty(k, 'number', x);
-  values[k] = x;
+function syncPropUI(k, x) {
   const slider = $('prop-' + k);
   const out = $('prop-val-' + k);
   if (slider && document.activeElement !== slider) slider.value = String(x);
   if (out) out.textContent = Number(x).toFixed(2);
-};
-
-const applyProps = (obj) => {
-  for (const [k, v] of Object.entries(obj)) setProp(k, v);
-};
-
-const setMouthTarget = (i) => Object.assign(target, viseme(i));
+}
 
 function activePresetName() {
   return $('character').value === 'questie-geo' ? 'Geo' : 'Pin';
 }
+
+// Stage backdrop control (shared between Studio header and Presentation HUD)
+function setBackdrop(mode) {
+  const valid = BACKDROPS.includes(mode) ? mode : 'dark';
+  $('stage-frame').dataset.backdrop = valid;
+  document.querySelectorAll('.backdrop-segment button').forEach((b) => {
+    b.setAttribute('aria-pressed', String(b.dataset.backdrop === valid));
+  });
+  $('present-backdrop').textContent = BACKDROP_LABELS[valid];
+}
+
+document.querySelectorAll('.backdrop-segment button').forEach((btn) => {
+  btn.onclick = () => setBackdrop(btn.dataset.backdrop);
+});
+
+$('present-backdrop').onclick = () => {
+  const cur = $('stage-frame').dataset.backdrop || 'dark';
+  const next = BACKDROPS[(BACKDROPS.indexOf(cur) + 1) % BACKDROPS.length];
+  setBackdrop(next);
+};
+
+// Presentation Mode (immersive full-screen mascot showcase, iOS Safari & Desktop safe)
+function setPresentationMode(active, { requestNativeFullscreen = false } = {}) {
+  presentationMode = !!active;
+  document.body.classList.toggle('presentation-mode', presentationMode);
+  $('mode-studio').setAttribute('aria-pressed', String(!presentationMode));
+  $('mode-present').setAttribute('aria-pressed', String(presentationMode));
+
+  if (presentationMode && requestNativeFullscreen && document.documentElement.requestFullscreen) {
+    document.documentElement.requestFullscreen().catch(() => {});
+  } else if (!presentationMode && document.fullscreenElement && document.exitFullscreen) {
+    document.exitFullscreen().catch(() => {});
+  }
+}
+
+$('mode-studio').onclick = () => setPresentationMode(false);
+$('mode-present').onclick = () => setPresentationMode(true);
+$('enter-present').onclick = () => setPresentationMode(true, { requestNativeFullscreen: true });
+$('exit-present').onclick = () => setPresentationMode(false);
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && presentationMode) {
+    setPresentationMode(false);
+  }
+});
+
+// Sync Presentation HUD character buttons
+function syncPresentCharacterButtons() {
+  const selected = $('character').value;
+  document.querySelectorAll('[data-present-char]').forEach((btn) => {
+    btn.setAttribute('aria-pressed', String(btn.dataset.presentChar === selected));
+  });
+}
+
+document.querySelectorAll('[data-present-char]').forEach((btn) => {
+  btn.onclick = () => {
+    const next = btn.dataset.presentChar;
+    if ($('character').value !== next) {
+      $('character').value = next;
+      $('character').dispatchEvent(new Event('change'));
+    }
+  };
+});
+
+$('present-blink').onclick = () => (mascot ? mascot.triggerBlink(true) : behavior.triggerBlink(true));
 
 // Workbench tabs
 const tabButtons = [
@@ -95,20 +153,12 @@ for (const [btnId, panelId] of tabButtons) {
   };
 }
 
-// Stage backdrop switcher
-document.querySelectorAll('.backdrop-segment button').forEach((btn) => {
-  btn.onclick = () => {
-    const mode = btn.dataset.backdrop;
-    $('stage-frame').dataset.backdrop = mode;
-    document.querySelectorAll('.backdrop-segment button').forEach((b) => {
-      b.setAttribute('aria-pressed', String(b === btn));
-    });
-  };
-});
-
-// Build 12-state Reactive Behavior Grid
+// Build 12-state Reactive Behavior Grid (Studio) + Horizontal Touch Strip (Presentation Mode)
 const behaviorGrid = $('behavior-grid');
+const presentBehaviors = $('present-behaviors');
 const behaviorButtons = new Map();
+const presentBehaviorButtons = new Map();
+
 for (const st of BEHAVIOR_STATES) {
   const btn = document.createElement('button');
   btn.type = 'button';
@@ -125,6 +175,16 @@ for (const st of BEHAVIOR_STATES) {
   btn.onclick = () => selectBehavior(st.id);
   behaviorGrid.append(btn);
   behaviorButtons.set(st.id, btn);
+
+  const pBtn = document.createElement('button');
+  pBtn.type = 'button';
+  pBtn.className = 'present-mood-btn';
+  pBtn.dataset.stateId = st.id;
+  pBtn.setAttribute('aria-pressed', String(st.id === behavior.state.id));
+  pBtn.textContent = st.label;
+  pBtn.onclick = () => selectBehavior(st.id);
+  presentBehaviors.append(pBtn);
+  presentBehaviorButtons.set(st.id, pBtn);
 }
 
 function syncBehaviorUI(stateObj) {
@@ -134,18 +194,22 @@ function syncBehaviorUI(stateObj) {
   for (const [id, btn] of behaviorButtons) {
     btn.setAttribute('aria-pressed', String(id === stateObj.id));
   }
+  for (const [id, btn] of presentBehaviorButtons) {
+    btn.setAttribute('aria-pressed', String(id === stateObj.id));
+  }
 }
 
 function selectBehavior(id, { preserveAudio = false } = {}) {
-  const st = behavior.setState(id);
-  if (!preserveAudio && !st.verbal) {
-    stopSpeech(false);
+  if (!preserveAudio) {
+    const candidate = BEHAVIOR_STATES.find((s) => s.id === id);
+    if (candidate && !candidate.verbal) stopSpeech(false);
   }
-  syncBehaviorUI(st);
-  setProp('emotion', st.emotion);
-  if (!activeSpeaking) {
-    target.speaking = 0;
-    setProp('speaking', 0);
+  if (mascot) {
+    const st = mascot.setBehavior(id, { preserveAudio });
+    syncBehaviorUI(st);
+  } else {
+    const st = behavior.setState(id);
+    syncBehaviorUI(st);
   }
 }
 
@@ -173,14 +237,22 @@ for (const k of continuous) {
   slider.addEventListener('input', () => {
     if (['lookX', 'lookY', 'headX', 'headY', 'blink', 'breath'].includes(k)) {
       $('auto').checked = false;
+      mascot?.setAutoLife(false);
+    }
+    if (['mouthOpen', 'mouthWide', 'teeth', 'tongue'].includes(k)) {
+      mascot?.setManualMouthPinned(true);
     }
     const val = Number(slider.value);
-    target[k] = val;
-    setProp(k, val);
+    mascot?.setProperty(k, val, { immediate: true });
+    syncPropUI(k, val);
   });
   row.append(head, slider);
   $('properties').append(row);
 }
+
+$('auto').onchange = () => {
+  mascot?.setAutoLife($('auto').checked);
+};
 
 // Locked voice-pack options (strictly per-character)
 function lockedOptions() {
@@ -208,28 +280,21 @@ $('locked-files').onchange = async () => {
   }
 };
 
-function resetSpeech(restoreBehavior = true) {
-  activeSpeaking = false;
-  setMouthTarget(0);
-  applyProps({ ...viseme(0), speaking: 0 });
-  target.speaking = 0;
-  if (restoreBehavior) {
-    setProp('emotion', Number($('reaction').value));
-  }
-}
-
 function stopSpeech(restoreBehavior = true) {
   speechEpoch++;
   window.speechSynthesis?.cancel();
   audio.pause();
   cancelAnimationFrame(speechRaf);
-  resetSpeech(restoreBehavior);
+  mascot?.stopSpeaking({ restoreBehavior });
+  if (restoreBehavior && mascot) {
+    mascot.setProperty('emotion', Number($('reaction').value));
+  }
 }
 
 $('locked-play').onclick = async () => {
   const character = $('character').value.split('-').at(-1);
   const line = lockedPack.find((x) => x.character === character && x.id === $('locked-line').value);
-  if (!line || !player) return;
+  if (!line || !mascot) return;
   stopSpeech(false);
   const token = ++speechEpoch;
   try {
@@ -239,84 +304,19 @@ $('locked-play').onclick = async () => {
     audio.playbackRate = 1;
     await audio.play();
     if (token !== speechEpoch) return;
-    activeSpeaking = true;
-    selectBehavior('SPEAK-ATTEND', { preserveAudio: true });
-    target.speaking = 1;
-    function tick() {
-      if (token !== speechEpoch) return;
-      if (audio.ended) {
-        resetSpeech(true);
-        return;
-      }
-      const playing = !audio.paused;
-      Object.assign(target, playing ? sampleCues(line.cues, audio.currentTime) : viseme(0));
-      target.speaking = playing ? 1 : 0;
-      activeSpeaking = playing;
-      speechRaf = requestAnimationFrame(tick);
-    }
-    speechRaf = requestAnimationFrame(tick);
+    await mascot.speakWithAudio(audio, line.cues, { switchBehavior: true });
+    syncBehaviorUI(mascot.state);
     $('locked-status').textContent = line.text;
   } catch (e) {
     if (token === speechEpoch) {
-      resetSpeech(true);
+      stopSpeech(true);
       $('locked-status').textContent = e.message;
     }
   }
 };
 
-// Main layered animation loop (Autonomic breath + natural double-blink + independent gaze + smooth speech)
-let motionFrame = 0;
-let lastFrame = 0;
-
-function animate(t) {
-  const dt = lastFrame ? Math.min(0.05, (t - lastFrame) / 1000) : 0;
-  lastFrame = t;
-
-  if (player && !paused) {
-    let eyeSpeed = 12;
-    let headSpeed = 5.5;
-
-    if ($('auto').checked) {
-      const mouthEnergy = Math.max(0, Math.min(1, (values.mouthOpen - 0.2) * 1.4));
-      const frame = behavior.step(dt, {
-        speakingLevel: values.speaking,
-        mouthEnergy,
-      });
-      target.breath = frame.breath;
-      target.blink = frame.blink;
-      target.lookX = frame.lookX;
-      target.lookY = frame.lookY;
-      target.headX = frame.headX;
-      target.headY = frame.headY;
-      eyeSpeed = frame.eyeFollowSpeed;
-      headSpeed = frame.headFollowSpeed;
-    }
-
-    for (const k of continuous) {
-      let speed = 10;
-      if (['mouthOpen', 'mouthWide', 'teeth', 'tongue'].includes(k)) speed = 34;
-      else if (k === 'blink') speed = 48;
-      else if (k === 'lookX' || k === 'lookY') speed = eyeSpeed;
-      else if (k === 'headX' || k === 'headY') speed = headSpeed;
-      else if (k === 'breath') speed = 6;
-      else if (k === 'speaking') speed = 11;
-
-      const delta = target[k] - values[k];
-      if (Math.abs(delta) > 1e-5) {
-        setProp(k, values[k] + delta * (1 - Math.exp(-dt * speed)));
-      } else {
-        setProp(k, target[k]);
-      }
-    }
-    setProp('mouthShape', target.mouthShape);
-  }
-  motionFrame = requestAnimationFrame(animate);
-}
-motionFrame = requestAnimationFrame(animate);
-
 // Update download link with current native .riv bytes (canonical or customized)
 function updateDownloadLink(selectedId, bytes) {
-  currentBytes = bytes;
   const fileName = `${selectedId}.riv`;
   if (bytes) {
     if (downloadURL) URL.revokeObjectURL(downloadURL);
@@ -444,7 +444,7 @@ for (const id of [
   });
 }
 
-// Live behavior dynamics sliders (no .riv recompile needed — immediate smooth response)
+// Live behavior dynamics sliders (immediate smooth spring response, no .riv recompile needed)
 $('dyn-head-inertia').addEventListener('input', () => {
   const v = Number($('dyn-head-inertia').value);
   behavior.dynamics.headInertia = v;
@@ -456,15 +456,17 @@ $('dyn-double-blink').addEventListener('input', () => {
   $('val-dyn-double-blink').textContent = `${v.toFixed(2)}×`;
 });
 
-// Load native Rive WASM player (canonical bundled .riv OR live-authored custom .riv bytes)
+// Mount native Rive mascot via portable Questie Living Mascot SDK
 async function load({ customBytes = null, preserveState = false } = {}) {
   const token = ++epoch;
+  const previousValues = preserveState && mascot ? mascot.values : null;
   if (!preserveState) stopSpeech(false);
-  player?.dispose();
-  player = null;
+  mascot?.dispose();
+  mascot = null;
 
   const selected = $('character').value;
   if (!['questie-pin', 'questie-geo'].includes(selected)) return;
+  syncPresentCharacterButtons();
   report('Loading native Rive…');
 
   try {
@@ -474,40 +476,33 @@ async function load({ customBytes = null, preserveState = false } = {}) {
     const bytesToLoad = customBytes ?? (await mod.loadFile());
     if (token !== epoch) return;
 
-    const p = await mod.createPlayer({
+    const initialValues = previousValues ?? {
+      ...defaults,
+      ...viseme(Number($('mouth').value)),
+      emotion: Number($('reaction').value),
+    };
+
+    const instance = await mountQuestieMascot({
       canvas: $('guide'),
+      createPlayer: mod.createPlayer,
       bytes: bytesToLoad,
       stateMachine: 'Guide',
+      behaviorEngine: behavior,
+      initialValues,
+      autoLife: $('auto').checked,
+      interactiveGaze: true,
       paused,
+      onPropertyChange: syncPropUI,
+      onBehaviorChange: syncBehaviorUI,
     });
+
     if (token !== epoch) {
-      p.dispose();
+      instance.dispose();
       return;
     }
 
-    player = p;
-    const names = p.properties().map((x) => x.name);
-    if (!Object.keys(limits).every((k) => names.includes(k)) || names.length !== 13) {
-      p.dispose();
-      player = null;
-      throw Error('Native property contract missing');
-    }
-
-    if (!preserveState) {
-      Object.assign(target, defaults, viseme(Number($('mouth').value)));
-      Object.assign(values, defaults);
-    }
-    for (const [k, v] of Object.entries(target)) {
-      player.setProperty(k, 'number', v);
-      values[k] = v;
-    }
-    setProp('emotion', Number($('reaction').value));
-    for (const k of continuous) {
-      const slider = $('prop-' + k);
-      const out = $('prop-val-' + k);
-      if (slider) slider.value = String(target[k]);
-      if (out) out.textContent = Number(target[k]).toFixed(2);
-    }
+    mascot = instance;
+    mascot.setProperty('emotion', Number($('reaction').value));
 
     updateDownloadLink(selected, bytesToLoad);
     const suffix = customBytes ? ' · custom native rig' : '';
@@ -523,6 +518,7 @@ $('character').onchange = () => {
   currentCustom = defaultQuestieCustomization(preset);
   renderAppearancePresets();
   syncCustomInputsFromState();
+  syncPresentCharacterButtons();
   lockedOptions();
   load();
 };
@@ -536,6 +532,7 @@ $('reset-custom').onclick = () => {
   $('val-dyn-head-inertia').textContent = '1.00×';
   $('dyn-double-blink').value = '1';
   $('val-dyn-double-blink').textContent = '1.00×';
+  $('mouth').value = '0';
   syncCustomInputsFromState();
   selectBehavior('IDLE-PARKED');
   load();
@@ -549,44 +546,33 @@ $('reaction').onchange = () => {
     selectBehavior(matched.id);
   } else {
     stopSpeech(false);
-    setProp('emotion', idx);
+    mascot?.setProperty('emotion', idx);
   }
 };
 
 $('mouth').onchange = () => {
   stopSpeech(false);
-  setMouthTarget(Number($('mouth').value));
-  if (paused) applyProps(target);
+  const idx = Number($('mouth').value);
+  mascot?.setMouth(idx, { pin: idx !== 0 });
 };
 
 $('pause').textContent = paused ? 'Resume motion' : 'Pause motion';
 $('pause').onclick = () => {
   paused = !paused;
-  paused ? player?.pause() : player?.play();
+  paused ? mascot?.pause() : mascot?.play();
   $('pause').textContent = paused ? 'Resume motion' : 'Pause motion';
 };
 
 $('trigger-blink').onclick = () => {
-  behavior.triggerBlink(true);
+  mascot ? mascot.triggerBlink(true) : behavior.triggerBlink(true);
 };
-
-// Pointer gaze tracking with smooth resting return on leave
-const canvasEl = $('guide');
-canvasEl.addEventListener('pointermove', (e) => {
-  const b = e.currentTarget.getBoundingClientRect();
-  const norm = (v) => Math.max(-1, Math.min(1, v * 2 - 1));
-  behavior.setPointer(norm((e.clientX - b.left) / b.width), norm((e.clientY - b.top) / b.height), true);
-});
-canvasEl.addEventListener('pointerleave', () => {
-  behavior.setPointer(0, 0, false);
-});
 
 // Speech & timed local recording controls
 $('stop').onclick = () => stopSpeech(true);
 
 $('speak').onclick = () => {
   stopSpeech(false);
-  if (!player) return;
+  if (!mascot) return;
   if (!window.speechSynthesis) {
     report('Browser speech is unavailable. Use a timed audio file.');
     return;
@@ -601,17 +587,16 @@ $('speak').onclick = () => {
   let started = 0;
   let offset = 0;
   function tick(ts) {
-    if (token !== speechEpoch) return;
+    if (token !== speechEpoch || !mascot) return;
     if (!started) started = ts;
     const i = Math.min(text.length - 1, offset + Math.floor((ts - started) / 95));
-    setMouthTarget(shape(text[i] || ''));
+    mascot.setMouth(shape(text[i] || ''), { pin: false });
     speechRaf = requestAnimationFrame(tick);
   }
   u.onstart = () => {
-    if (token !== speechEpoch) return;
-    activeSpeaking = true;
+    if (token !== speechEpoch || !mascot) return;
     selectBehavior('SPEAK-ATTEND', { preserveAudio: true });
-    target.speaking = 1;
+    mascot.setSpeakingActive(true);
     speechRaf = requestAnimationFrame(tick);
   };
   u.onboundary = (e) => {
@@ -621,13 +606,13 @@ $('speak').onclick = () => {
   u.onend = () => {
     if (token === speechEpoch) {
       cancelAnimationFrame(speechRaf);
-      resetSpeech(true);
+      mascot?.stopSpeaking({ restoreBehavior: true });
     }
   };
   u.onerror = () => {
     if (token === speechEpoch) {
       cancelAnimationFrame(speechRaf);
-      resetSpeech(true);
+      mascot?.stopSpeaking({ restoreBehavior: true });
       report('Browser speech could not play.');
     }
   };
@@ -638,7 +623,7 @@ $('timed').onclick = async () => {
   stopSpeech(false);
   const token = ++speechEpoch;
   try {
-    if (!player) throw Error('Load a character first');
+    if (!mascot) throw Error('Load a character first');
     const f = $('audio').files[0];
     const j = $('cues').files[0];
     if (!f || !j || f.size > 30 * 1024 * 1024 || j.size > 1024 * 1024) {
@@ -655,31 +640,17 @@ $('timed').onclick = async () => {
       audio.pause();
       return;
     }
-    activeSpeaking = true;
-    selectBehavior('SPEAK-ATTEND', { preserveAudio: true });
-    target.speaking = 1;
-    function tick() {
-      if (token !== speechEpoch) return;
-      if (audio.ended) {
-        resetSpeech(true);
-        return;
-      }
-      const playing = !audio.paused;
-      Object.assign(target, playing ? sampleCues(cues, audio.currentTime) : viseme(0));
-      target.speaking = playing ? 1 : 0;
-      activeSpeaking = playing;
-      speechRaf = requestAnimationFrame(tick);
-    }
-    speechRaf = requestAnimationFrame(tick);
+    await mascot.speakWithAudio(audio, cues, { switchBehavior: true });
+    syncBehaviorUI(mascot.state);
   } catch (e) {
     if (token === speechEpoch) {
-      resetSpeech(true);
+      stopSpeech(true);
       report(e.message);
     }
   }
 };
 
-// Export complete standalone offline Rive bundle (.zip) using native OpenRive bundle builder
+// Export complete standalone offline Rive bundle (.zip) INCLUDING portable Questie SDK + embed example
 async function loadVendoredRuntimeFiles() {
   if (runtimeFileCache) return runtimeFileCache;
   const base = `./${$('character').value}/runtime/`;
@@ -694,22 +665,47 @@ async function loadVendoredRuntimeFiles() {
   return runtimeFileCache;
 }
 
+async function loadPortableSdkFiles() {
+  if (sdkBundleCache) return sdkBundleCache;
+  const names = [
+    'questie-sdk.js',
+    'questie-react.js',
+    'questie-sdk.d.ts',
+    'behavior-engine.js',
+    'guide-contract.js',
+    'locked-voice.js',
+    'embed-example.html',
+    'companion-demo.html',
+  ];
+  sdkBundleCache = await Promise.all(
+    names.map(async (name) => {
+      const res = await fetch('./' + name);
+      if (!res.ok) throw new Error('Could not fetch SDK file ' + name);
+      return { name, data: new Uint8Array(await res.arrayBuffer()) };
+    }),
+  );
+  return sdkBundleCache;
+}
+
 $('export-zip').onclick = async () => {
   const btn = $('export-zip');
   btn.disabled = true;
   const orig = btn.textContent;
   btn.textContent = 'Building .zip…';
   try {
-    const runtimeFiles = await loadVendoredRuntimeFiles();
+    const [runtimeFiles, sdkFiles] = await Promise.all([
+      loadVendoredRuntimeFiles(),
+      loadPortableSdkFiles(),
+    ]);
     const selected = $('character').value;
-    const zipBytes = exportCustomBundleZip(selected, activePresetName(), currentCustom, runtimeFiles);
+    const zipBytes = exportCustomBundleZip(selected, activePresetName(), currentCustom, runtimeFiles, sdkFiles);
     const url = URL.createObjectURL(new Blob([zipBytes], { type: 'application/zip' }));
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${selected}-native-bundle.zip`;
+    a.download = `${selected}-native-sdk-bundle.zip`;
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 4000);
-    report(`Exported standalone offline Rive bundle (${(zipBytes.length / 1024 / 1024).toFixed(2)} MB)`);
+    report(`Exported standalone Rive + SDK bundle (${(zipBytes.length / 1024 / 1024).toFixed(2)} MB)`);
   } catch (e) {
     report('Bundle export failed: ' + e.message);
   } finally {
@@ -721,7 +717,7 @@ $('export-zip').onclick = async () => {
 // Recipe JSON export/import
 $('export-recipe').onclick = () => {
   const payload = {
-    version: 'questie-phase5-recipe-1',
+    version: 'questie-phase5.2-recipe-1',
     character: $('character').value,
     customization: currentCustom,
     dynamics: { ...behavior.dynamics },
@@ -753,6 +749,7 @@ $('import-recipe').onchange = async () => {
     }
     renderAppearancePresets();
     syncCustomInputsFromState();
+    syncPresentCharacterButtons();
     lockedOptions();
     const compiled = compileCustomMascot(preset, currentCustom);
     await load({ customBytes: compiled.bytes });
@@ -766,9 +763,8 @@ $('import-recipe').onchange = async () => {
 window.addEventListener('pagehide', () => {
   ++epoch;
   stopSpeech(false);
-  cancelAnimationFrame(motionFrame);
-  player?.dispose();
-  player = null;
+  mascot?.dispose();
+  mascot = null;
   if (objectURL) URL.revokeObjectURL(objectURL);
   if (downloadURL) URL.revokeObjectURL(downloadURL);
 });
@@ -777,5 +773,7 @@ window.addEventListener('pagehide', () => {
 renderAppearancePresets();
 syncCustomInputsFromState();
 syncBehaviorUI(behavior.state);
+syncPresentCharacterButtons();
+setBackdrop('dark');
 lockedOptions();
 load();

@@ -1,4 +1,4 @@
-/* Questie Native Mascot Studio — Phase 5 Studio Stylesheet */
+/* Questie Native Mascot Studio — Phase 5.1 Studio & Immersive Presentation Stylesheet */
 :root {
   --bg-canvas: #0b1118;
   --bg-surface: #111923;
@@ -44,10 +44,10 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
+  gap: 20px;
   max-width: 1360px;
   margin: 0 auto;
-  padding: 16px 24px;
+  padding: 14px 24px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -83,10 +83,47 @@ body {
   text-underline-offset: 4px;
 }
 
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.mode-segment {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.mode-segment button {
+  min-height: 32px;
+  padding: 5px 12px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.mode-segment button[aria-pressed="true"] {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
 .topbar-cta {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  min-height: 38px;
   padding: 8px 16px;
   border-radius: var(--radius-md);
   background: var(--accent);
@@ -96,7 +133,7 @@ body {
   text-decoration: none;
   white-space: nowrap;
   flex-shrink: 0;
-  transition: opacity 140ms ease, transform 140ms ease;
+  transition: opacity 140ms ease;
 }
 
 .topbar-cta:hover {
@@ -165,8 +202,15 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
   margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.stage-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
@@ -196,7 +240,8 @@ body {
 }
 
 .backdrop-segment button {
-  padding: 5px 10px;
+  min-height: 30px;
+  padding: 4px 10px;
   border: 0;
   border-radius: var(--radius-sm);
   background: transparent;
@@ -213,13 +258,19 @@ body {
   color: var(--text-primary);
 }
 
+.btn-icon {
+  min-height: 36px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+}
+
 .stage-frame {
   position: relative;
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   overflow: hidden;
   background: radial-gradient(circle at 50% 38%, #162638 0%, #0b121b 78%);
-  transition: background 180ms ease;
+  transition: background 220ms ease;
 }
 
 .stage-frame[data-backdrop="slate"] {
@@ -236,6 +287,8 @@ canvas#guide {
   display: block;
   touch-action: pan-y;
   cursor: crosshair;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .stage-caption {
@@ -294,13 +347,215 @@ canvas#guide {
 }
 
 .checkbox-inline input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
+  width: 17px;
+  height: 17px;
   accent-color: var(--accent);
   margin: 0;
 }
 
+/* Presentation Mode (Immersive Full-Screen Mascot Companion View) */
+.present-hud {
+  display: none;
+}
+
+body.presentation-mode {
+  overflow: hidden;
+}
+
+body.presentation-mode .topbar,
+body.presentation-mode .intro-bar,
+body.presentation-mode .workbench-panel,
+body.presentation-mode .footer-bar,
+body.presentation-mode .stage-header,
+body.presentation-mode .stage-controls,
+body.presentation-mode .stage-panel > .buttons,
+body.presentation-mode .stage-caption {
+  display: none !important;
+}
+
+body.presentation-mode .studio-shell {
+  max-width: none;
+  padding: 0;
+}
+
+body.presentation-mode .layout {
+  display: block;
+}
+
+body.presentation-mode .stage-panel {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--bg-canvas);
+  width: 100vw;
+  height: 100dvh;
+}
+
+body.presentation-mode .stage-frame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+}
+
+body.presentation-mode canvas#guide {
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: pointer;
+}
+
+body.presentation-mode .present-hud {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: absolute;
+  inset: 0;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  pointer-events: none;
+}
+
+.present-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  pointer-events: auto;
+}
+
+.present-top-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.present-mascot-switch {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--radius-md);
+  background: rgba(11, 18, 27, 0.72);
+  border: 1px solid rgba(152, 173, 194, 0.22);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.present-mascot-switch button {
+  min-height: 38px;
+  padding: 6px 16px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: rgba(236, 242, 248, 0.76);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.present-mascot-switch button[aria-pressed="true"] {
+  background: rgba(36, 210, 190, 0.22);
+  color: #ffffff;
+}
+
+.present-chip {
+  min-height: 40px;
+  padding: 7px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(152, 173, 194, 0.24);
+  background: rgba(11, 18, 27, 0.72);
+  color: #ecf2f8;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  white-space: nowrap;
+}
+
+.present-chip:hover {
+  border-color: var(--accent);
+}
+
+.present-exit {
+  background: rgba(36, 210, 190, 0.92);
+  border-color: transparent;
+  color: var(--accent-ink);
+}
+
+.present-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: auto;
+  width: 100%;
+}
+
+.present-behaviors {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 6px 4px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.present-behaviors::-webkit-scrollbar {
+  display: none;
+}
+
+.present-mood-btn {
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 8px 13px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(152, 173, 194, 0.22);
+  background: rgba(11, 18, 27, 0.7);
+  color: rgba(236, 242, 248, 0.82);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.015em;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  white-space: nowrap;
+}
+
+.present-mood-btn[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: rgba(36, 210, 190, 0.22);
+  color: #ffffff;
+}
+
+.present-hint {
+  margin: 0;
+  font-size: 0.76rem;
+  color: rgba(206, 222, 236, 0.72);
+  text-align: center;
+}
+
+.stage-frame[data-backdrop="light"] .present-hint {
+  color: rgba(25, 42, 58, 0.72);
+}
+
+.stage-frame[data-backdrop="light"] .present-mood-btn[aria-pressed="true"] {
+  background: rgba(11, 18, 27, 0.88);
+  color: #57e8d6;
+  border-color: rgba(36, 210, 190, 0.75);
+}
+
 /* Workbench Tabs */
+.tabs-sticky {
+  position: relative;
+  margin-bottom: 18px;
+}
+
 .tabs {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -309,10 +564,10 @@ canvas#guide {
   background: var(--bg-input);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  margin-bottom: 18px;
 }
 
 .tabs button {
+  min-height: 42px;
   padding: 9px 10px;
   border: 0;
   border-radius: var(--radius-sm);
@@ -376,7 +631,7 @@ canvas#guide {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .behavior-btn {
@@ -391,7 +646,7 @@ canvas#guide {
   color: var(--text-primary);
   text-align: left;
   cursor: pointer;
-  min-height: 44px;
+  min-height: 46px;
   transition: border-color 140ms ease, background 140ms ease;
 }
 
@@ -426,7 +681,7 @@ canvas#guide {
 }
 
 .behavior-active-desc {
-  margin: 0;
+  margin: 0 0 12px;
   font-size: 0.8125rem;
   color: var(--text-secondary);
 }
@@ -440,6 +695,11 @@ canvas#guide {
 
 .field {
   min-width: 0;
+}
+
+.field-end {
+  display: flex;
+  align-items: flex-end;
 }
 
 .field label,
@@ -472,7 +732,7 @@ input {
 select,
 input[type="file"] {
   width: 100%;
-  min-height: 40px;
+  min-height: 42px;
   padding: 8px 10px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
@@ -482,7 +742,7 @@ input[type="file"] {
 
 input[type="range"] {
   width: 100%;
-  height: 28px;
+  height: 32px;
   margin: 0;
   accent-color: var(--accent);
   cursor: pointer;
@@ -490,7 +750,7 @@ input[type="range"] {
 
 input[type="color"] {
   width: 100%;
-  height: 36px;
+  height: 38px;
   padding: 2px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -503,7 +763,7 @@ input[type="color"] {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-height: 40px;
+  min-height: 42px;
   padding: 8px 14px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-strong);
@@ -564,6 +824,7 @@ summary:focus-visible {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  min-height: 38px;
   padding: 7px 12px;
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
@@ -612,7 +873,7 @@ details.rig-details summary {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-primary);
-  padding: 4px 0;
+  padding: 6px 0;
   user-select: none;
 }
 
@@ -693,17 +954,21 @@ details.rig-details summary {
   }
 
   canvas#guide {
-    height: 360px;
+    height: 380px;
   }
 }
 
 @media (max-width: 680px) {
   .topbar {
     padding: 12px 16px;
-    gap: 12px;
+    gap: 10px;
   }
 
   .topnav {
+    display: none;
+  }
+
+  .topbar-cta {
     display: none;
   }
 
@@ -716,7 +981,33 @@ details.rig-details summary {
   }
 
   canvas#guide {
-    height: 320px;
+    height: 340px;
+  }
+
+  .stage-header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  /* Sticky ergonomic mobile tab bar */
+  .tabs-sticky {
+    position: sticky;
+    top: 8px;
+    z-index: 20;
+    margin-bottom: 16px;
+  }
+
+  .tabs {
+    background: rgba(14, 22, 32, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  }
+
+  .tabs button {
+    min-height: 44px;
+    font-size: 0.78rem;
+    padding: 8px 6px;
   }
 
   .behavior-grid {
