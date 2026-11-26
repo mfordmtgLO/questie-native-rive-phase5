@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>questie-geo — Rive preview</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main id="file-help" class="or-run-help" hidden>
+      <h1>Open this bundle over localhost</h1>
+      <p>Browsers block the preview's JavaScript module and animation file when this page is opened directly from <code>file://</code>.</p>
+      <ul>
+        <li>On Windows, double-click <code>start-preview.bat</code> in this folder (it uses Python 3 if installed, then falls back to built-in PowerShell).</li>
+        <li>On macOS or Linux, run <code>python3 serve.py</code> from this folder.</li>
+      </ul>
+      <p>If this bundle uses the Rive runtime from CDN, it also needs an internet connection.</p>
+    </main>
+    <div id="app"></div>
+    <script>
+      if (window.location.protocol === 'file:') {
+        document.getElementById('file-help').hidden = false;
+      } else {
+        import('./index.js')
+          .then(({ mountPreview }) => mountPreview(document.getElementById('app')))
+          .catch((error) => {
+            const message = document.createElement('p');
+            message.className = 'or-load-error';
+            message.textContent = 'The preview could not start. Make sure this folder is served over HTTP and try again.';
+            document.getElementById('app').appendChild(message);
+            console.error(error);
+          });
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,7 @@
+{
+  "framework": null,
+  "installCommand": "bun install --frozen-lockfile",
+  "buildCommand": "bun run scripts/build-questie-guides.ts",
+  "outputDirectory": "questie-site",
+  "cleanUrls": true
+}

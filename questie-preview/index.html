@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Questie Native Mascot Studio</title>
+  <meta name="description" content="Native Rive living mascot creation studio for Pin and Geo with 13-property GuideVM, multilayer 3D parallax, reactive behaviors, and local locked voice verification.">
+  <meta property="og:title" content="Questie Native Mascot Studio">
+  <meta property="og:description" content="Native Rive living mascot creation studio for Pin and Geo with 13-property GuideVM and local locked voice verification.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./">Questie Studio</a>
+    <nav class="topnav" aria-label="Studio navigation">
+      <a href="#stage">Stage</a>
+      <a href="#workbench">Workbench</a>
+      <a href="./questie-pin/">Pin Inspector</a>
+      <a href="./questie-geo/">Geo Inspector</a>
+    </nav>
+    <a id="download-top" class="topbar-cta" href="./questie-pin/questie-pin.riv" download>Download .riv</a>
+  </header>
+
+  <div class="studio-shell">
+    <section class="intro-bar">
+      <div>
+        <h1>Living Mascot Studio</h1>
+        <p class="intro-meta">
+          Native Rive WASM
+          <span aria-hidden="true">·</span>
+          13-property GuideVM
+          <span aria-hidden="true">·</span>
+          Multilayer 3D parallax
+          <span aria-hidden="true">·</span>
+          Local verified voice clock
+        </p>
+      </div>
+    </section>
+
+    <main class="layout">
+      <!-- Focal Stage Panel -->
+      <section id="stage" class="panel stage-panel" aria-label="Live native Rive mascot stage">
+        <div class="stage-header">
+          <div class="character-switcher">
+            <label for="character">Mascot</label>
+            <select id="character" aria-label="Active mascot character">
+              <option value="questie-pin">Pin (Coral Guide)</option>
+              <option value="questie-geo">Geo (Teal Guide)</option>
+            </select>
+          </div>
+          <div class="backdrop-segment" role="group" aria-label="Stage lighting backdrop">
+            <button type="button" data-backdrop="dark" aria-pressed="true">Studio Dark</button>
+            <button type="button" data-backdrop="slate" aria-pressed="false">Slate</button>
+            <button type="button" data-backdrop="light" aria-pressed="false">Light</button>
+          </div>
+        </div>
+
+        <div id="stage-frame" class="stage-frame" data-backdrop="dark">
+          <canvas id="guide" aria-label="Animated native Rive home guide"></canvas>
+          <div class="stage-caption">
+            <p id="status" role="status">Loading Rive runtime…</p>
+            <span id="riv-meta" class="stage-meta">Native .riv</span>
+          </div>
+        </div>
+
+        <div class="stage-controls">
+          <div class="control-group">
+            <button id="pause" type="button" class="btn">Pause motion</button>
+            <button id="trigger-blink" type="button" class="btn">Blink</button>
+            <button id="reset-custom" type="button" class="btn">Reset preset</button>
+          </div>
+          <label class="checkbox-inline">
+            <input id="auto" type="checkbox" checked>
+            <span>Autonomous life</span>
+          </label>
+        </div>
+
+        <div class="buttons">
+          <a id="download" class="btn btn-primary" href="./questie-pin/questie-pin.riv" download>Download native .riv</a>
+          <button id="export-zip" type="button" class="btn">Export Rive bundle (.zip)</button>
+        </div>
+      </section>
+
+      <!-- Authoring Workbench Panel -->
+      <section id="workbench" class="panel" aria-label="Mascot authoring workbench">
+        <div class="tabs" role="tablist" aria-label="Workbench sections">
+          <button id="tab-btn-behavior" type="button" role="tab" aria-selected="true" aria-controls="tab-behavior">Behavior &amp; Rig</button>
+          <button id="tab-btn-appearance" type="button" role="tab" aria-selected="false" aria-controls="tab-appearance">Appearance &amp; Eyes</button>
+          <button id="tab-btn-voice" type="button" role="tab" aria-selected="false" aria-controls="tab-voice">Locked Voices</button>
+        </div>
+
+        <!-- TAB 1: Behavior Engine, Facial Rig & 13-Property GuideVM -->
+        <div id="tab-behavior" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-behavior">
+          <div class="section-block">
+            <div class="section-heading">
+              <h2>Reactive Behavior Engine</h2>
+              <span id="behavior-mode-tag" class="stage-meta">IDLE-PARKED</span>
+            </div>
+            <p id="behavior-desc" class="behavior-active-desc">Quietly alive resting companion with soft breathing and organic blinks.</p>
+            <div id="behavior-grid" class="behavior-grid" role="group" aria-label="Reactive behavior states"></div>
+
+            <div class="field-grid">
+              <div class="field">
+                <label for="reaction">Native emotion state (0–12)</label>
+                <select id="reaction"></select>
+              </div>
+              <div class="field">
+                <label for="mouth">Mouth viseme target (0–7)</label>
+                <select id="mouth"></select>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-block">
+            <div class="section-heading">
+              <h2>Facial Rig Controls</h2>
+              <span class="stage-meta">Live + native .riv</span>
+            </div>
+            <p class="section-note">Parallax depth, eye tracking range, breathing scale, and mouth scale recompile directly into the native .riv rig. Dynamics tune live behavior smoothly.</p>
+            <div class="field-grid">
+              <div class="field">
+                <label for="rig-parallax">3D Parallax depth <output id="val-rig-parallax" class="field-value">1.00×</output></label>
+                <input id="rig-parallax" type="range" min="0.5" max="1.6" step="0.05" value="1">
+              </div>
+              <div class="field">
+                <label for="rig-eye-track">Eye tracking range <output id="val-rig-eye-track" class="field-value">1.00×</output></label>
+                <input id="rig-eye-track" type="range" min="0.6" max="1.4" step="0.05" value="1">
+              </div>
+              <div class="field">
+                <label for="rig-breath">Breathing depth <output id="val-rig-breath" class="field-value">1.00×</output></label>
+                <input id="rig-breath" type="range" min="0.5" max="1.5" step="0.05" value="1">
+              </div>
+              <div class="field">
+                <label for="rig-mouth-scale">Mouth silhouette scale <output id="val-rig-mouth-scale" class="field-value">1.00×</output></label>
+                <input id="rig-mouth-scale" type="range" min="0.8" max="1.25" step="0.02" value="1">
+              </div>
+              <div class="field">
+                <label for="dyn-head-inertia">Head smoothing <output id="val-dyn-head-inertia" class="field-value">1.00×</output></label>
+                <input id="dyn-head-inertia" type="range" min="0.5" max="1.8" step="0.05" value="1">
+              </div>
+              <div class="field">
+                <label for="dyn-double-blink">Double-blink frequency <output id="val-dyn-double-blink" class="field-value">1.00×</output></label>
+                <input id="dyn-double-blink" type="range" min="0" max="2" step="0.1" value="1">
+              </div>
+            </div>
+          </div>
+
+          <details class="rig-details">
+            <summary>Continuous native GuideVM properties (13)</summary>
+            <div id="properties" class="prop-list"></div>
+          </details>
+        </div>
+
+        <!-- TAB 2: Character Appearance & Eye Customization -->
+        <div id="tab-appearance" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-appearance" hidden>
+          <div class="section-block">
+            <div class="section-heading">
+              <h2>Character Appearance</h2>
+              <span class="stage-meta">Native Rive re-authoring</span>
+            </div>
+            <p class="section-note">Curated identity presets or custom surface materials. Every change compiles a verified native .riv binary in the browser.</p>
+            <div id="appearance-presets" class="preset-row" role="group" aria-label="Character appearance presets"></div>
+
+            <div class="color-grid">
+              <div class="color-field">
+                <label for="cust-shell">Shell primary</label>
+                <input id="cust-shell" type="color" value="#e95d65">
+              </div>
+              <div class="color-field">
+                <label for="cust-edge">Shell shadow</label>
+                <input id="cust-edge" type="color" value="#9c2c49">
+              </div>
+              <div class="color-field">
+                <label for="cust-light">Specular light</label>
+                <input id="cust-light" type="color" value="#ffc3b8">
+              </div>
+              <div class="color-field">
+                <label for="cust-beacon">Status ball</label>
+                <input id="cust-beacon" type="color" value="#24e3ca">
+              </div>
+              <div class="color-field">
+                <label for="cust-blush">Cheek warmth</label>
+                <input id="cust-blush" type="color" value="#ff9ca8">
+              </div>
+              <div class="color-field">
+                <label for="cust-backpack">Backpack leather</label>
+                <input id="cust-backpack" type="color" value="#b98245">
+              </div>
+            </div>
+
+            <div class="field-grid">
+              <div class="field">
+                <label for="cust-gloss">Studio gloss <output id="val-cust-gloss" class="field-value">56%</output></label>
+                <input id="cust-gloss" type="range" min="0" max="1" step="0.02" value="0.56">
+              </div>
+              <div class="field" style="display:flex;align-items:flex-end;">
+                <label class="checkbox-inline">
+                  <input id="cust-show-backpack" type="checkbox" checked>
+                  <span>Explorer backpack</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-block">
+            <div class="section-heading">
+              <h2>Eye &amp; Eyebrow Customization</h2>
+              <span class="stage-meta">Independent tracking rig</span>
+            </div>
+            <div class="color-grid">
+              <div class="color-field">
+                <label for="cust-iris">Iris deep</label>
+                <input id="cust-iris" type="color" value="#213948">
+              </div>
+              <div class="color-field">
+                <label for="cust-iris-ring">Iris inner ring</label>
+                <input id="cust-iris-ring" type="color" value="#45788f">
+              </div>
+              <div class="color-field">
+                <label for="cust-sclera">Sclera ivory</label>
+                <input id="cust-sclera" type="color" value="#fffaf0">
+              </div>
+            </div>
+
+            <div class="field-grid">
+              <div class="field">
+                <label for="cust-eye-scale">Eye size <output id="val-cust-eye-scale" class="field-value">100%</output></label>
+                <input id="cust-eye-scale" type="range" min="0.85" max="1.2" step="0.01" value="1">
+              </div>
+              <div class="field">
+                <label for="cust-iris-scale">Iris scale <output id="val-cust-iris-scale" class="field-value">100%</output></label>
+                <input id="cust-iris-scale" type="range" min="0.85" max="1.2" step="0.01" value="1">
+              </div>
+              <div class="field">
+                <label for="cust-glint">Eye catchlight style</label>
+                <select id="cust-glint">
+                  <option value="muse">Muse dual catchlight</option>
+                  <option value="studio">Studio soft key</option>
+                  <option value="classic">Classic highlight</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="cust-brow-thick">Eyebrow weight <output id="val-cust-brow-thick" class="field-value">2.1 px</output></label>
+                <input id="cust-brow-thick" type="range" min="1.3" max="3.2" step="0.1" value="2.1">
+              </div>
+              <div class="field">
+                <label for="cust-brow-arch">Eyebrow arch <output id="val-cust-brow-arch" class="field-value">0.0</output></label>
+                <input id="cust-brow-arch" type="range" min="-3" max="3" step="0.2" value="0">
+              </div>
+            </div>
+          </div>
+
+          <div class="section-block">
+            <div class="section-heading">
+              <h2>Mascot Recipe</h2>
+            </div>
+            <div class="buttons">
+              <button id="export-recipe" type="button" class="btn">Download recipe JSON</button>
+              <label class="btn" for="import-recipe" style="cursor:pointer;">Import recipe JSON</label>
+              <input id="import-recipe" type="file" accept=".json,application/json" hidden>
+            </div>
+            <p id="recipe-status" class="status-readout" role="status"></p>
+          </div>
+        </div>
+
+        <!-- TAB 3: Original Locked Voices & Timed Audio Clock -->
+        <div id="tab-voice" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-voice" hidden>
+          <div class="section-block">
+            <div class="section-heading">
+              <h2>Original Pin &amp; Geo Locked Voice Pack</h2>
+              <span class="stage-meta">26 files · 768 cues</span>
+            </div>
+            <p class="section-note">
+              Approved identities: Pin (<code>avocado_v2:MAI_01</code>) and Geo (<code>avocado_v2:casper</code>).
+              Select all 26 original MP3s and <code>pin-geo-mouth-cues.json</code> together. Every byte is verified locally against SHA-1 Git blob fingerprints, stays private in your browser, and plays at original 1.0× speed.
+            </p>
+            <div class="field">
+              <label for="locked-files">Locked recordings and timing file</label>
+              <input id="locked-files" type="file" multiple accept=".mp3,.json,audio/mpeg,application/json">
+            </div>
+            <div class="field" style="margin-top:10px;">
+              <label for="locked-line">Original script for active mascot</label>
+              <select id="locked-line"></select>
+            </div>
+            <div class="buttons">
+              <button id="locked-play" type="button" class="btn btn-primary" disabled>Play original recording</button>
+              <button id="stop" type="button" class="btn">Stop audio</button>
+            </div>
+            <p id="locked-status" class="status-readout" role="status">No original voice pack loaded.</p>
+          </div>
+
+          <div class="section-block">
+            <div class="section-heading">
+              <h2>Timed Local Audio Preview</h2>
+              <span class="stage-meta">Audio clock sync</span>
+            </div>
+            <p class="section-note">Choose a local audio file and ordered viseme JSON (<code>[{"time":0,"mouthShape":0},{"time":0.2,"mouthShape":2}]</code>). Files stay local; speaking never interrupts blinking or breathing.</p>
+            <div class="field-grid">
+              <div class="field">
+                <label for="audio">Audio file</label>
+                <input id="audio" type="file" accept="audio/*">
+              </div>
+              <div class="field">
+                <label for="cues">Viseme JSON</label>
+                <input id="cues" type="file" accept=".json,application/json">
+              </div>
+            </div>
+            <audio id="speech" controls preload="metadata"></audio>
+            <div class="buttons">
+              <button id="timed" type="button" class="btn">Play timed recording</button>
+            </div>
+          </div>
+
+          <div class="section-block">
+            <div class="section-heading">
+              <h2>Scripted Browser Preview</h2>
+              <span class="stage-meta">Non-production test</span>
+            </div>
+            <div class="field">
+              <label for="line">Sample dialogue line</label>
+              <select id="line">
+                <option>Welcome! I'm here to help you explore homes.</option>
+                <option>You've saved a favorite home.</option>
+                <option>There's a price change on a home you saved.</option>
+                <option>We've arrived. Enjoy exploring!</option>
+                <option>Contact your loan officer for personalized guidance.</option>
+              </select>
+            </div>
+            <div class="buttons">
+              <button id="speak" type="button" class="btn">Preview speech</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="footer-bar">
+    <span>Questie Native Mascot Studio · OpenRive native authoring and Rive WASM runtime</span>
+    <span>
+      <a href="./questie-pin/">Pin standard inspector</a> ·
+      <a href="./questie-geo/">Geo standard inspector</a>
+    </span>
+  </footer>
+
+  <script type="module" src="./studio.js"></script>
+</body>
+</html>

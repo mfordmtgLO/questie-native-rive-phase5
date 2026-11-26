@@ -1,0 +1,21 @@
+{
+  "name": "questie-pin",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Standalone Rive preview for questie-pin, exported from OpenRive",
+  "main": "index.js",
+  "scripts": {
+    "start": "npx --yes serve ."
+  },
+  "files": [
+    "index.html",
+    "index.js",
+    "styles.css",
+    "start-preview.bat",
+    "start-preview.ps1",
+    "serve.py",
+    "questie-pin.riv",
+    "runtime"
+  ]
+}

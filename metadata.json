@@ -1,0 +1,6 @@
+{
+  "name": "Questie Creator · Home Quest",
+  "description": "Standalone Questie Creator character workshop and animation export studio for Questie, Pin, and Geo guides.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
