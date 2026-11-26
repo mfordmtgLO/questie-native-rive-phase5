@@ -198,6 +198,8 @@ export function createQuestieReactSDK(React) {
       inputOptions,
       size = 80,
       shape = 'circle',
+      background = 'transparent',
+      label,
       width,
       height,
       className,
@@ -258,11 +260,19 @@ export function createQuestieReactSDK(React) {
 
     const w = width ?? size;
     const h = height ?? size;
-    const borderRadius = shape === 'circle' ? '9999px' : shape === 'rounded' ? '14px' : undefined;
+    const isCircle = background === 'circle' || shape === 'circle';
+    const borderRadius = isCircle ? '9999px' : shape === 'rounded' ? '14px' : undefined;
+    const circleSurface =
+      background === 'circle'
+        ? {
+            background: 'radial-gradient(circle at 50% 35%, rgba(255, 245, 238, 0.92), rgba(242, 232, 224, 0.72))',
+            boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 4px 14px rgba(24, 34, 46, 0.08)',
+          }
+        : undefined;
 
-    return createElement('canvas', {
+    const canvasEl = createElement('canvas', {
       ref: hook.canvasRef,
-      className,
+      className: label ? undefined : className,
       'aria-label': ariaLabel,
       style: {
         display: 'block',
@@ -270,9 +280,41 @@ export function createQuestieReactSDK(React) {
         height: typeof h === 'number' ? `${h}px` : h,
         borderRadius,
         touchAction: 'none',
-        ...style,
+        ...circleSurface,
+        ...(label ? undefined : style),
       },
     });
+
+    if (!label) return canvasEl;
+
+    const labelText = typeof label === 'string' ? label : 'Pin';
+    return createElement(
+      'span',
+      {
+        className,
+        style: {
+          display: 'inline-flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '3px',
+          ...style,
+        },
+      },
+      canvasEl,
+      createElement(
+        'span',
+        {
+          style: {
+            fontSize: '11px',
+            fontWeight: 600,
+            lineHeight: 1.1,
+            letterSpacing: '0.01em',
+            opacity: 0.78,
+          },
+        },
+        labelText,
+      ),
+    );
   });
 
   return {

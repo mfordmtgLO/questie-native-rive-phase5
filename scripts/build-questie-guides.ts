@@ -85,8 +85,13 @@ for (const file of [
   'locked-voice.js',
   'embed-example.html',
   'companion-demo.html',
+  'muse-preview.html',
 ]) {
-  writeFileSync(join(out, file), readFileSync(join('questie-preview', file)));
+  let content = readFileSync(join('questie-preview', file));
+  if (file === 'embed-example.html') {
+    content = Buffer.from(content.toString('utf8').replace("from './index.js'", "from './questie-pin/index.js'"));
+  }
+  writeFileSync(join(out, file), content);
 }
 
 console.log('Preview site generated at ' + out);

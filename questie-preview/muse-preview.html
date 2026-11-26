@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pin — Living Educational Micro Assistant</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --bg: #f6f4f0;
+      --surface: #ffffff;
+      --surface-soft: #eeeae3;
+      --text: #1f2730;
+      --muted: #5e6c78;
+      --border: #d4dce2;
+      --accent: #ef774e;
+      --accent-soft: rgba(239, 119, 78, 0.14);
+      --circle-bg: radial-gradient(circle at 50% 34%, #fff7f1 0%, #f1e6dc 100%);
+      --circle-ring: rgba(182, 73, 43, 0.14);
+      --shadow: 0 10px 28px rgba(24, 34, 46, 0.06);
+    }
+    body.dark {
+      --bg: #101822;
+      --surface: #1b2531;
+      --surface-soft: #243140;
+      --text: #edf3f7;
+      --muted: #a2b2bf;
+      --border: #334353;
+      --accent-soft: rgba(239, 119, 78, 0.22);
+      --circle-bg: radial-gradient(circle at 50% 34%, #263547 0%, #17222f 100%);
+      --circle-ring: rgba(255, 255, 255, 0.12);
+      --shadow: 0 12px 32px rgba(0, 0, 0, 0.32);
+    }
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      padding: 20px 16px;
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      transition: background 180ms ease, color 180ms ease;
+    }
+    main {
+      width: min(100%, 460px);
+    }
+    .header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+    h1 {
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0;
+    }
+    .subtitle {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .dock {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      padding: 18px 0 12px;
+    }
+    .pin {
+      flex: none;
+      display: grid;
+      justify-items: center;
+      gap: 4px;
+    }
+    .pin-frame {
+      display: grid;
+      place-items: center;
+      border-radius: 9999px;
+      transition: background 180ms ease, box-shadow 180ms ease;
+    }
+    .pin-frame[data-bg="circle"] {
+      background: var(--circle-bg);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 0 0 1px var(--circle-ring), var(--shadow);
+    }
+    .pin-frame[data-bg="transparent"] {
+      background: transparent;
+      box-shadow: none;
+    }
+    .pin canvas {
+      display: block;
+      width: 80px;
+      height: 80px;
+      border-radius: 9999px;
+      touch-action: none;
+    }
+    .pin-label {
+      font-size: 11px;
+      font-weight: 650;
+      letter-spacing: 0.01em;
+      color: var(--muted);
+    }
+    .pin-label[hidden] {
+      display: none;
+    }
+    .composer {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      min-width: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 6px 8px 6px 12px;
+      box-shadow: var(--shadow);
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+    .composer:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+    input[type="text"],
+    .composer input {
+      font: inherit;
+      font-size: 16px;
+      background: transparent;
+      color: inherit;
+      min-width: 0;
+      width: 100%;
+      border: 0;
+      outline: none;
+      padding: 8px 2px;
+    }
+    button, select {
+      font: inherit;
+      font-size: 12px;
+      font-weight: 550;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface);
+      color: inherit;
+      transition: background 140ms ease, border-color 140ms ease;
+    }
+    button {
+      cursor: pointer;
+    }
+    button:hover:not(:disabled) {
+      border-color: var(--accent);
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+    button[aria-pressed="true"] {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+    #send {
+      width: 34px;
+      height: 34px;
+      padding: 0;
+      border-radius: 12px;
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      flex: none;
+    }
+    .meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-height: 1.6em;
+    }
+    #status {
+      font-size: 12px;
+      color: var(--muted);
+    }
+    #demo-progress {
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .reply {
+      min-height: 68px;
+      margin: 8px 0 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .options {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      font-size: 12px;
+    }
+    .options label {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--muted);
+    }
+    .voice-note {
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .voice-note a {
+      color: inherit;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="header">
+      <h1>Meet Pin</h1>
+      <span class="subtitle">Native OpenRive · 80px living companion</span>
+    </div>
+    <span class="subtitle">Sample educational scripts · silent by default · no AI calls</span>
+
+    <div class="dock">
+      <div class="pin">
+        <div class="pin-frame" id="pin-frame" data-bg="circle">
+          <canvas id="pin" aria-label="Living Pin mascot"></canvas>
+        </div>
+        <span class="pin-label" id="pin-label">Pin</span>
+      </div>
+
+      <form class="composer" id="composer">
+        <input id="question" placeholder="Ask about buying a home…" aria-label="Educational question" autocomplete="off" disabled>
+        <button id="send" type="submit" disabled aria-label="Send">↑</button>
+      </form>
+    </div>
+
+    <div class="meta-row">
+      <small id="status" role="status">Loading native mascot…</small>
+      <span id="demo-progress" aria-live="off"></span>
+    </div>
+
+    <p class="reply" id="reply" aria-live="polite">Try “down payment”, “closing costs”, or “preapproval”.</p>
+
+    <div class="options">
+      <label>Size
+        <select id="size" aria-label="Mascot size">
+          <option value="48">48px</option>
+          <option value="64">64px</option>
+          <option value="80" selected>80px</option>
+          <option value="96">96px</option>
+          <option value="128">128px</option>
+        </select>
+      </label>
+      <button id="bg-toggle" type="button" aria-pressed="true">Circle bg</button>
+      <button id="label-toggle" type="button" aria-pressed="true">Label: Pin</button>
+      <button id="theme" type="button">Dark / light</button>
+      <button id="build" type="button" disabled>Build demo guide</button>
+      <button id="demo60" type="button" disabled>Run 60s demo</button>
+      <button id="voice-btn" type="button" disabled>Import locked voice</button>
+      <input id="voice-input" type="file" multiple accept=".mp3,.json,audio/mpeg,application/json" hidden>
+    </div>
+
+    <div class="voice-note">
+      <span id="voice-status">Voice: silent (import locked Pin MP3 pack + timing JSON to enable)</span>
+      <span><a href="./companion-demo.html">Companion SDK</a> · <a href="./">Studio</a></span>
+    </div>
+  </main>
+
+  <script type="module">
+    import { createPlayer } from './questie-pin/index.js';
+    import { mountQuestieMascot } from './questie-sdk.js';
+    import { importLockedPack } from './locked-voice.js';
+
+    const $ = (id) => document.getElementById(id);
+    const input = $('question');
+    const canvas = $('pin');
+    const frame = $('pin-frame');
+    const pinLabel = $('pin-label');
+    const status = $('status');
+    const demoProgress = $('demo-progress');
+    const reply = $('reply');
+    const send = $('send');
+    const build = $('build');
+    const demo60Btn = $('demo60');
+    const bgToggle = $('bg-toggle');
+    const labelToggle = $('label-toggle');
+    const voiceBtn = $('voice-btn');
+    const voiceInput = $('voice-input');
+    const voiceStatus = $('voice-status');
+
+    // Deterministic approved educational scripts only — zero mortgage advice or calculations.
+    const scripts = [
+      [
+        /down\s*payment/i,
+        'A down payment is the portion of the purchase price paid upfront. Ask your loan professional about program requirements.',
+        'greeting',
+      ],
+      [
+        /closing\s*cost/i,
+        'Closing costs are expenses associated with completing a home purchase. Ask your loan professional for an itemized estimate.',
+        'promise',
+      ],
+      [
+        /pre[-\s]*approv/i,
+        'Preapproval is a lender review of financial information. It is not a guarantee of final loan approval.',
+        'tour-built',
+      ],
+    ];
+
+    let mascot;
+    let ponder = 0;
+    let settle = 0;
+    let task = 0;
+    let busy = false;
+    let demoTimers = [];
+    let demoTicker = 0;
+    let demoRunning = false;
+    let lockedPinClips = new Map();
+    let activeAudio = null;
+    let activeObjectUrl = null;
+
+    function state(id, label) {
+      mascot.setBehavior(id, { preserveAudio: true });
+      status.textContent = label;
+      status.dataset.behavior = id;
+    }
+
+    function clearActivity() {
+      clearTimeout(ponder);
+      clearTimeout(settle);
+    }
+
+    function stopLockedAudio() {
+      if (activeAudio) {
+        activeAudio.pause();
+        activeAudio = null;
+      }
+      if (activeObjectUrl) {
+        URL.revokeObjectURL(activeObjectUrl);
+        activeObjectUrl = null;
+      }
+      mascot?.stopSpeaking?.({ restoreBehavior: false });
+    }
+
+    async function playLockedPinClip(clipId) {
+      const clip = lockedPinClips.get(clipId) || lockedPinClips.get('hero');
+      if (!clip || !mascot) return;
+      stopLockedAudio();
+      activeObjectUrl = URL.createObjectURL(clip.file);
+      activeAudio = new Audio(activeObjectUrl);
+      try {
+        await mascot.speakWithAudio(activeAudio, clip.cues, {
+          switchBehavior: true,
+          onEnd: () => {
+            if (activeObjectUrl) {
+              URL.revokeObjectURL(activeObjectUrl);
+              activeObjectUrl = null;
+            }
+          },
+        });
+      } catch (err) {
+        console.warn('Locked audio playback skipped:', err);
+      }
+    }
+
+    function idle() {
+      mascot.releaseGaze();
+      mascot.setHeadphonesMode('auto');
+      mascot.setLaptopMode('auto');
+      state('IDLE-PARKED', 'Ready');
+    }
+
+    function stop60sDemo() {
+      if (!demoRunning) return;
+      demoRunning = false;
+      for (const t of demoTimers) clearTimeout(t);
+      demoTimers = [];
+      clearInterval(demoTicker);
+      demoProgress.textContent = '';
+      demo60Btn.textContent = 'Run 60s demo';
+      demo60Btn.setAttribute('aria-pressed', 'false');
+      busy = false;
+      input.readOnly = false;
+      send.disabled = false;
+      build.disabled = false;
+      input.value = '';
+      stopLockedAudio();
+      idle();
+    }
+
+    function run60sDemo() {
+      if (!mascot) return;
+      if (demoRunning) {
+        stop60sDemo();
+        return;
+      }
+      clearActivity();
+      clearTimeout(task);
+      stopLockedAudio();
+      demoRunning = true;
+      busy = true;
+      input.readOnly = true;
+      send.disabled = true;
+      build.disabled = true;
+      demo60Btn.textContent = 'Stop 60s demo';
+      demo60Btn.setAttribute('aria-pressed', 'true');
+
+      const startedAt = Date.now();
+      const updateClock = () => {
+        const elapsed = Math.min(60, Math.floor((Date.now() - startedAt) / 1000));
+        demoProgress.textContent = `${elapsed}s / 60s`;
+      };
+      updateClock();
+      demoTicker = setInterval(updateClock, 250);
+
+      const schedule = [
+        {
+          at: 0,
+          run: () => {
+            input.value = '';
+            reply.textContent = 'Step 1 · Living idle — Pin breathes, blinks, glances, and tilts naturally.';
+            idle();
+            status.textContent = 'Demo 1/8 · Living idle';
+          },
+        },
+        {
+          at: 9000,
+          run: () => {
+            input.value = 'What is a down payment?';
+            mascot.notifyTypingActivity(0.45, { behaviorId: 'WORK-THINK' });
+            status.dataset.behavior = 'WORK-THINK';
+            status.textContent = 'Demo 2/8 · User typing';
+            reply.textContent = 'Step 2 · User starts typing — Pin notices immediately and shifts into working posture.';
+          },
+        },
+        {
+          at: 16000,
+          run: () => {
+            mascot.setProcessing(true);
+            status.dataset.behavior = 'WORK-THINK';
+            status.textContent = 'Demo 3/8 · Laptop & headphones';
+            reply.textContent = 'Step 3 · Over-ear headphones glide on and the miniature laptop opens with alternating keyboard typing.';
+          },
+        },
+        {
+          at: 24000,
+          run: () => {
+            mascot.setProcessing(false, 'TYPE-PONDER');
+            state('TYPE-PONDER', 'Demo 4/8 · Thinking pose');
+            reply.textContent = 'Step 4 · User pauses — Pin pauses typing and adopts an attentive, thoughtful expression.';
+          },
+        },
+        {
+          at: 32000,
+          run: () => {
+            mascot.setProcessing(true);
+            status.dataset.behavior = 'WORK-THINK';
+            status.textContent = 'Demo 5/8 · Building educational guide';
+            reply.textContent = 'Step 5 · Building — Pin wears headphones and types steadily while preparing the sample educational guide.';
+          },
+        },
+        {
+          at: 42000,
+          run: () => {
+            mascot.setProcessing(false, 'TYPE-LISTEN');
+            status.dataset.behavior = 'TYPE-LISTEN';
+            status.textContent = 'Demo 6/8 · Educational response';
+            reply.textContent = 'A down payment is the portion of the purchase price paid upfront. Ask your loan professional about program requirements.';
+            if (lockedPinClips.size) playLockedPinClip('greeting');
+          },
+        },
+        {
+          at: 51000,
+          run: () => {
+            state('ACHIEVEMENT', 'Demo 7/8 · Completion');
+            reply.textContent = 'Step 7 · Guide complete — headphones lift off, laptop closes, and Pin offers a warm completion reaction.';
+          },
+        },
+        {
+          at: 56000,
+          run: () => {
+            input.value = '';
+            idle();
+            status.textContent = 'Demo 8/8 · Returning to living idle';
+            reply.textContent = 'Step 8 · Returned to calm living idle. Try typing “down payment”, “closing costs”, or “preapproval”.';
+          },
+        },
+        {
+          at: 60000,
+          run: () => {
+            stop60sDemo();
+          },
+        },
+      ];
+
+      for (const step of schedule) {
+        demoTimers.push(setTimeout(step.run, step.at));
+      }
+    }
+
+    function work(text, building = false) {
+      if (busy || !mascot) return;
+      clearActivity();
+      stopLockedAudio();
+      busy = true;
+      send.disabled = true;
+      build.disabled = true;
+      input.readOnly = true;
+      mascot.setProcessing(true);
+      status.textContent = building ? 'Building sample guide…' : 'Working…';
+      status.dataset.behavior = 'WORK-THINK';
+
+      task = setTimeout(() => {
+        busy = false;
+        input.readOnly = false;
+        send.disabled = false;
+        build.disabled = false;
+
+        const match = scripts.find(([pattern]) => pattern.test(text));
+        reply.textContent = building
+          ? 'Sample guide: learn the upfront costs, discuss preapproval, then connect with a loan professional.'
+          : match?.[1] ||
+            'I can explain down payments, closing costs and preapproval. For personalized guidance, contact your loan professional.';
+
+        mascot.setProcessing(false, 'TYPE-LISTEN');
+        status.textContent = 'Guide ready';
+        status.dataset.behavior = 'TYPE-LISTEN';
+        input.value = '';
+
+        if (lockedPinClips.size) {
+          playLockedPinClip(building ? 'tour-built' : match?.[2] || 'hero');
+        }
+        settle = setTimeout(idle, 1200);
+      }, 1700);
+    }
+
+    try {
+      mascot = await mountQuestieMascot({
+        canvas,
+        createPlayer,
+        initialBehavior: 'IDLE-PARKED',
+        pauseWhenOffscreen: true,
+        respectReducedMotion: true,
+      });
+
+      idle();
+      input.disabled = false;
+      send.disabled = false;
+      build.disabled = false;
+      demo60Btn.disabled = false;
+      voiceBtn.disabled = false;
+
+      input.addEventListener('focus', () => {
+        if (!busy) {
+          clearActivity();
+          state('TYPE-LISTEN', 'Listening');
+        }
+      });
+
+      input.addEventListener('input', () => {
+        if (busy) return;
+        clearActivity();
+        if (!input.value.trim()) {
+          state('TYPE-LISTEN', 'Listening');
+          return;
+        }
+        mascot.notifyTypingActivity(0.45, { behaviorId: 'WORK-THINK' });
+        status.dataset.behavior = 'WORK-THINK';
+        status.textContent = 'Typing…';
+        ponder = setTimeout(() => state('TYPE-PONDER', 'Thinking…'), 1150);
+      });
+
+      input.addEventListener('blur', () => {
+        if (!busy) {
+          clearActivity();
+          settle = setTimeout(idle, 400);
+        }
+      });
+
+      $('composer').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (input.value.trim()) work(input.value);
+      });
+
+      build.addEventListener('click', () => work('', true));
+      demo60Btn.addEventListener('click', run60sDemo);
+
+      $('size').addEventListener('change', (e) => {
+        const px = e.target.value + 'px';
+        canvas.style.width = px;
+        canvas.style.height = px;
+      });
+
+      bgToggle.addEventListener('click', () => {
+        const next = frame.dataset.bg === 'circle' ? 'transparent' : 'circle';
+        frame.dataset.bg = next;
+        bgToggle.textContent = next === 'circle' ? 'Circle bg' : 'Transparent bg';
+        bgToggle.setAttribute('aria-pressed', String(next === 'circle'));
+      });
+
+      labelToggle.addEventListener('click', () => {
+        const nextHidden = !pinLabel.hidden;
+        pinLabel.hidden = nextHidden;
+        labelToggle.textContent = nextHidden ? 'Label: off' : 'Label: Pin';
+        labelToggle.setAttribute('aria-pressed', String(!nextHidden));
+      });
+
+      $('theme').addEventListener('click', () => document.body.classList.toggle('dark'));
+
+      voiceBtn.addEventListener('click', () => voiceInput.click());
+      voiceInput.addEventListener('change', async () => {
+        const files = [...(voiceInput.files || [])];
+        if (!files.length) return;
+        try {
+          const pack = await importLockedPack(files);
+          lockedPinClips = new Map(pack.filter((item) => item.character === 'pin').map((item) => [item.id, item]));
+          voiceStatus.textContent = `Voice: verified locked Pin pack (${lockedPinClips.size} original clips ready)`;
+          voiceBtn.setAttribute('aria-pressed', 'true');
+        } catch (err) {
+          voiceStatus.textContent = err instanceof Error ? err.message : 'Locked voice verification failed';
+          voiceBtn.setAttribute('aria-pressed', 'false');
+        } finally {
+          voiceInput.value = '';
+        }
+      });
+
+      window.addEventListener(
+        'pagehide',
+        () => {
+          clearActivity();
+          clearTimeout(task);
+          stop60sDemo();
+          stopLockedAudio();
+          mascot.dispose();
+        },
+        { once: true },
+      );
+    } catch (e) {
+      status.textContent = 'Native mascot could not load';
+      status.dataset.behavior = 'ERROR';
+      console.error(e);
+    }
+  </script>
+</body>
+</html>

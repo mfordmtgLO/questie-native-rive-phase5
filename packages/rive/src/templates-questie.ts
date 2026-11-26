@@ -86,22 +86,22 @@ export function defaultQuestieCustomization(preset: 'Pin' | 'Geo'): QuestieCusto
   const pin = preset === 'Pin';
   return {
     preset,
-    shellColor: pin ? '#ef6068' : '#18a8a3',
-    shellEdge: pin ? '#9d2846' : '#0e5b72',
-    shellLight: pin ? '#ffd4ca' : '#b8fff0',
+    shellColor: pin ? '#ef774e' : '#18a8a3',
+    shellEdge: pin ? '#b6492b' : '#0e5b72',
+    shellLight: pin ? '#ffd6bc' : '#b8fff0',
     beaconColor: '#24e3ca',
     showBackpack: true,
-    backpackColor: pin ? '#bc8446' : '#a87844',
-    blushColor: pin ? '#ff8e9e' : '#ff98ae',
-    glossOpacity: 0.56,
-    irisColor: pin ? '#1d3648' : '#163446',
-    irisRingColor: pin ? '#4d92ac' : '#2ea3ae',
+    backpackColor: pin ? '#d69842' : '#a87844',
+    blushColor: pin ? '#ff847e' : '#ff98ae',
+    glossOpacity: pin ? 0.42 : 0.54,
+    irisColor: pin ? '#14425c' : '#163446',
+    irisRingColor: pin ? '#2cb8b6' : '#2ea3ae',
     scleraColor: '#fffdf7',
-    eyeScale: 1,
-    irisScale: 1,
+    eyeScale: pin ? 1.07 : 1,
+    irisScale: pin ? 1.06 : 1,
     glintStyle: 'muse',
-    browThickness: 2.25,
-    browArch: 0.25,
+    browThickness: pin ? 2.3 : 2.2,
+    browArch: 0.28,
     parallaxDepth: 1,
     eyeTrackingRange: 1,
     breathingScale: 1,
@@ -188,19 +188,20 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
   const warmTop = mixHex(hi, '#fff9f4', 0.46);
   const litMid = mixHex(hi, base, 0.54);
   const shadowMid = mixHex(base, edge, 0.56);
-  const deepShadow = mixHex(shadeHex(edge, 0.56), '#141226', 0.30);
-  const rimBounce = mixHex(hi, pin ? '#ffcfd6' : '#aefcf0', 0.52);
+  const deepShadow = mixHex(shadeHex(edge, 0.56), pin ? '#28120c' : '#141226', 0.30);
+  const rimBounce = mixHex(hi, pin ? '#ffe0c8' : '#aefcf0', 0.52);
   const bounceTint = mixHex(edge, rimBounce, 0.42);
-  const lashInk = mixHex(deepShadow, '#161424', 0.54);
+  const lashInk = mixHex(deepShadow, '#161420', 0.58);
+  const browInk = pin ? mixHex(edge, '#561e10', 0.48) : lashInk;
 
-  const backpackDark = shadeHex(cfg.backpackColor, 0.54);
-  const backpackMid = shadeHex(cfg.backpackColor, 0.82);
-  const backpackLight = mixHex(cfg.backpackColor, '#ffefd0', 0.38);
+  const backpackDark = shadeHex(cfg.backpackColor, 0.56);
+  const backpackMid = shadeHex(cfg.backpackColor, 0.84);
+  const backpackLight = mixHex(cfg.backpackColor, '#fff1cf', 0.40);
 
   const scleraMid = mixHex(cfg.scleraColor, '#e6dfd8', 0.34);
   const scleraRim = mixHex(cfg.scleraColor, '#b2a8b6', 0.46);
   const irisDeep = mixHex(shadeHex(cfg.irisColor, 0.44), '#09101a', 0.38);
-  const irisLuminous = mixHex(cfg.irisRingColor, '#e2fcff', 0.36);
+  const irisLuminous = mixHex(cfg.irisRingColor, '#e2fcff', 0.38);
 
   // Transparent artboard background so Pin & Geo float seamlessly on any host backdrop
   defineColor(doc, 'Background', '#0c151f00');
@@ -330,14 +331,14 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     [1, '#08152000'],
   ]);
 
-  // Plane 1: Lower body, plush cushioned feet nestled naturally beneath body, and explorer backpack
+  // Plane 1: Cushy torso-focused grounded boots/feet & portrait explorer backpack
   moving('Body', 0.58, 0.34, 0.42, true);
 
-  for (const [side, x, rot] of [['L', -18.6, -5], ['R', 18.6, 5]] as const) {
-    const footGroup = g('Foot group ' + side, x, 33.4, 'Body motion');
+  for (const [side, x, rot] of [['L', -16.2, -4], ['R', 16.2, 4]] as const) {
+    const footGroup = g('Foot group ' + side, x, 33.8, 'Body motion');
     footGroup.props.rotation = (rot * Math.PI) / 180;
-    const foot = e('Foot ' + side, 0, 0, 23.6, 13.8, null, 'Foot group ' + side);
-    addRadialFill(foot, side === 'L' ? -4.4 : -2.8, -4.2, 13.5, 9.6, [
+    const foot = e('Foot ' + side, 0, 0, 20.8, 12.6, null, 'Foot group ' + side);
+    addRadialFill(foot, side === 'L' ? -3.8 : -2.4, -3.8, 12.2, 8.8, [
       [0, warmTop],
       [0.2, litMid],
       [0.5, base],
@@ -346,45 +347,60 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     ]);
     const footLightClip = g('Foot clip ' + side, 0, 0, 'Foot group ' + side);
     addClip(footLightClip, foot);
-    const footKey = e('Foot sheen ' + side, -3.2, -3.2, 13.6, 6.4, null, 'Foot clip ' + side);
-    addRadialFill(footKey, -1, -1, 7.2, 3.4, [
-      [0, hexWithAlpha(warmTop, '82')],
-      [0.55, hexWithAlpha(hi, '24')],
+    const footKey = e('Foot sheen ' + side, -2.8, -2.8, 12.0, 5.6, null, 'Foot clip ' + side);
+    addRadialFill(footKey, -1, -1, 6.4, 3.0, [
+      [0, hexWithAlpha(warmTop, '7e')],
+      [0.55, hexWithAlpha(hi, '20')],
       [1, hexWithAlpha(hi, '00')],
     ]);
-    const footContactAO = e('Foot AO ' + side, side === 'L' ? 4.2 : -4.2, -4.2, 14.5, 7.0, null, 'Foot clip ' + side);
-    addRadialFill(footContactAO, 0, -1, 7.2, 3.6, [
+    const footContactAO = e('Foot AO ' + side, side === 'L' ? 3.8 : -3.8, -3.8, 13.0, 6.4, null, 'Foot clip ' + side);
+    addRadialFill(footContactAO, 0, -1, 6.5, 3.2, [
       [0, hexWithAlpha(deepShadow, '5c')],
       [0.6, hexWithAlpha(edge, '1e')],
       [1, hexWithAlpha(edge, '00')],
     ]);
   }
 
-  // Explorer backpack with inverse horizontal parallax for 3D turn illusion
+  // Golden-tan leather explorer backpack (peeking symmetrically on Pin as in the portrait, inverse parallax for 3D turn)
   if (cfg.showBackpack) {
     const backpack = shift('Backpack parallax', 'Body motion', -2.7 * depth, -0.65 * depth, 'headX', 'headY');
-    const packBody = r('Backpack', 30.2, 3.2, 21.5, 30.5, null, 9.5, backpack);
-    addRadialFill(packBody, -6, -12, 18, 22, [
+    if (pin) {
+      const packLeft = r('Backpack L', -31.0, 12.5, 16.5, 22.0, null, 7.2, backpack);
+      addRadialFill(packLeft, 2, -8, 13, 17, [
+        [0, backpackLight],
+        [0.35, cfg.backpackColor],
+        [0.75, backpackMid],
+        [1, backpackDark],
+      ]);
+      const packLeftFlap = r('Backpack flap L', -31.5, 6.5, 14.8, 7.6, null, 3.8, backpack);
+      addLinearFill(packLeftFlap, -6, -4, 6, 4, [
+        [0, backpackLight],
+        [0.58, cfg.backpackColor],
+        [1, backpackMid],
+      ]);
+    }
+    const packBody = r('Backpack', 30.8, 9.2, 18.8, 25.5, null, 8.2, backpack);
+    addRadialFill(packBody, -5, -10, 15, 19, [
       [0, backpackLight],
       [0.35, cfg.backpackColor],
       [0.75, backpackMid],
       [1, backpackDark],
     ]);
-    const packFlap = r('Backpack flap', 30.2, -5.4, 20.0, 10.0, null, 5.2, backpack);
-    addLinearFill(packFlap, -8, -5.5, 8, 5.5, [
+    const packFlap = r('Backpack flap', 30.8, 1.8, 17.6, 8.8, null, 4.4, backpack);
+    addLinearFill(packFlap, -7, -4.5, 7, 4.5, [
       [0, backpackLight],
       [0.55, cfg.backpackColor],
       [1, backpackMid],
     ]);
-    const packStrap = r('Backpack strap', 30.2, -2.4, 13.0, 2.2, null, 1.1, backpack);
-    addLinearFill(packStrap, -6, 0, 6, 0, [
-      [0, '#fff0c4'],
+    const packStrap = r('Backpack strap', 30.8, 4.4, 11.4, 2.0, null, 1.0, backpack);
+    addLinearFill(packStrap, -5, 0, 5, 0, [
+      [0, '#fff2cb'],
       [0.6, '#f4cc7c'],
       [1, '#c69345'],
     ]);
-    const packBuckle = r('Backpack buckle', 30.2, -1.0, 5.0, 4.0, null, 1.4, backpack);
-    addLinearFill(packBuckle, -2.5, -2, 2.5, 2, [
-      [0, '#fff3cc'],
+    const packBuckle = r('Backpack buckle', 30.8, 5.6, 4.6, 3.8, null, 1.3, backpack);
+    addLinearFill(packBuckle, -2.2, -1.8, 2.2, 1.8, [
+      [0, '#fff4cf'],
       [0.5, '#f2c161'],
       [1, '#b67f2e'],
     ]);
@@ -540,9 +556,9 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     19,
     -13,
     [
-      [0, '#ffffff7e'],
-      [0.45, hexWithAlpha(warmTop, '40')],
-      [0.78, hexWithAlpha(hi, '12')],
+      [0, '#ffffff4e'],
+      [0.45, hexWithAlpha(warmTop, '28')],
+      [0.78, hexWithAlpha(hi, '0c')],
       [1, hexWithAlpha(hi, '00')],
     ],
     glossOpacity,
@@ -556,6 +572,97 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
       [0.52, hexWithAlpha(edge, '22')],
       [1, hexWithAlpha(edge, '00')],
     ]);
+  }
+
+  // Portrait-faithful sculpted inner facial cushion rim & golden explorer accessories (Pin identity!)
+  if (pin) {
+    // Subtle recessed outer-crest seam giving Pin her plush portrait double-contour face dome
+    const faceCushionAO = e('Face cushion AO', 0, -6.5, 58.5, 53.5, null, 'Shell lighting clip');
+    addRadialFill(faceCushionAO, 0, 3, 29.5, 27.0, [
+      [0, hexWithAlpha(base, '00')],
+      [0.76, hexWithAlpha(edge, '06')],
+      [0.93, hexWithAlpha(deepShadow, '2a')],
+      [1, hexWithAlpha(deepShadow, '00')],
+    ]);
+    const faceCushionDome = e('Face cushion dome', 0, -7.2, 54.0, 48.5, null, 'Shell lighting clip');
+    addRadialFill(faceCushionDome, -9, -13, 30, 29, [
+      [0, hexWithAlpha(litMid, '24')],
+      [0.48, hexWithAlpha(base, '0a')],
+      [0.86, hexWithAlpha(base, '00')],
+      [1, hexWithAlpha(edge, '1c')],
+    ]);
+
+    // Delicate golden-tan leather explorer backpack straps curving over Pin's front shoulders
+    for (const [side, sx, rot] of [['L', -21.2, -19], ['R', 21.2, 19]] as const) {
+      const strapG = g('Shoulder strap ' + side, sx, 16.0, 'Shell lighting clip');
+      strapG.props.rotation = (rot * Math.PI) / 180;
+      const strap = r('Strap mesh ' + side, 0, 0, 5.2, 20.8, null, 2.6, 'Shoulder strap ' + side);
+      addLinearFill(strap, -2.6, 0, 2.6, 0, [
+        [0, backpackLight],
+        [0.45, cfg.backpackColor],
+        [1, backpackDark],
+      ]);
+    }
+
+    // Iconic Golden Compass Medallion on delicate V-lanyard resting on Pin's lower chest
+    const compassGroup = g('Compass medallion', 0, 23.2, 'Shell lighting clip');
+    const lanyard = addPath(doc, {
+      parent: 'Compass medallion',
+      name: 'Compass lanyard',
+      closed: false,
+      fill: null,
+      stroke: backpackMid,
+      strokeWidth: 2.0,
+      points: [
+        { x: -17.8, y: -11.8, outX: 5.5, outY: 6.8 },
+        { x: 0, y: -4.6, inX: -3.6, inY: -1.2, outX: 3.6, outY: -1.2 },
+        { x: 17.8, y: -11.8, inX: -5.5, inY: 6.8 },
+      ],
+    });
+    setRoundStroke(lanyard);
+    const compassAO = e('Compass AO', 0, 1.3, 14.5, 13.5, null, 'Compass medallion');
+    addRadialFill(compassAO, 0, 0, 7.2, 6.8, [
+      [0, hexWithAlpha(deepShadow, '58')],
+      [0.65, hexWithAlpha(deepShadow, '20')],
+      [1, hexWithAlpha(deepShadow, '00')],
+    ]);
+    const compassRim = e('Compass rim', 0, 0, 13.0, 13.0, null, 'Compass medallion');
+    addLinearFill(compassRim, -5, -6, 6, 6, [
+      [0, '#fff3c4'],
+      [0.35, '#e8b648'],
+      [0.78, '#b97e26'],
+      [1, '#7c4e12'],
+    ]);
+    const compassFace = e('Compass face', 0, 0, 9.8, 9.8, null, 'Compass medallion');
+    addRadialFill(compassFace, -1.5, -1.5, 5.2, 5.2, [
+      [0, '#fffaf0'],
+      [0.72, '#f5e4bc'],
+      [1, '#d8bc84'],
+    ]);
+    // Crisp 4-point colorful compass rose (teal north/south + coral/gold east/west)
+    addPath(doc, {
+      parent: 'Compass medallion',
+      name: 'Compass star NS',
+      fill: '#20b6b2',
+      points: [
+        { x: 0, y: -3.8 },
+        { x: 1.3, y: 0 },
+        { x: 0, y: 3.8 },
+        { x: -1.3, y: 0 },
+      ],
+    });
+    addPath(doc, {
+      parent: 'Compass medallion',
+      name: 'Compass star EW',
+      fill: '#ef744b',
+      points: [
+        { x: -3.5, y: 0 },
+        { x: 0, y: -1.2 },
+        { x: 3.5, y: 0 },
+        { x: 0, y: 1.2 },
+      ],
+    });
+    e('Compass center', 0, 0, 2.2, 2.2, '#ffd86b', 'Compass medallion');
   }
 
   // Soft lower-torso ambient occlusion cast by the open miniature laptop deck
@@ -577,19 +684,18 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
   laptopFaceGlow.props.opacity = 0;
 
   // Articulated Over-Ear Working Headphones (Native inside .riv! Glides on smoothly during WORK-THINK & TYPE-PONDER)
-  // Parented to `Head motion` so it tracks head tilt, breathing, weight shifts, and 3D parallax seamlessly.
+  // Warm satin-silver & soft matte-charcoal finish inspired by the Kendo/Muse studio headphones.
   const headphonesRig = g('Headphones rig', 0, -14, 'Head motion');
   headphonesRig.props.opacity = 0;
   headphonesRig.props.scaleX = 0.92;
   headphonesRig.props.scaleY = 0.92;
 
-  // Sleek arched headband curving cleanly over the head dome (antenna rises naturally behind/above center)
   const hpBandShadow = addPath(doc, {
     parent: 'Headphones rig',
     name: 'Headphone band shadow',
     closed: false,
     fill: null,
-    stroke: '#070c1466',
+    stroke: '#0a0f185a',
     strokeWidth: 7.4,
     points: [
       { x: -37.2, y: -11.5, outX: -0.5, outY: -22.5 },
@@ -604,7 +710,7 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     name: 'Headphone band',
     closed: false,
     fill: null,
-    stroke: '#2c394a',
+    stroke: '#3c4654',
     strokeWidth: 5.4,
     points: [
       { x: -37.2, y: -12.5, outX: -0.5, outY: -22.5 },
@@ -619,8 +725,8 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     name: 'Headphone band highlight',
     closed: false,
     fill: null,
-    stroke: '#7e94ae88',
-    strokeWidth: 1.6,
+    stroke: '#b6c3d499',
+    strokeWidth: 1.7,
     points: [
       { x: -31.5, y: -23.5, outX: 4.5, outY: -12.0 },
       { x: 0, y: -40.8, inX: -18.0, inY: 0, outX: 18.0, outY: 0 },
@@ -629,7 +735,7 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
   });
   setRoundStroke(hpBandHighlight);
 
-  // Volumetric left & right over-ear cushions, brushed-titanium outer shells, and luminous status LED strips
+  // Volumetric left & right over-ear cushions, satin-silver/graphite outer shells, and luminous status LED accents
   for (const [side, sx, tilt] of [
     ['L', -37.2, -5],
     ['R', 37.2, 5],
@@ -638,33 +744,29 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     const cupGroup = g('Headphone cup ' + side, sx, -8.2, 'Headphones rig');
     cupGroup.props.rotation = (tilt * Math.PI) / 180;
 
-    // Soft side-of-head ambient occlusion
     const hpAO = e('HP AO ' + side, -sign * 2.2, 0.8, 9.5, 24.5, null, 'Headphone cup ' + side);
     addRadialFill(hpAO, 0, 0, 5.0, 12.2, [
-      [0, hexWithAlpha(deepShadow, '66')],
-      [0.6, hexWithAlpha(deepShadow, '20')],
+      [0, hexWithAlpha(deepShadow, '60')],
+      [0.6, hexWithAlpha(deepShadow, '1e')],
       [1, hexWithAlpha(deepShadow, '00')],
     ]);
 
-    // Plush memory-foam earpad hugging the side of the head
     const hpPad = r('HP pad ' + side, -sign * 1.4, 0, 7.2, 22.0, null, 3.6, 'Headphone cup ' + side);
     addLinearFill(hpPad, 0, -11, 0, 11, [
-      [0, '#3e4c5e'],
-      [0.35, '#253040'],
-      [0.8, '#171f2b'],
-      [1, '#0e141d'],
+      [0, '#4a5564'],
+      [0.35, '#2c3542'],
+      [0.8, '#1a202a'],
+      [1, '#10151c'],
     ]);
 
-    // Sculpted metallic outer earcup shell
     const hpShell = r('HP shell ' + side, sign * 2.1, 0, 8.2, 18.4, null, 4.1, 'Headphone cup ' + side);
     addLinearFill(hpShell, -4.1, -9.2, 4.1, 9.2, [
-      [0, '#8ba1ba'],
-      [0.3, '#52657d'],
-      [0.72, '#2a3748'],
-      [1, '#192230'],
+      [0, '#d0d8e2'],
+      [0.28, '#8d9aab'],
+      [0.72, '#4a5666'],
+      [1, '#262f3b'],
     ]);
 
-    // Crisp luminous accent strip on outer earcup (glows gently during active work/typing)
     const hpLed = r('HP led ' + side, sign * 3.8, 0, 2.2, 9.4, cfg.beaconColor, 1.1, 'Headphone cup ' + side);
     hpLed.props.opacity = 0.92;
   }
@@ -721,7 +823,7 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
       y: 0,
       closed: false,
       fill: null,
-      stroke: lashInk,
+      stroke: browInk,
       strokeWidth: browThickness,
       points: [
         { x: -6.4, y: 0.6, outX: 3.0, outY: archY },
@@ -730,7 +832,7 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     });
     setRoundStroke(browShape);
 
-    const eyeGroup = g('Eye ' + side, x, -12.0, 'Face motion');
+    const eyeGroup = g('Eye ' + side, x, -11.4, 'Face motion');
     eyeGroup.props.scaleX = eyeScale;
     eyeGroup.props.scaleY = eyeScale;
 
@@ -848,20 +950,20 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
 
     // Anatomical Upper Eyelid: native AutoBlink node + GuideVM `blink` shift (curved organic lash on top!)
     g('Upper lid auto ' + side, 0, 0, 'Eye interior ' + side);
-    const upperLidArt = shift('Upper lid ' + side, 'Upper lid auto ' + side, 1, 14.2, undefined, 'blink');
+    const upperLidArt = shift('Upper lid ' + side, 'Upper lid auto ' + side, 1, 15.8, undefined, 'blink');
     const upperLidShape = addPath(doc, {
       parent: upperLidArt,
       name: 'Upper lid cover ' + side,
       fill: null,
       points: [
-        { x: -13, y: -32, inX: 0, inY: 0, outX: 0, outY: 0 },
-        { x: 13, y: -32, inX: 0, inY: 0, outX: 0, outY: 0 },
-        { x: 13, y: -12.6, inX: 0, inY: 0, outX: -4.5, outY: 1.8 },
-        { x: 0, y: -11.4, inX: 5.5, inY: 0, outX: -5.5, outY: 0 },
-        { x: -13, y: -12.6, inX: 4.5, inY: 1.8, outX: 0, outY: 0 },
+        { x: -13, y: -34, inX: 0, inY: 0, outX: 0, outY: 0 },
+        { x: 13, y: -34, inX: 0, inY: 0, outX: 0, outY: 0 },
+        { x: 13, y: -14.2, inX: 0, inY: 0, outX: -4.5, outY: 1.8 },
+        { x: 0, y: -13.1, inX: 5.5, inY: 0, outX: -5.5, outY: 0 },
+        { x: -13, y: -14.2, inX: 4.5, inY: 1.8, outX: 0, outY: 0 },
       ],
     });
-    addRadialFill(upperLidShape, -3, -23, 14, -9, [
+    addRadialFill(upperLidShape, -3, -24, 14, -9, [
       [0, litMid],
       [0.45, base],
       [0.85, shadowMid],
@@ -875,16 +977,70 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
       stroke: lashInk,
       strokeWidth: 1.85,
       points: [
-        { x: -9.8, y: -12.4, outX: 3.4, outY: 1.5 },
-        { x: 0, y: -11.2, inX: -3.5, inY: 0, outX: 3.5, outY: 0 },
-        { x: 9.8, y: -12.4, inX: -3.4, inY: 1.5 },
+        { x: -9.8, y: -14.0, outX: 3.4, outY: 1.5 },
+        { x: 0, y: -12.9, inX: -3.5, inY: 0, outX: 3.5, outY: 0 },
+        { x: 9.8, y: -14.0, inX: -3.4, inY: 1.5 },
       ],
     });
     setRoundStroke(upperLash);
+
+    // Subtle portrait outer upper-eyelash accents on Pin's expressive eyes
+    if (pin) {
+      const s = side === 'L' ? -1 : 1;
+      const lash1 = addPath(doc, {
+        parent: 'Eye ' + side,
+        name: 'Outer lash A ' + side,
+        closed: false,
+        fill: null,
+        stroke: lashInk,
+        strokeWidth: 1.35,
+        points: [
+          { x: s * 8.4, y: -5.4, outX: s * 1.6, outY: -0.9 },
+          { x: s * 11.4, y: -7.1 },
+        ],
+      });
+      setRoundStroke(lash1);
+      const lash2 = addPath(doc, {
+        parent: 'Eye ' + side,
+        name: 'Outer lash B ' + side,
+        closed: false,
+        fill: null,
+        stroke: lashInk,
+        strokeWidth: 1.25,
+        points: [
+          { x: s * 9.0, y: -2.4, outX: s * 1.4, outY: -0.5 },
+          { x: s * 11.6, y: -3.4 },
+        ],
+      });
+      setRoundStroke(lash2);
+    }
+  }
+
+  // Portrait-faithful sculpted 3D rounded button nose on Pin (sits right between eyes and friendly smile!)
+  if (pin) {
+    const noseShadow = e('Nose shadow', 0, -0.4, 7.0, 4.4, null, 'Face motion');
+    addRadialFill(noseShadow, 0, 0.6, 3.6, 2.2, [
+      [0, hexWithAlpha(deepShadow, '44')],
+      [0.62, hexWithAlpha(edge, '16')],
+      [1, hexWithAlpha(edge, '00')],
+    ]);
+    const noseDome = e('Nose dome', 0, -1.8, 6.2, 4.6, null, 'Face motion');
+    addRadialFill(noseDome, -1.2, -1.2, 3.6, 3.0, [
+      [0, warmTop],
+      [0.28, litMid],
+      [0.65, base],
+      [1, edge],
+    ]);
+    const noseGlint = e('Nose highlight', -1.0, -2.6, 2.4, 1.4, null, 'Face motion');
+    addRadialFill(noseGlint, 0, 0, 1.3, 0.8, [
+      [0, '#ffffff88'],
+      [0.65, hexWithAlpha(warmTop, '28')],
+      [1, hexWithAlpha(warmTop, '00')],
+    ]);
   }
 
   // Whisper-soft chin contour shadow beneath mouth
-  const chinDimple = e('Chin dimple', 0, 10.6, 11.5, 3.4, null, 'Face motion');
+  const chinDimple = e('Chin dimple', 0, 11.4, 11.5, 3.4, null, 'Face motion');
   addRadialFill(chinDimple, 0, 0, 6.0, 1.8, [
     [0, hexWithAlpha(deepShadow, '20')],
     [0.65, hexWithAlpha(edge, '0a')],
@@ -892,7 +1048,7 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
   ]);
 
   // Continuous native smile-cup mouth rig bound to GuideVM mouthWide/mouthOpen/teeth/tongue
-  const mouthFrame = g('Mouth frame', 0, 4.6, 'Face motion');
+  const mouthFrame = g('Mouth frame', 0, pin ? 5.6 : 4.8, 'Face motion');
   mouthFrame.props.scaleX = mouthScale;
   mouthFrame.props.scaleY = mouthScale;
 
@@ -909,10 +1065,10 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     stroke: hexWithAlpha(deepShadow, '88'),
     strokeWidth: 0.75,
     points: [
-      { x: -10.2, y: -2.4, inX: -0.6, inY: 1.8, outX: 3.6, outY: 1.4 },
-      { x: 0, y: -1.4, inX: -3.6, inY: 0, outX: 3.6, outY: 0 },
-      { x: 10.2, y: -2.4, inX: -3.6, inY: 1.4, outX: 0.6, outY: 1.8 },
-      { x: 0, y: 6.4, inX: 6.4, inY: 0, outX: -6.4, outY: 0 },
+      { x: -10.4, y: -3.2, inX: -0.6, inY: 2.1, outX: 3.8, outY: 2.0 },
+      { x: 0, y: -1.1, inX: -3.8, inY: 0, outX: 3.8, outY: 0 },
+      { x: 10.4, y: -3.2, inX: -3.8, inY: 2.0, outX: 0.6, outY: 2.1 },
+      { x: 0, y: 7.2, inX: 6.8, inY: 0, outX: -6.8, outY: 0 },
     ],
   });
   addRadialFill(cavity, 0, -1.6, 11.2, 8.2, [
@@ -1635,47 +1791,28 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
 
     // Articulated shoulder / forearm / wrist / finger choreography per behavior state!
     if (spec.mode === 'typing') {
-      // Rhythmic, natural multi-finger alternating laptop typing articulation (WORK-THINK)
+      // Alternating native wrist taps with small forearm follow-through (Phase 5.3 + 5.4 unified).
+      // The resting keyboard-contact pose remains the center of each excursion.
       pose(animation, 'Arm L', 'rotationDegrees', spec.armL);
       pose(animation, 'Arm R', 'rotationDegrees', spec.armR);
-      key(animation, 'Forearm L', 'rotationDegrees', [
-        { time: 0, value: spec.forearmL, ease: 'easeInOut' },
-        { time: 0.45, value: spec.forearmL - 6, ease: 'easeInOut' },
-        { time: 0.9, value: spec.forearmL + 4, ease: 'easeInOut' },
-        { time: 1.45, value: spec.forearmL - 5, ease: 'easeInOut' },
-        { time: 2.0, value: spec.forearmL + 2, ease: 'easeInOut' },
-        { time: 2.55, value: spec.forearmL - 7, ease: 'easeInOut' },
-        { time: 3.1, value: spec.forearmL + 3, ease: 'easeInOut' },
-        { time: dur, value: spec.forearmL },
-      ]);
-      key(animation, 'Hand L', 'rotationDegrees', [
-        { time: 0, value: spec.handL, ease: 'easeInOut' },
-        { time: 0.35, value: spec.handL - 10, ease: 'easeInOut' },
-        { time: 0.8, value: spec.handL + 7, ease: 'easeInOut' },
-        { time: 1.3, value: spec.handL - 9, ease: 'easeInOut' },
-        { time: 1.85, value: spec.handL + 5, ease: 'easeInOut' },
-        { time: 2.4, value: spec.handL - 10, ease: 'easeInOut' },
-        { time: 3.0, value: spec.handL + 5, ease: 'easeInOut' },
-        { time: dur, value: spec.handL },
-      ]);
-      key(animation, 'Forearm R', 'rotationDegrees', [
-        { time: 0, value: spec.forearmR, ease: 'easeInOut' },
-        { time: 0.55, value: spec.forearmR + 6, ease: 'easeInOut' },
-        { time: 1.1, value: spec.forearmR - 4, ease: 'easeInOut' },
-        { time: 1.65, value: spec.forearmR + 7, ease: 'easeInOut' },
-        { time: 2.25, value: spec.forearmR - 3, ease: 'easeInOut' },
-        { time: 2.85, value: spec.forearmR + 5, ease: 'easeInOut' },
-        { time: dur, value: spec.forearmR },
-      ]);
-      key(animation, 'Hand R', 'rotationDegrees', [
-        { time: 0, value: spec.handR, ease: 'easeInOut' },
-        { time: 0.5, value: spec.handR + 10, ease: 'easeInOut' },
-        { time: 1.0, value: spec.handR - 7, ease: 'easeInOut' },
-        { time: 1.55, value: spec.handR + 9, ease: 'easeInOut' },
-        { time: 2.15, value: spec.handR - 5, ease: 'easeInOut' },
-        { time: 2.75, value: spec.handR + 9, ease: 'easeInOut' },
-        { time: dur, value: spec.handR },
-      ]);
+      for (const side of ['L', 'R'] as const) {
+        const left = side === 'L';
+        const forearm = left ? spec.forearmL : spec.forearmR;
+        const wrist = left ? spec.handL : spec.handR;
+        const sign = left ? -1 : 1;
+        const taps = left ? [0.32, 1.44, 2.56] : [0.86, 1.98, 3.10];
+        const tapKeys = (base: number, amount: number) => [
+          { time: 0, value: base },
+          ...taps.flatMap((t) => [
+            { time: Number((t - 0.12).toFixed(2)), value: base, ease: 'easeInOut' as const },
+            { time: t, value: base + sign * amount, ease: 'easeInOut' as const },
+            { time: Number((t + 0.16).toFixed(2)), value: base, ease: 'easeInOut' as const },
+          ]),
+          { time: dur, value: base },
+        ];
+        key(animation, 'Forearm ' + side, 'rotationDegrees', tapKeys(forearm, 2.6));
+        key(animation, 'Hand ' + side, 'rotationDegrees', tapKeys(wrist, 5.2));
+      }
 
       // Independent staggered 6-finger keystroke taps + spacebar thumb taps!
       const tapSchedule: Array<[string, number, number]> = [
@@ -1940,34 +2077,22 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
   addAnimation(doc, { name: 'Gesture Typing', duration: 2.8, loop: 'loop' });
   pose('Gesture Typing', 'Arm L', 'rotationDegrees', -26);
   pose('Gesture Typing', 'Arm R', 'rotationDegrees', 26);
-  key('Gesture Typing', 'Forearm L', 'rotationDegrees', [
-    { time: 0, value: -28, ease: 'easeInOut' },
-    { time: 0.7, value: -35, ease: 'easeInOut' },
-    { time: 1.4, value: -24, ease: 'easeInOut' },
-    { time: 2.1, value: -34, ease: 'easeInOut' },
-    { time: 2.8, value: -28 },
-  ]);
-  key('Gesture Typing', 'Hand L', 'rotationDegrees', [
-    { time: 0, value: -8, ease: 'easeInOut' },
-    { time: 0.6, value: -18, ease: 'easeInOut' },
-    { time: 1.3, value: -1, ease: 'easeInOut' },
-    { time: 2.0, value: -17, ease: 'easeInOut' },
-    { time: 2.8, value: -8 },
-  ]);
-  key('Gesture Typing', 'Forearm R', 'rotationDegrees', [
-    { time: 0, value: 28, ease: 'easeInOut' },
-    { time: 0.75, value: 35, ease: 'easeInOut' },
-    { time: 1.5, value: 24, ease: 'easeInOut' },
-    { time: 2.2, value: 34, ease: 'easeInOut' },
-    { time: 2.8, value: 28 },
-  ]);
-  key('Gesture Typing', 'Hand R', 'rotationDegrees', [
-    { time: 0, value: 8, ease: 'easeInOut' },
-    { time: 0.7, value: 18, ease: 'easeInOut' },
-    { time: 1.45, value: 1, ease: 'easeInOut' },
-    { time: 2.15, value: 17, ease: 'easeInOut' },
-    { time: 2.8, value: 8 },
-  ]);
+  for (const side of ['L', 'R'] as const) {
+    const left = side === 'L';
+    const sign = left ? -1 : 1;
+    const peaks = left ? [0.32, 1.44] : [0.88, 2.0];
+    const tapKeys = (base: number, amount: number) => [
+      { time: 0, value: base },
+      ...peaks.flatMap((t) => [
+        { time: Number((t - 0.12).toFixed(2)), value: base, ease: 'easeInOut' as const },
+        { time: t, value: base + sign * amount, ease: 'easeInOut' as const },
+        { time: Number((t + 0.16).toFixed(2)), value: base, ease: 'easeInOut' as const },
+      ]),
+      { time: 2.8, value: base },
+    ];
+    key('Gesture Typing', 'Forearm ' + side, 'rotationDegrees', tapKeys(sign * 28, 2.6));
+    key('Gesture Typing', 'Hand ' + side, 'rotationDegrees', tapKeys(sign * 8, 5.2));
+  }
 
   addAnimation(doc, { name: 'Gesture Ponder', duration: 4.0, loop: 'loop' });
   pose('Gesture Ponder', 'Arm L', 'rotationDegrees', -24);

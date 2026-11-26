@@ -104,6 +104,42 @@ export interface QuestieMascotController {
   dispose(): void;
 }
 
+export type QuestieSize = 48 | 64 | 80 | 96 | 128 | number;
+export type QuestieBackground = 'transparent' | 'circle';
+
+export interface QuestieMascotProps {
+  createPlayer: MountQuestieOptions['createPlayer'];
+  rivUrl?: string;
+  bytes?: Uint8Array;
+  artboard?: string | number;
+  stateMachine?: string | number;
+  behavior?: BehaviorId;
+  initialBehavior?: BehaviorId;
+  autoLife?: boolean;
+  interactiveGaze?: boolean;
+  pauseWhenOffscreen?: boolean;
+  respectReducedMotion?: boolean;
+  paused?: boolean;
+  laptopMode?: LaptopMode;
+  armGesture?: ArmGesture;
+  headphonesMode?: HeadphonesMode;
+  processing?: boolean;
+  inputRef?: { current: HTMLInputElement | HTMLTextAreaElement | HTMLElement | null };
+  inputOptions?: AttachInputOptions;
+  size?: QuestieSize;
+  shape?: 'circle' | 'rounded' | 'square';
+  background?: QuestieBackground;
+  label?: string | boolean;
+  width?: number | string;
+  height?: number | string;
+  className?: string;
+  style?: Record<string, string | number | undefined>;
+  ariaLabel?: string;
+  onReady?: (controller: QuestieMascotController) => void;
+  onBehaviorChange?: (state: BehaviorStateMeta) => void;
+  onError?: (error: unknown) => void;
+}
+
 export const BEHAVIOR_STATES: BehaviorStateMeta[];
 export const BEHAVIOR_BY_ID: Record<BehaviorId, BehaviorStateMeta>;
 export function behaviorForEmotion(emotionIndex: number): BehaviorStateMeta;
