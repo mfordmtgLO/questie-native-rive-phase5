@@ -85,8 +85,13 @@ for (const file of [
   'locked-voice.js',
   'embed-example.html',
   'companion-demo.html',
+  'muse-preview.html',
 ]) {
-  writeFileSync(join(out, file), readFileSync(join('questie-preview', file)));
+  const content = readFileSync(join('questie-preview', file), 'utf8');
+  // The root embed uses the Pin bundle; exported bundle copies retain their local index.js.
+  writeFileSync(join(out, file), file === 'embed-example.html'
+    ? content.replace("from './index.js'", "from './questie-pin/index.js'")
+    : content);
 }
 
 console.log('Preview site generated at ' + out);

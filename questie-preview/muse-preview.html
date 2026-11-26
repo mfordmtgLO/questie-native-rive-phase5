@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pin — living companion preview</title><style>
+*{box-sizing:border-box}body{margin:0;background:#f5f4f1;color:#252c32;font:15px/1.5 system-ui,sans-serif;min-height:100dvh;display:grid;place-items:center;padding:16px}main{width:min(100%,440px)}h1{font-size:18px;margin:0 0 6px}p{margin:8px 0}small{color:#61717b}.dock{display:flex;align-items:flex-end;gap:12px;padding:14px 0}.pin{flex:none;display:grid;justify-items:center;gap:2px}.pin canvas{display:block;width:80px;height:80px;touch-action:none}.pin span{font-size:11px;font-weight:650}.composer{display:flex;align-items:center;gap:6px;flex:1;min-width:0;background:#fff;border:1px solid #cfd7dc;border-radius:18px;padding:8px}input{font:inherit;font-size:16px;background:transparent;color:inherit;min-width:0;width:100%;border:0;outline:none;padding:8px 3px}button,select{font:inherit;padding:7px 10px;border:1px solid #cfd7dc;border-radius:10px;background:#fff;color:inherit}button{cursor:pointer}button:disabled{opacity:.5}.options{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;font-size:12px}.reply{min-height:65px;font-size:14px}body.dark{background:#111923;color:#ecf4f6}body.dark .composer,body.dark button,body.dark select{background:#1f2a35;border-color:#41515f}body.dark small{color:#b2c0c8}#status{display:block;min-height:1.6em}
+</style></head><body><main>
+<h1>Meet Pin</h1><small>Silent native Rive preview · sample educational scripts · no AI calls</small>
+<div class="dock"><div class="pin"><canvas id="pin" aria-label="Living Pin mascot"></canvas><span>Pin</span></div>
+<form class="composer" id="composer"><input id="question" placeholder="Ask about buying a home…" aria-label="Educational question" autocomplete="off" disabled><button id="send" type="submit" disabled aria-label="Send">↑</button></form></div>
+<small id="status" role="status">Loading native mascot…</small>
+<p class="reply" id="reply" aria-live="polite">Try “down payment”, “closing costs”, or “preapproval”.</p>
+<div class="options"><label>Size <select id="size"><option>48</option><option>64</option><option selected>80</option><option>96</option><option>128</option></select></label><button id="theme" type="button">Dark / light</button><button id="build" type="button" disabled>Build demo guide</button></div>
+</main><script type="module">
+import {createPlayer} from './questie-pin/index.js';
+import {mountQuestieMascot} from './questie-sdk.js';
+const $=id=>document.getElementById(id);
+const input=$('question'),canvas=$('pin'),status=$('status'),send=$('send'),build=$('build');
+const scripts=[
+ [/down\s*payment/i,'A down payment is the portion of the purchase price paid upfront. Ask your loan professional about program requirements.'],
+ [/closing\s*cost/i,'Closing costs are expenses associated with completing a home purchase. Ask your loan professional for an itemized estimate.'],
+ [/pre[-\s]*approv/i,'Preapproval is a lender review of financial information. It is not a guarantee of final loan approval.']
+];
+let mascot,ponder=0,settle=0,task=0,busy=false;
+function state(id,label){mascot.setBehavior(id,{preserveAudio:true});status.textContent=label;status.dataset.behavior=id}
+function clearActivity(){clearTimeout(ponder);clearTimeout(settle)}
+function idle(){mascot.releaseGaze();state('IDLE-PARKED','Ready')}
+function work(text,building=false){
+ if(busy||!mascot)return;clearActivity();busy=true;send.disabled=true;build.disabled=true;input.readOnly=true;
+ mascot.setProcessing(true);status.textContent=building?'Building sample guide…':'Working…';status.dataset.behavior='WORK-THINK';
+ task=setTimeout(()=>{busy=false;input.readOnly=false;send.disabled=false;build.disabled=false;
+ $('reply').textContent=building?'Sample guide: learn the upfront costs, discuss preapproval, then connect with a loan professional.':scripts.find(([pattern])=>pattern.test(text))?.[1]||'I can explain down payments, closing costs and preapproval. For personalized guidance, contact your loan professional.';
+ mascot.setProcessing(false,'TYPE-LISTEN');status.textContent='Guide ready';status.dataset.behavior='TYPE-LISTEN';
+ input.value='';settle=setTimeout(idle,1200);
+ },1700);
+}
+try{
+ mascot=await mountQuestieMascot({canvas,createPlayer,initialBehavior:'IDLE-PARKED',pauseWhenOffscreen:true,respectReducedMotion:true});
+ idle();input.disabled=false;send.disabled=false;build.disabled=false;
+ input.addEventListener('focus',()=>{if(!busy){clearActivity();state('TYPE-LISTEN','Listening')}});
+ input.addEventListener('input',()=>{if(busy)return;clearActivity();if(!input.value.trim()){state('TYPE-LISTEN','Listening');return}mascot.notifyTypingActivity(.45,{behaviorId:'WORK-THINK'});status.dataset.behavior='WORK-THINK';status.textContent='Typing…';ponder=setTimeout(()=>state('TYPE-PONDER','Thinking…'),1150)});
+ input.addEventListener('blur',()=>{if(!busy){clearActivity();settle=setTimeout(idle,400)}});
+ $('composer').addEventListener('submit',e=>{e.preventDefault();if(input.value.trim())work(input.value)});
+ build.addEventListener('click',()=>work('',true));
+ $('size').addEventListener('change',e=>{canvas.style.width=canvas.style.height=e.target.value+'px'});
+ $('theme').addEventListener('click',()=>document.body.classList.toggle('dark'));
+ window.addEventListener('pagehide',()=>{clearActivity();clearTimeout(task);mascot.dispose()},{once:true});
+}catch(e){status.textContent='Native mascot could not load';status.dataset.behavior='ERROR';console.error(e)}
+</script></body></html>

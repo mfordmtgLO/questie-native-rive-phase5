@@ -86,19 +86,19 @@ export function defaultQuestieCustomization(preset: 'Pin' | 'Geo'): QuestieCusto
   const pin = preset === 'Pin';
   return {
     preset,
-    shellColor: pin ? '#e95d65' : '#159f9d',
-    shellEdge: pin ? '#9c2c49' : '#0f5c70',
-    shellLight: pin ? '#ffc9be' : '#a8f8e6',
+    shellColor: pin ? '#ef795a' : '#159f9d',
+    shellEdge: pin ? '#b94e36' : '#0f5c70',
+    shellLight: pin ? '#ffd4bc' : '#a8f8e6',
     beaconColor: '#24e3ca',
     showBackpack: true,
-    backpackColor: pin ? '#b98245' : '#a87844',
+    backpackColor: pin ? '#d39a43' : '#a87844',
     blushColor: pin ? '#ff9aa8' : '#ff9eb2',
-    glossOpacity: 0.48,
-    irisColor: pin ? '#1f3848' : '#193646',
-    irisRingColor: pin ? '#4b869e' : '#2f94a0',
+    glossOpacity: pin ? 0.34 : 0.48,
+    irisColor: pin ? '#18445a' : '#193646',
+    irisRingColor: pin ? '#3dafa9' : '#2f94a0',
     scleraColor: '#fffcf5',
-    eyeScale: 1,
-    irisScale: 1,
+    eyeScale: pin ? 1.08 : 1,
+    irisScale: pin ? 1.05 : 1,
     glintStyle: 'muse',
     browThickness: 2.0,
     browArch: 0.2,
@@ -438,7 +438,7 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
         points: [
           { x: 0, y: -40, inX: -27.5, inY: 0, outX: 27.5, outY: 0 },
           { x: 35.8, y: -2, inX: 4, inY: -21, outX: -3, outY: 17.5 },
-          { x: 0, y: 42.2, inX: 17.2, inY: -21, outX: -17.2, outY: -21 },
+          { x: 0, y: 40.5, inX: 6.0, inY: 0.8, outX: -6.0, outY: 0.8 },
           { x: -35.8, y: -2, inX: 3, inY: 17.5, outX: -4, outY: -21 },
         ],
       })
@@ -1447,47 +1447,28 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
 
     // Articulated shoulder / forearm / wrist / finger choreography per behavior state!
     if (spec.mode === 'typing') {
-      // Rhythmic, natural multi-finger alternating laptop typing articulation (WORK-THINK)
+      // Alternating native wrist taps with small forearm follow-through.
+      // The resting contact pose remains the center of each excursion.
       pose(animation, 'Arm L', 'rotationDegrees', spec.armL);
       pose(animation, 'Arm R', 'rotationDegrees', spec.armR);
-      key(animation, 'Forearm L', 'rotationDegrees', [
-        { time: 0, value: spec.forearmL, ease: 'easeInOut' },
-        { time: 0.45, value: spec.forearmL - 6, ease: 'easeInOut' },
-        { time: 0.9, value: spec.forearmL + 4, ease: 'easeInOut' },
-        { time: 1.45, value: spec.forearmL - 5, ease: 'easeInOut' },
-        { time: 2.0, value: spec.forearmL + 2, ease: 'easeInOut' },
-        { time: 2.55, value: spec.forearmL - 7, ease: 'easeInOut' },
-        { time: 3.1, value: spec.forearmL + 3, ease: 'easeInOut' },
-        { time: dur, value: spec.forearmL },
-      ]);
-      key(animation, 'Hand L', 'rotationDegrees', [
-        { time: 0, value: spec.handL, ease: 'easeInOut' },
-        { time: 0.35, value: spec.handL - 10, ease: 'easeInOut' },
-        { time: 0.8, value: spec.handL + 7, ease: 'easeInOut' },
-        { time: 1.3, value: spec.handL - 9, ease: 'easeInOut' },
-        { time: 1.85, value: spec.handL + 5, ease: 'easeInOut' },
-        { time: 2.4, value: spec.handL - 10, ease: 'easeInOut' },
-        { time: 3.0, value: spec.handL + 5, ease: 'easeInOut' },
-        { time: dur, value: spec.handL },
-      ]);
-      key(animation, 'Forearm R', 'rotationDegrees', [
-        { time: 0, value: spec.forearmR, ease: 'easeInOut' },
-        { time: 0.55, value: spec.forearmR + 6, ease: 'easeInOut' },
-        { time: 1.1, value: spec.forearmR - 4, ease: 'easeInOut' },
-        { time: 1.65, value: spec.forearmR + 7, ease: 'easeInOut' },
-        { time: 2.25, value: spec.forearmR - 3, ease: 'easeInOut' },
-        { time: 2.85, value: spec.forearmR + 5, ease: 'easeInOut' },
-        { time: dur, value: spec.forearmR },
-      ]);
-      key(animation, 'Hand R', 'rotationDegrees', [
-        { time: 0, value: spec.handR, ease: 'easeInOut' },
-        { time: 0.5, value: spec.handR + 10, ease: 'easeInOut' },
-        { time: 1.0, value: spec.handR - 7, ease: 'easeInOut' },
-        { time: 1.55, value: spec.handR + 9, ease: 'easeInOut' },
-        { time: 2.15, value: spec.handR - 5, ease: 'easeInOut' },
-        { time: 2.75, value: spec.handR + 9, ease: 'easeInOut' },
-        { time: dur, value: spec.handR },
-      ]);
+      for (const side of ['L', 'R'] as const) {
+        const left = side === 'L';
+        const forearm = left ? spec.forearmL : spec.forearmR;
+        const wrist = left ? spec.handL : spec.handR;
+        const sign = left ? -1 : 1;
+        const taps = left ? [0.32, 1.44, 2.56] : [0.86, 1.98, 3.10];
+        const tapKeys = (base: number, amount: number) => [
+          { time: 0, value: base },
+          ...taps.flatMap(t => [
+            { time: t - 0.12, value: base, ease: 'easeInOut' as const },
+            { time: t, value: base + sign * amount, ease: 'easeInOut' as const },
+            { time: t + 0.16, value: base, ease: 'easeInOut' as const },
+          ]),
+          { time: dur, value: base },
+        ];
+        key(animation, 'Forearm ' + side, 'rotationDegrees', tapKeys(forearm, 2.6));
+        key(animation, 'Hand ' + side, 'rotationDegrees', tapKeys(wrist, 5.0));
+      }
 
       // Independent staggered 6-finger keystroke taps + spacebar thumb taps!
       const tapSchedule: Array<[string, number, number]> = [
@@ -1752,34 +1733,22 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
   addAnimation(doc, { name: 'Gesture Typing', duration: 2.8, loop: 'loop' });
   pose('Gesture Typing', 'Arm L', 'rotationDegrees', -26);
   pose('Gesture Typing', 'Arm R', 'rotationDegrees', 26);
-  key('Gesture Typing', 'Forearm L', 'rotationDegrees', [
-    { time: 0, value: -28, ease: 'easeInOut' },
-    { time: 0.7, value: -35, ease: 'easeInOut' },
-    { time: 1.4, value: -24, ease: 'easeInOut' },
-    { time: 2.1, value: -34, ease: 'easeInOut' },
-    { time: 2.8, value: -28 },
-  ]);
-  key('Gesture Typing', 'Hand L', 'rotationDegrees', [
-    { time: 0, value: -8, ease: 'easeInOut' },
-    { time: 0.6, value: -18, ease: 'easeInOut' },
-    { time: 1.3, value: -1, ease: 'easeInOut' },
-    { time: 2.0, value: -17, ease: 'easeInOut' },
-    { time: 2.8, value: -8 },
-  ]);
-  key('Gesture Typing', 'Forearm R', 'rotationDegrees', [
-    { time: 0, value: 28, ease: 'easeInOut' },
-    { time: 0.75, value: 35, ease: 'easeInOut' },
-    { time: 1.5, value: 24, ease: 'easeInOut' },
-    { time: 2.2, value: 34, ease: 'easeInOut' },
-    { time: 2.8, value: 28 },
-  ]);
-  key('Gesture Typing', 'Hand R', 'rotationDegrees', [
-    { time: 0, value: 8, ease: 'easeInOut' },
-    { time: 0.7, value: 18, ease: 'easeInOut' },
-    { time: 1.45, value: 1, ease: 'easeInOut' },
-    { time: 2.15, value: 17, ease: 'easeInOut' },
-    { time: 2.8, value: 8 },
-  ]);
+  for (const side of ['L', 'R'] as const) {
+    const left = side === 'L';
+    const sign = left ? -1 : 1;
+    const peaks = left ? [0.32, 1.44] : [0.88, 2.0];
+    const tapKeys = (base: number, amount: number) => [
+      { time: 0, value: base },
+      ...peaks.flatMap(t => [
+        { time: t - 0.12, value: base, ease: 'easeInOut' as const },
+        { time: t, value: base + sign * amount, ease: 'easeInOut' as const },
+        { time: t + 0.16, value: base, ease: 'easeInOut' as const },
+      ]),
+      { time: 2.8, value: base },
+    ];
+    key('Gesture Typing', 'Forearm ' + side, 'rotationDegrees', tapKeys(sign * 28, 2.6));
+    key('Gesture Typing', 'Hand ' + side, 'rotationDegrees', tapKeys(sign * 8, 5.0));
+  }
 
   addAnimation(doc, { name: 'Gesture Ponder', duration: 4.0, loop: 'loop' });
   pose('Gesture Ponder', 'Arm L', 'rotationDegrees', -24);
