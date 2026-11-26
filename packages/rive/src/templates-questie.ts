@@ -86,26 +86,26 @@ export function defaultQuestieCustomization(preset: 'Pin' | 'Geo'): QuestieCusto
   const pin = preset === 'Pin';
   return {
     preset,
-    shellColor: pin ? '#ef774e' : '#18a8a3',
-    shellEdge: pin ? '#b6492b' : '#0e5b72',
-    shellLight: pin ? '#ffd6bc' : '#b8fff0',
-    beaconColor: '#24e3ca',
+    shellColor: pin ? '#f2784b' : '#18a8a3',
+    shellEdge: pin ? '#b94422' : '#0e5b72',
+    shellLight: pin ? '#ffdcc5' : '#b8fff0',
+    beaconColor: '#1ee2d6',
     showBackpack: true,
-    backpackColor: pin ? '#d69842' : '#a87844',
-    blushColor: pin ? '#ff847e' : '#ff98ae',
-    glossOpacity: pin ? 0.42 : 0.54,
-    irisColor: pin ? '#14425c' : '#163446',
-    irisRingColor: pin ? '#2cb8b6' : '#2ea3ae',
-    scleraColor: '#fffdf7',
-    eyeScale: pin ? 1.07 : 1,
-    irisScale: pin ? 1.06 : 1,
+    backpackColor: pin ? '#e4a141' : '#a87844',
+    blushColor: pin ? '#f5646c' : '#ff98ae',
+    glossOpacity: pin ? 0.52 : 0.54,
+    irisColor: pin ? '#0e3656' : '#163446',
+    irisRingColor: pin ? '#24d4ce' : '#2ea3ae',
+    scleraColor: '#fffefa',
+    eyeScale: pin ? 1.13 : 1,
+    irisScale: pin ? 1.18 : 1,
     glintStyle: 'muse',
-    browThickness: pin ? 2.3 : 2.2,
-    browArch: 0.28,
+    browThickness: pin ? 2.65 : 2.2,
+    browArch: pin ? 0.34 : 0.28,
     parallaxDepth: 1,
     eyeTrackingRange: 1,
     breathingScale: 1,
-    mouthScale: 1,
+    mouthScale: pin ? 1.06 : 1,
   };
 }
 
@@ -313,7 +313,11 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
   //   GuideVM (breath + headX/Y) -> `<name> weight` (11.7s WeightShift layer)
   //   -> `<name> idle` (7.3s Idle Breathe layer) -> `<name> motion` (Emotion layer)
   const moving = (nodeName: string, xf: number, yf: number, bf: number, head = false) => {
-    g(nodeName + ' parallax', 64, 70);
+    const root = g(nodeName + ' parallax', 64, pin ? 76.0 : 70);
+    if (pin) {
+      root.props.scaleX = 1.03;
+      root.props.scaleY = 1.03;
+    }
     const breathed = shift(nodeName + ' breath', nodeName + ' parallax', 1, bf * breathScale, undefined, 'breath');
     const parent = head ? shift(nodeName + ' head', breathed, xf * depth, yf * depth, 'headX', 'headY') : breathed;
     g(nodeName + ' weight', 0, 0, parent);
@@ -323,21 +327,21 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
 
   // Ordered back-to-front; OpenRive inserts new drawables in front of older ones.
   // 1. Soft ambient ground contact shadow (richer grounding for compact circular presentation)
-  const shadow = e('Ground shadow', 64, 118.5, 84, 14.5, null);
-  addRadialFill(shadow, 0, 0, 42, 0, [
-    [0, '#040a147c'],
-    [0.36, '#06101c4a'],
-    [0.7, '#0815201c'],
+  const shadow = e('Ground shadow', 64, pin ? 123.5 : 118.5, 86, 13.5, null);
+  addRadialFill(shadow, 0, 0, 43, 0, [
+    [0, '#040a1472'],
+    [0.36, '#06101c42'],
+    [0.7, '#08152018'],
     [1, '#08152000'],
   ]);
 
   // Plane 1: Cushy torso-focused grounded boots/feet & portrait explorer backpack
   moving('Body', 0.58, 0.34, 0.42, true);
 
-  for (const [side, x, rot] of [['L', -16.2, -4], ['R', 16.2, 4]] as const) {
-    const footGroup = g('Foot group ' + side, x, 33.8, 'Body motion');
+  for (const [side, x, rot] of [['L', -15.6, -4], ['R', 15.6, 4]] as const) {
+    const footGroup = g('Foot group ' + side, x, 35.8, 'Body motion');
     footGroup.props.rotation = (rot * Math.PI) / 180;
-    const foot = e('Foot ' + side, 0, 0, 20.8, 12.6, null, 'Foot group ' + side);
+    const foot = e('Foot ' + side, 0, 0, 19.6, 12.2, null, 'Foot group ' + side);
     addRadialFill(foot, side === 'L' ? -3.8 : -2.4, -3.8, 12.2, 8.8, [
       [0, warmTop],
       [0.2, litMid],
@@ -409,59 +413,67 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
   // Plane 2: Sculpted Plush 3D Head/Body Shell, Antenna, Preserved Glowing Status Ball & Working Headphones
   moving('Head', 1.85, 0.95, 0.72, true);
 
-  const haloAura = e('Halo aura', 0, -55.2, 40, 40, null, 'Head motion');
-  addRadialFill(haloAura, 0, 0, 20, 0, [
-    [0, hexWithAlpha(cfg.beaconColor, '66')],
-    [0.32, hexWithAlpha(cfg.beaconColor, '32')],
-    [0.65, hexWithAlpha(cfg.beaconColor, '12')],
+  const haloAura = e('Halo aura', 0, -56.4, 41, 41, null, 'Head motion');
+  addRadialFill(haloAura, 0, 0, 20.5, 0, [
+    [0, hexWithAlpha(cfg.beaconColor, '6c')],
+    [0.34, hexWithAlpha(cfg.beaconColor, '34')],
+    [0.66, hexWithAlpha(cfg.beaconColor, '12')],
     [1, hexWithAlpha(cfg.beaconColor, '00')],
   ]);
 
-  const antenna = r('Antenna', 0, -45.6, 5.8, 20.5, null, 2.9, 'Head motion');
-  addLinearFill(antenna, -2.9, 0, 2.9, 0, [
-    [0, litMid],
-    [0.26, base],
-    [0.7, edge],
-    [1, deepShadow],
+  const antenna = r('Antenna', 0, -47.2, 5.2, 18.0, null, 2.6, 'Head motion');
+  addLinearFill(antenna, -2.6, 0, 2.6, 0, [
+    [0, warmTop],
+    [0.24, litMid],
+    [0.58, base],
+    [1, edge],
   ]);
-  const collar = e('Antenna collar', 0, -36.8, 13.2, 5.2, null, 'Head motion');
-  addRadialFill(collar, -2.5, -1.5, 8.2, 3.8, [
-    [0, litMid],
-    [0.45, edge],
-    [1, deepShadow],
+  // Portrait-accurate glossy rounded coral pedestal collar sitting atop Pin's crown
+  const collar = r('Antenna collar', 0, -39.6, pin ? 16.2 : 13.2, pin ? 6.4 : 5.2, null, 3.2, 'Head motion');
+  addLinearFill(collar, -8.1, -3.2, 8.1, 3.2, [
+    [0, warmTop],
+    [0.3, litMid],
+    [0.65, base],
+    [1, edge],
+  ]);
+  const collarShine = e('Antenna collar shine', -2.6, -41.4, 7.6, 2.0, null, 'Head motion');
+  addRadialFill(collarShine, 0, 0, 4.0, 1.1, [
+    [0, '#ffffff99'],
+    [0.7, '#ffffff18'],
+    [1, '#ffffff00'],
   ]);
 
   // Preserved round glowing status ball (solid fill animated by Emotion state machine + translucent 3D jewel overlay)
-  e('Halo', 0, -55.2, 26.0, 26.0, hexWithAlpha(cfg.beaconColor, '36'), 'Head motion');
-  e('Beacon', 0, -55.2, 17.8, 17.8, cfg.beaconColor, 'Head motion');
-  const beaconDome = e('Beacon dome', 0, -55.2, 17.8, 17.8, null, 'Head motion');
+  e('Halo', 0, -56.4, 26.5, 26.5, hexWithAlpha(cfg.beaconColor, '36'), 'Head motion');
+  e('Beacon', 0, -56.4, 17.8, 17.8, cfg.beaconColor, 'Head motion');
+  const beaconDome = e('Beacon dome', 0, -56.4, 17.8, 17.8, null, 'Head motion');
   addRadialFill(beaconDome, -4.0, -4.6, 10.8, 10.8, [
-    [0, '#ffffffee'],
-    [0.24, '#ffffff62'],
-    [0.52, '#ffffff0a'],
-    [0.82, '#0000001e'],
-    [1, '#0000005e'],
+    [0, '#fffffff4'],
+    [0.24, '#ffffff6c'],
+    [0.52, '#ffffff0c'],
+    [0.82, '#00324228'],
+    [1, '#0024346a'],
   ]);
-  const beaconCaustic = e('Beacon caustic', 2.4, -51.4, 8.8, 6.0, null, 'Head motion');
-  addRadialFill(beaconCaustic, 0, 0, 4.6, 3.2, [
-    [0, '#ffffff82'],
-    [0.6, '#ffffff1c'],
+  const beaconCaustic = e('Beacon caustic', 2.4, -52.6, 9.2, 6.2, null, 'Head motion');
+  addRadialFill(beaconCaustic, 0, 0, 4.8, 3.2, [
+    [0, '#c2fffb92'],
+    [0.6, '#ffffff22'],
     [1, '#ffffff00'],
   ]);
-  e('Beacon highlight', -3.3, -58.6, 4.9, 3.7, '#f8fffe', 'Head motion').props.opacity = 0.96;
+  e('Beacon highlight', -3.3, -59.8, 5.1, 3.8, '#ffffff', 'Head motion').props.opacity = 0.98;
 
   // Sculpted Plush 3D Shell (zero flat outline stroke — pure volumetric 3D edge lighting!)
-  // Pin keeps its unmistakable teardrop map-pin crest & rounded cushion point; Geo keeps its plush tactile orb.
+  // Pin keeps its unmistakable portrait teardrop map-pin crown & rounded cushion point; Geo keeps its plush tactile orb.
   const shell = pin
     ? addPath(doc, {
         parent: 'Head motion',
         name: 'Shell',
         fill: null,
         points: [
-          { x: 0, y: -39.0, inX: -28.8, inY: 0, outX: 28.8, outY: 0 },
-          { x: 37.2, y: -2.2, inX: 3.4, inY: -22.2, outX: -6.2, outY: 21.8 },
-          { x: 0, y: 40.2, inX: 10.5, inY: 0, outX: -10.5, outY: 0 },
-          { x: -37.2, y: -2.2, inX: 6.2, inY: 21.8, outX: -3.4, outY: -22.2 },
+          { x: 0, y: -40.5, inX: -27.5, inY: 0, outX: 27.5, outY: 0 },
+          { x: 38.8, y: -3.5, inX: 2.8, inY: -22.5, outX: -6.8, outY: 22.8 },
+          { x: 0, y: 41.2, inX: 8.6, inY: 0, outX: -8.6, outY: 0 },
+          { x: -38.8, y: -3.5, inX: 6.8, inY: 22.8, outX: -2.8, outY: -22.5 },
         ],
       })
     : addShape(doc, {
@@ -475,194 +487,239 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
         fill: null,
       });
 
-  addRadialFill(shell, -16, -24, 48, 50, [
+  addRadialFill(shell, -15, -24, 50, 52, [
     [0, warmTop],
-    [0.16, litMid],
-    [0.42, base],
-    [0.69, shadowMid],
-    [0.88, edge],
+    [0.18, litMid],
+    [0.46, base],
+    [0.74, shadowMid],
+    [0.9, edge],
     [1, deepShadow],
   ]);
 
-  // Clipped internal 3D sculptural lighting group (matte-vinyl studio illumination, zero bands, zero spillover)
+  // Clipped internal 3D sculptural lighting group (Pixar glazed-vinyl studio illumination, zero bands, zero spillover)
   const shellLightClip = g('Shell lighting clip', 0, 0, 'Head motion');
   addClip(shellLightClip, shell);
 
   // 1. Broad soft studio top-left key dome
-  const domeKey = e('Shell dome key', -14, -21, 66, 54, null, 'Shell lighting clip');
-  addRadialFill(domeKey, -6, -6, 33, 27, [
-    [0, hexWithAlpha(warmTop, '96')],
-    [0.4, hexWithAlpha(hi, '3e')],
-    [0.74, hexWithAlpha(hi, '0e')],
+  const domeKey = e('Shell dome key', -14, -22, 64, 52, null, 'Shell lighting clip');
+  addRadialFill(domeKey, -6, -6, 32, 26, [
+    [0, hexWithAlpha(warmTop, '7a')],
+    [0.42, hexWithAlpha(hi, '30')],
+    [0.74, hexWithAlpha(hi, '0a')],
     [1, hexWithAlpha(hi, '00')],
   ]);
 
-  // 2. Sculpted core shadow hemisphere (rich hue-shifted depth on lower-right curve)
+  // 2. Sculpted core shadow hemisphere (rich warm-coral hue-shifted depth on lower-right curve)
   const coreShadow = e('Shell core shadow', 16, 20, 62, 54, null, 'Shell lighting clip');
   addRadialFill(coreShadow, 8, 10, 32, 28, [
-    [0, hexWithAlpha(deepShadow, '64')],
-    [0.48, hexWithAlpha(edge, '2e')],
+    [0, hexWithAlpha(deepShadow, '58')],
+    [0.48, hexWithAlpha(edge, '28')],
     [1, hexWithAlpha(edge, '00')],
   ]);
 
   // 3. Soft subsurface rim bounce along lower contour (lifts 3D plushness off compact circular backdrops)
   const bounceLight = e('Shell bounce', -18, 24, 52, 44, null, 'Shell lighting clip');
   addRadialFill(bounceLight, -8, 10, 26, 22, [
-    [0, hexWithAlpha(bounceTint, '6e')],
-    [0.54, hexWithAlpha(bounceTint, '20')],
+    [0, hexWithAlpha(bounceTint, '66')],
+    [0.54, hexWithAlpha(bounceTint, '1e')],
     [1, hexWithAlpha(bounceTint, '00')],
   ]);
 
   // 4. Studio back-rim hair light along right crown edge
-  const edgeRim = e('Shell edge rim', 26, -18, 34, 44, null, 'Shell lighting clip');
-  addRadialFill(edgeRim, 10, -6, 17, 22, [
-    [0, hexWithAlpha(rimBounce, '62')],
-    [0.52, hexWithAlpha(hi, '1a')],
+  const edgeRim = e('Shell edge rim', 27, -18, 34, 46, null, 'Shell lighting clip');
+  addRadialFill(edgeRim, 10, -6, 17, 23, [
+    [0, hexWithAlpha(rimBounce, '68')],
+    [0.52, hexWithAlpha(hi, '1c')],
     [1, hexWithAlpha(hi, '00')],
   ]);
 
   // 5. Colored ambient spill light cast onto top crown directly below glowing status ball
-  const beaconSpill = e('Beacon spill', 0, -34.5, 34, 15, null, 'Shell lighting clip');
-  addRadialFill(beaconSpill, 0, -4, 17, 8, [
-    [0, hexWithAlpha(cfg.beaconColor, '44')],
-    [0.52, hexWithAlpha(cfg.beaconColor, '16')],
+  const beaconSpill = e('Beacon spill', 0, -35.5, 34, 14, null, 'Shell lighting clip');
+  addRadialFill(beaconSpill, 0, -4, 17, 7, [
+    [0, hexWithAlpha(cfg.beaconColor, '3a')],
+    [0.52, hexWithAlpha(cfg.beaconColor, '12')],
     [1, hexWithAlpha(cfg.beaconColor, '00')],
   ]);
 
   // 6. Soft collar ambient occlusion directly under antenna base
-  const collarAO = e('Collar AO', 0, -37.0, 15.5, 5.4, null, 'Shell lighting clip');
-  addRadialFill(collarAO, 0, -0.8, 8, 2.8, [
-    [0, hexWithAlpha(deepShadow, '52')],
-    [0.55, hexWithAlpha(edge, '1c')],
+  const collarAO = e('Collar AO', 0, -38.5, 18.5, 5.2, null, 'Shell lighting clip');
+  addRadialFill(collarAO, 0, -0.8, 9.2, 2.6, [
+    [0, hexWithAlpha(deepShadow, '48')],
+    [0.55, hexWithAlpha(edge, '16')],
     [1, hexWithAlpha(edge, '00')],
   ]);
 
-  // 7. Velvety top-left soft-touch specular crown sheen
+  // 7. Glossy curved outer-hood rim specular gleam (signature glazed-ceramic Pixar sheen from Pin portraits!)
   const sheen = addPath(doc, {
     parent: 'Shell lighting clip',
     name: 'Shell sheen',
     fill: null,
     points: [
-      { x: -25.5, y: -17.5, inX: -3, inY: 5, outX: 3.5, outY: -9.5 },
-      { x: -3.2, y: -33.0, inX: -11.5, inY: -2, outX: 6, outY: 2 },
-      { x: -1.4, y: -27.8, inX: 2, inY: -2, outX: -8, outY: -1 },
-      { x: -21.2, y: -14.8, inX: 2, inY: -6, outX: -4, outY: 2 },
+      { x: -29.5, y: -16.5, inX: -2.5, inY: 6.5, outX: 4.5, outY: -12.0 },
+      { x: -1.5, y: -36.8, inX: -14.5, inY: -1.2, outX: 11.5, outY: 1.0 },
+      { x: 22.0, y: -26.2, inX: -4.5, inY: -5.2, outX: 3.0, outY: 4.0 },
+      { x: 18.5, y: -23.0, inX: 1.5, inY: -2.5, outX: -6.0, outY: -6.5 },
+      { x: -1.5, y: -32.6, inX: 9.0, inY: 0.4, outX: -12.0, outY: -0.6 },
+      { x: -25.4, y: -14.8, inX: 2.8, inY: -9.0, outX: -3.5, outY: 2.5 },
     ],
   });
   addRadialFill(
     sheen,
-    -13.5,
-    -25.5,
-    19,
-    -13,
+    -6.5,
+    -33.5,
+    30,
+    -18,
     [
-      [0, '#ffffff4e'],
-      [0.45, hexWithAlpha(warmTop, '28')],
-      [0.78, hexWithAlpha(hi, '0c')],
+      [0, '#ffffff6c'],
+      [0.48, hexWithAlpha(warmTop, '38')],
+      [0.82, hexWithAlpha(hi, '12')],
       [1, hexWithAlpha(hi, '00')],
     ],
     glossOpacity,
   );
 
   // Soft ambient occlusion shadows where arms join torso (grounds overlapping plush limbs in 3D space)
-  for (const [side, ax] of [['L', -32.6], ['R', 32.6]] as const) {
-    const shAO = e('Shoulder AO ' + side, ax, 5.4, 15.6, 19.6, null, 'Shell lighting clip');
-    addRadialFill(shAO, side === 'L' ? 2.4 : -2.4, 0, 8.0, 9.8, [
-      [0, hexWithAlpha(deepShadow, '56')],
-      [0.52, hexWithAlpha(edge, '22')],
+  for (const [side, ax] of [['L', -34.2], ['R', 34.2]] as const) {
+    const shAO = e('Shoulder AO ' + side, ax, 5.8, 14.8, 18.6, null, 'Shell lighting clip');
+    addRadialFill(shAO, side === 'L' ? 2.4 : -2.4, 0, 7.6, 9.4, [
+      [0, hexWithAlpha(deepShadow, '4a')],
+      [0.52, hexWithAlpha(edge, '1c')],
       [1, hexWithAlpha(edge, '00')],
     ]);
   }
 
-  // Portrait-faithful sculpted inner facial cushion rim & golden explorer accessories (Pin identity!)
+  // Portrait-faithful sculpted inner facial cushion rim & connected golden explorer accessories (Pin identity!)
   if (pin) {
-    // Subtle recessed outer-crest seam giving Pin her plush portrait double-contour face dome
-    const faceCushionAO = e('Face cushion AO', 0, -6.5, 58.5, 53.5, null, 'Shell lighting clip');
-    addRadialFill(faceCushionAO, 0, 3, 29.5, 27.0, [
+    // Sculpted recessed oval groove separating the outer glossy coral map-pin bezel from Pin's plush inner face dome
+    const faceCushionAO = e('Face cushion AO', 0, -6.4, 62.0, 56.8, null, 'Shell lighting clip');
+    addRadialFill(faceCushionAO, 0, 2.2, 31.4, 28.8, [
       [0, hexWithAlpha(base, '00')],
-      [0.76, hexWithAlpha(edge, '06')],
-      [0.93, hexWithAlpha(deepShadow, '2a')],
+      [0.78, hexWithAlpha(edge, '12')],
+      [0.91, hexWithAlpha(deepShadow, '52')],
+      [0.97, hexWithAlpha(deepShadow, '24')],
       [1, hexWithAlpha(deepShadow, '00')],
     ]);
-    const faceCushionDome = e('Face cushion dome', 0, -7.2, 54.0, 48.5, null, 'Shell lighting clip');
-    addRadialFill(faceCushionDome, -9, -13, 30, 29, [
-      [0, hexWithAlpha(litMid, '24')],
-      [0.48, hexWithAlpha(base, '0a')],
-      [0.86, hexWithAlpha(base, '00')],
-      [1, hexWithAlpha(edge, '1c')],
+    // Plump convex inner face cushion with smooth glossy coral-orange dome (zero milky haze!)
+    const faceCushionDome = e('Face cushion dome', 0, -6.8, 57.4, 52.0, null, 'Shell lighting clip');
+    addRadialFill(faceCushionDome, -10, -14, 32, 30, [
+      [0, litMid],
+      [0.36, base],
+      [0.76, shadowMid],
+      [0.94, edge],
+      [1, hexWithAlpha(deepShadow, '44')],
+    ]);
+    // Soft luminous specular highlight tucked cleanly on Pin's inner upper forehead just like IMG_2945
+    const foreheadGlint = e('Forehead gloss', -10.5, -26.5, 18.0, 6.2, null, 'Shell lighting clip');
+    foreheadGlint.props.rotation = (-10 * Math.PI) / 180;
+    addRadialFill(foreheadGlint, 0, 0, 9.2, 3.2, [
+      [0, '#ffffff48'],
+      [0.55, hexWithAlpha(warmTop, '22')],
+      [1, hexWithAlpha(warmTop, '00')],
     ]);
 
-    // Delicate golden-tan leather explorer backpack straps curving over Pin's front shoulders
-    for (const [side, sx, rot] of [['L', -21.2, -19], ['R', 21.2, 19]] as const) {
-      const strapG = g('Shoulder strap ' + side, sx, 16.0, 'Shell lighting clip');
+    // Portrait-accurate curved golden-tan leather backpack straps hugging Pin's chest curve with buckle loop
+    for (const [side, sx, rot] of [['L', -20.5, -24], ['R', 20.5, 24]] as const) {
+      const strapG = g('Shoulder strap ' + side, sx, 17.5, 'Shell lighting clip');
       strapG.props.rotation = (rot * Math.PI) / 180;
-      const strap = r('Strap mesh ' + side, 0, 0, 5.2, 20.8, null, 2.6, 'Shoulder strap ' + side);
-      addLinearFill(strap, -2.6, 0, 2.6, 0, [
+      const strapShadow = r('Strap AO ' + side, side === 'L' ? 0.9 : -0.9, 0.8, 5.8, 22.0, null, 2.9, 'Shoulder strap ' + side);
+      addRadialFill(strapShadow, 0, 0, 3.4, 11.2, [
+        [0, hexWithAlpha(deepShadow, '46')],
+        [1, hexWithAlpha(deepShadow, '00')],
+      ]);
+      const strap = r('Strap mesh ' + side, 0, 0, 5.0, 21.4, null, 2.5, 'Shoulder strap ' + side);
+      addLinearFill(strap, -2.5, 0, 2.5, 0, [
         [0, backpackLight],
-        [0.45, cfg.backpackColor],
+        [0.42, cfg.backpackColor],
+        [0.85, backpackMid],
         [1, backpackDark],
+      ]);
+      const buckle = r('Strap buckle ' + side, 0, 1.5, 5.8, 3.0, null, 1.0, 'Shoulder strap ' + side);
+      addLinearFill(buckle, -2.9, -1.5, 2.9, 1.5, [
+        [0, '#fff2c2'],
+        [0.5, '#e6b249'],
+        [1, '#9c661c'],
       ]);
     }
 
-    // Iconic Golden Compass Medallion on delicate V-lanyard resting on Pin's lower chest
-    const compassGroup = g('Compass medallion', 0, 23.2, 'Shell lighting clip');
+    // Iconic Golden Compass Medallion on V-lanyard connecting cleanly from both shoulder straps
+    const compassGroup = g('Compass medallion', 0, 25.0, 'Shell lighting clip');
+    const lanyardShadow = addPath(doc, {
+      parent: 'Compass medallion',
+      name: 'Compass lanyard shadow',
+      closed: false,
+      fill: null,
+      stroke: hexWithAlpha(deepShadow, '40'),
+      strokeWidth: 3.4,
+      points: [
+        { x: -17.5, y: -11.4, outX: 5.2, outY: 4.8 },
+        { x: 0, y: -5.2, inX: -3.2, inY: -1.8, outX: 3.2, outY: -1.8 },
+        { x: 17.5, y: -11.4, inX: -5.2, inY: 4.8 },
+      ],
+    });
+    setRoundStroke(lanyardShadow);
     const lanyard = addPath(doc, {
       parent: 'Compass medallion',
       name: 'Compass lanyard',
       closed: false,
       fill: null,
-      stroke: backpackMid,
-      strokeWidth: 2.0,
+      stroke: cfg.backpackColor,
+      strokeWidth: 2.6,
       points: [
-        { x: -17.8, y: -11.8, outX: 5.5, outY: 6.8 },
-        { x: 0, y: -4.6, inX: -3.6, inY: -1.2, outX: 3.6, outY: -1.2 },
-        { x: 17.8, y: -11.8, inX: -5.5, inY: 6.8 },
+        { x: -17.5, y: -12.2, outX: 5.2, outY: 4.8 },
+        { x: 0, y: -6.0, inX: -3.2, inY: -1.8, outX: 3.2, outY: -1.8 },
+        { x: 17.5, y: -12.2, inX: -5.2, inY: 4.8 },
       ],
     });
     setRoundStroke(lanyard);
-    const compassAO = e('Compass AO', 0, 1.3, 14.5, 13.5, null, 'Compass medallion');
-    addRadialFill(compassAO, 0, 0, 7.2, 6.8, [
-      [0, hexWithAlpha(deepShadow, '58')],
+    const bail = e('Compass bail', 0, -6.2, 3.6, 3.6, null, 'Compass medallion');
+    addLinearFill(bail, -1.8, -1.8, 1.8, 1.8, [
+      [0, '#fff3c4'],
+      [0.5, '#e5b347'],
+      [1, '#8c5a18'],
+    ]);
+    const compassAO = e('Compass AO', 0, 1.5, 14.8, 14.2, null, 'Compass medallion');
+    addRadialFill(compassAO, 0, 0, 7.4, 7.1, [
+      [0, hexWithAlpha(deepShadow, '5c')],
       [0.65, hexWithAlpha(deepShadow, '20')],
       [1, hexWithAlpha(deepShadow, '00')],
     ]);
-    const compassRim = e('Compass rim', 0, 0, 13.0, 13.0, null, 'Compass medallion');
-    addLinearFill(compassRim, -5, -6, 6, 6, [
-      [0, '#fff3c4'],
-      [0.35, '#e8b648'],
-      [0.78, '#b97e26'],
-      [1, '#7c4e12'],
+    const compassRim = e('Compass rim', 0, 0, 13.4, 13.4, null, 'Compass medallion');
+    addLinearFill(compassRim, -5.2, -6.2, 6.2, 6.2, [
+      [0, '#fff5cc'],
+      [0.32, '#eab74b'],
+      [0.74, '#b87c24'],
+      [1, '#794a10'],
     ]);
-    const compassFace = e('Compass face', 0, 0, 9.8, 9.8, null, 'Compass medallion');
-    addRadialFill(compassFace, -1.5, -1.5, 5.2, 5.2, [
-      [0, '#fffaf0'],
+    const compassFace = e('Compass face', 0, 0, 10.2, 10.2, null, 'Compass medallion');
+    addRadialFill(compassFace, -1.5, -1.5, 5.4, 5.4, [
+      [0, '#fffbf0'],
       [0.72, '#f5e4bc'],
       [1, '#d8bc84'],
     ]);
-    // Crisp 4-point colorful compass rose (teal north/south + coral/gold east/west)
+    // Crisp 4-point colorful compass rose (vivid turquoise N/S + warm coral-gold E/W)
     addPath(doc, {
       parent: 'Compass medallion',
       name: 'Compass star NS',
-      fill: '#20b6b2',
+      fill: '#16b9bc',
       points: [
-        { x: 0, y: -3.8 },
-        { x: 1.3, y: 0 },
-        { x: 0, y: 3.8 },
-        { x: -1.3, y: 0 },
+        { x: 0, y: -4.1 },
+        { x: 1.4, y: 0 },
+        { x: 0, y: 4.1 },
+        { x: -1.4, y: 0 },
       ],
     });
     addPath(doc, {
       parent: 'Compass medallion',
       name: 'Compass star EW',
-      fill: '#ef744b',
+      fill: '#f06d42',
       points: [
-        { x: -3.5, y: 0 },
-        { x: 0, y: -1.2 },
-        { x: 3.5, y: 0 },
-        { x: 0, y: 1.2 },
+        { x: -3.8, y: 0 },
+        { x: 0, y: -1.3 },
+        { x: 3.8, y: 0 },
+        { x: 0, y: 1.3 },
       ],
     });
-    e('Compass center', 0, 0, 2.2, 2.2, '#ffd86b', 'Compass medallion');
+    e('Compass center', 0, 0, 2.4, 2.4, '#ffd966', 'Compass medallion');
   }
 
   // Soft lower-torso ambient occlusion cast by the open miniature laptop deck
@@ -698,9 +755,9 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     stroke: '#0a0f185a',
     strokeWidth: 7.4,
     points: [
-      { x: -37.2, y: -11.5, outX: -0.5, outY: -22.5 },
-      { x: 0, y: -38.8, inX: -23.5, inY: 0, outX: 23.5, outY: 0 },
-      { x: 37.2, y: -11.5, inX: 0.5, inY: -22.5 },
+      { x: -39.0, y: -11.5, outX: -0.5, outY: -23.5 },
+      { x: 0, y: -40.4, inX: -24.5, inY: 0, outX: 24.5, outY: 0 },
+      { x: 39.0, y: -11.5, inX: 0.5, inY: -23.5 },
     ],
   });
   setRoundStroke(hpBandShadow);
@@ -713,9 +770,9 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     stroke: '#3c4654',
     strokeWidth: 5.4,
     points: [
-      { x: -37.2, y: -12.5, outX: -0.5, outY: -22.5 },
-      { x: 0, y: -39.6, inX: -23.5, inY: 0, outX: 23.5, outY: 0 },
-      { x: 37.2, y: -12.5, inX: 0.5, inY: -22.5 },
+      { x: -39.0, y: -12.5, outX: -0.5, outY: -23.5 },
+      { x: 0, y: -41.2, inX: -24.5, inY: 0, outX: 24.5, outY: 0 },
+      { x: 39.0, y: -12.5, inX: 0.5, inY: -23.5 },
     ],
   });
   setRoundStroke(hpBand);
@@ -728,17 +785,17 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     stroke: '#b6c3d499',
     strokeWidth: 1.7,
     points: [
-      { x: -31.5, y: -23.5, outX: 4.5, outY: -12.0 },
-      { x: 0, y: -40.8, inX: -18.0, inY: 0, outX: 18.0, outY: 0 },
-      { x: 28.0, y: -25.5, inX: -4.0, inY: -10.5 },
+      { x: -33.0, y: -24.2, outX: 4.5, outY: -12.2 },
+      { x: 0, y: -42.4, inX: -19.0, inY: 0, outX: 19.0, outY: 0 },
+      { x: 29.5, y: -26.2, inX: -4.0, inY: -10.8 },
     ],
   });
   setRoundStroke(hpBandHighlight);
 
   // Volumetric left & right over-ear cushions, satin-silver/graphite outer shells, and luminous status LED accents
   for (const [side, sx, tilt] of [
-    ['L', -37.2, -5],
-    ['R', 37.2, 5],
+    ['L', -39.0, -5],
+    ['R', 39.0, 5],
   ] as const) {
     const sign = side === 'L' ? -1 : 1;
     const cupGroup = g('Headphone cup ' + side, sx, -8.2, 'Headphones rig');
@@ -773,16 +830,16 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
 
   // Plane 3: Mid-face soft sculptural cheek warmth & speaking glow
   moving('MidFace', 3.05, 1.5, 0.8, true);
-  for (const [side, x] of [['L', -23.5], ['R', 23.5]] as const) {
-    const cheek = e('Cheek ' + side, x, 1.0, 16.5, 9.8, null, 'MidFace motion');
-    addRadialFill(cheek, 0, 0, 8.5, 0, [
-      [0, hexWithAlpha(cfg.blushColor, '72')],
-      [0.48, hexWithAlpha(cfg.blushColor, '30')],
-      [0.8, hexWithAlpha(cfg.blushColor, '0c')],
+  for (const [side, x] of [['L', -22.4], ['R', 22.4]] as const) {
+    const cheek = e('Cheek ' + side, x, 2.0, 14.8, 8.6, null, 'MidFace motion');
+    addRadialFill(cheek, 0, 0, 7.6, 0, [
+      [0, hexWithAlpha(cfg.blushColor, '86')],
+      [0.48, hexWithAlpha(cfg.blushColor, '38')],
+      [0.82, hexWithAlpha(cfg.blushColor, '0e')],
       [1, hexWithAlpha(cfg.blushColor, '00')],
     ]);
-    const blush = e('Speech blush ' + side, x, 1.0, 17.5, 10.5, null, 'MidFace motion');
-    addRadialFill(blush, 0, 0, 9, 0, [
+    const blush = e('Speech blush ' + side, x, 2.0, 16.5, 9.6, null, 'MidFace motion');
+    addRadialFill(blush, 0, 0, 8.4, 0, [
       [0, hexWithAlpha(cfg.blushColor, '66')],
       [0.55, hexWithAlpha(cfg.blushColor, '22')],
       [1, hexWithAlpha(cfg.blushColor, '00')],
@@ -794,25 +851,25 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
   // Plane 4: Foreground expressive face plane (high 3D differential parallax)
   moving('Face', 4.25, 2.2, 0.86, true);
 
-  for (const [side, x] of [['L', -14.2], ['R', 14.2]] as const) {
+  for (const [side, x] of [['L', -14.0], ['R', 14.0]] as const) {
     const browLift = shift('Brow lift ' + side, 'Face motion', 0.42 * eyeTrack, 1.3 * eyeTrack, 'lookX', 'lookY');
     // Dedicated independent brow microexpression node (driven by 13.9s AutoGaze layer)
     g('Brow micro ' + side, 0, 0, browLift);
-    g('Brow rig ' + side, x, -26.2, 'Brow micro ' + side);
+    g('Brow rig ' + side, x, -25.8, 'Brow micro ' + side);
     const archY = -4.2 - browArch;
-    // Soft brow ambient shadow grounds the brow onto the curved 3D forehead
+    // Soft brow ambient shadow grounds the sculpted 3D brow ridge onto Pin's forehead
     const browShadow = addPath(doc, {
       parent: 'Brow rig ' + side,
       name: 'Brow shadow ' + side,
       x: 0,
-      y: 1.0,
+      y: 1.1,
       closed: false,
       fill: null,
-      stroke: hexWithAlpha(deepShadow, '38'),
+      stroke: hexWithAlpha(deepShadow, '3e'),
       strokeWidth: browThickness + 1.1,
       points: [
-        { x: -6.4, y: 0.6, outX: 3.0, outY: archY },
-        { x: 6.4, y: 0.6, inX: -3.0, inY: archY },
+        { x: -6.2, y: 0.6, outX: 3.0, outY: archY },
+        { x: 6.2, y: 0.6, inX: -3.0, inY: archY },
       ],
     });
     setRoundStroke(browShadow);
@@ -823,39 +880,56 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
       y: 0,
       closed: false,
       fill: null,
-      stroke: browInk,
+      stroke: pin ? '#a63c1c' : browInk,
       strokeWidth: browThickness,
       points: [
-        { x: -6.4, y: 0.6, outX: 3.0, outY: archY },
-        { x: 6.4, y: 0.6, inX: -3.0, inY: archY },
+        { x: -6.2, y: 0.6, outX: 3.0, outY: archY },
+        { x: 6.2, y: 0.6, inX: -3.0, inY: archY },
       ],
     });
     setRoundStroke(browShape);
+    if (pin) {
+      const browGlint = addPath(doc, {
+        parent: 'Brow rig ' + side,
+        name: 'Brow highlight ' + side,
+        x: 0,
+        y: -0.55,
+        closed: false,
+        fill: null,
+        stroke: hexWithAlpha(warmTop, '42'),
+        strokeWidth: 0.85,
+        points: [
+          { x: -4.2, y: -0.1, outX: 2.0, outY: archY * 0.65 },
+          { x: 4.2, y: -0.1, inX: -2.0, inY: archY * 0.65 },
+        ],
+      });
+      setRoundStroke(browGlint);
+    }
 
-    const eyeGroup = g('Eye ' + side, x, -11.4, 'Face motion');
+    const eyeGroup = g('Eye ' + side, x, -10.8, 'Face motion');
     eyeGroup.props.scaleX = eyeScale;
     eyeGroup.props.scaleY = eyeScale;
 
-    const socket = e('Eye socket ' + side, 0, -0.7, 26.2, 27.6, null, 'Eye ' + side);
-    addRadialFill(socket, 0, -1.6, 13.4, 14.2, [
-      [0, hexWithAlpha(deepShadow, '62')],
-      [0.52, hexWithAlpha(deepShadow, '2e')],
-      [0.8, hexWithAlpha(edge, '12')],
+    const socket = e('Eye socket ' + side, 0, -0.5, 25.4, 26.8, null, 'Eye ' + side);
+    addRadialFill(socket, 0, -1.5, 13.0, 13.8, [
+      [0, hexWithAlpha(deepShadow, '58')],
+      [0.54, hexWithAlpha(deepShadow, '28')],
+      [0.82, hexWithAlpha(edge, '10')],
       [1, hexWithAlpha(edge, '00')],
     ]);
 
-    const underRim = e('Eye under rim ' + side, 0, 10.0, 16.4, 4.8, null, 'Eye ' + side);
+    const underRim = e('Eye under rim ' + side, 0, 9.8, 16.4, 4.8, null, 'Eye ' + side);
     addRadialFill(underRim, 0, 1, 8.4, 2.4, [
       [0, hexWithAlpha(warmTop, '46')],
       [0.65, hexWithAlpha(hi, '12')],
       [1, hexWithAlpha(hi, '00')],
     ]);
 
-    const sclera = e('Sclera ' + side, 0, 0, 19.4, 21.2, null, 'Eye ' + side);
-    addRadialFill(sclera, -2.2, 1.4, 11.8, 12.6, [
+    const sclera = e('Sclera ' + side, 0, 0, 19.2, 20.8, null, 'Eye ' + side);
+    addRadialFill(sclera, -2.0, 1.4, 11.4, 12.2, [
       [0, cfg.scleraColor],
-      [0.58, cfg.scleraColor],
-      [0.84, scleraMid],
+      [0.62, cfg.scleraColor],
+      [0.86, scleraMid],
       [1, scleraRim],
     ]);
 
@@ -866,49 +940,50 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     // Native autonomous gaze node (runs in any standalone Rive player with zero JS!)
     // Nested above GuideVM Pupil shift so interactive tracking composes seamlessly on top.
     g('Native gaze ' + side, 0, 0, 'Eye interior ' + side);
-    const pupil = shift('Pupil ' + side, 'Native gaze ' + side, 3.65 * eyeTrack, 2.65 * eyeTrack, 'lookX', 'lookY');
+    const pupil = shift('Pupil ' + side, 'Native gaze ' + side, 3.25 * eyeTrack, 2.35 * eyeTrack, 'lookX', 'lookY');
     const irisRig = g('Iris rig ' + side, 0, 0.7, pupil);
     irisRig.props.scaleX = irisScale;
     irisRig.props.scaleY = irisScale;
 
-    const irisLimbal = e('Iris limbal ' + side, 0, 0, 12.2, 14.2, null, 'Iris rig ' + side);
+    // Soulful Pixar Pin iris: rich deep midnight-navy upper iris transitioning to glowing turquoise-teal crescent
+    const irisLimbal = e('Iris limbal ' + side, 0, 0, 12.6, 14.0, null, 'Iris rig ' + side);
     addRadialFill(irisLimbal, 0, 0, 6.8, 7.2, [
       [0, cfg.irisColor],
-      [0.74, irisDeep],
-      [1, hexWithAlpha(irisDeep, 'ee')],
+      [0.72, irisDeep],
+      [1, '#051120f0'],
     ]);
 
-    const iris = e('Iris ' + side, 0, 0.2, 11.0, 13.0, null, 'Iris rig ' + side);
-    addRadialFill(iris, 0, 3.2, 6.8, 7.6, [
-      [0, irisLuminous],
-      [0.34, cfg.irisRingColor],
-      [0.68, cfg.irisColor],
-      [1, irisDeep],
+    const iris = e('Iris ' + side, 0, 0.3, 11.6, 13.0, null, 'Iris rig ' + side);
+    addRadialFill(iris, 0, 3.6, 7.2, 7.8, [
+      [0, '#4ef8ee'],
+      [0.32, cfg.irisRingColor],
+      [0.64, cfg.irisColor],
+      [1, '#07182c'],
     ]);
 
-    const irisHalo = e('Iris halo ' + side, 0, 1.8, 7.4, 7.8, null, 'Iris rig ' + side);
-    addRadialFill(irisHalo, 0, 1.6, 4.2, 4.2, [
-      [0, hexWithAlpha(irisLuminous, '88')],
-      [0.58, hexWithAlpha(cfg.irisRingColor, '28')],
+    const irisHalo = e('Iris halo ' + side, 0, 2.5, 8.2, 6.8, null, 'Iris rig ' + side);
+    addRadialFill(irisHalo, 0, 1.4, 4.4, 3.6, [
+      [0, '#72fff7b0'],
+      [0.55, hexWithAlpha(cfg.irisRingColor, '38')],
       [1, hexWithAlpha(cfg.irisRingColor, '00')],
     ]);
 
-    const pupilCore = e('Pupil core ' + side, 0, -0.3, 5.5, 6.5, null, 'Iris rig ' + side);
-    addRadialFill(pupilCore, 0, -0.4, 3.2, 3.6, [
-      [0, '#070d14'],
-      [0.76, '#0d1822'],
-      [1, hexWithAlpha(irisDeep, 'cc')],
+    const pupilCore = e('Pupil core ' + side, 0, -0.6, 6.8, 7.8, null, 'Iris rig ' + side);
+    addRadialFill(pupilCore, 0, -0.4, 3.8, 4.2, [
+      [0, '#040a14'],
+      [0.74, '#081524'],
+      [1, hexWithAlpha(irisDeep, 'd4')],
     ]);
 
     if (cfg.glintStyle === 'muse') {
-      const mainGlint = e('Eye glint ' + side, -2.2, -2.8, 4.1, 3.6, '#ffffff', 'Iris rig ' + side);
+      const mainGlint = e('Eye glint ' + side, -2.5, -2.9, 4.4, 3.9, '#ffffff', 'Iris rig ' + side);
       mainGlint.props.rotation = (-18 * Math.PI) / 180;
-      e('Eye glint small ' + side, 2.3, 2.9, 1.65, 1.65, '#e8fcff', 'Iris rig ' + side).props.opacity = 0.92;
-      const lowerCaustic = e('Eye catchlight ' + side, 0.3, 4.6, 4.8, 1.6, null, 'Iris rig ' + side);
-      addRadialFill(lowerCaustic, 0, 0, 2.6, 0.9, [
-        [0, '#ffffffaa'],
-        [0.55, hexWithAlpha(irisLuminous, '99')],
-        [1, hexWithAlpha(irisLuminous, '00')],
+      e('Eye glint small ' + side, 2.3, 2.9, 1.9, 1.85, '#ecffff', 'Iris rig ' + side).props.opacity = 0.96;
+      const lowerCaustic = e('Eye catchlight ' + side, 0.2, 4.6, 5.2, 1.8, null, 'Iris rig ' + side);
+      addRadialFill(lowerCaustic, 0, 0, 2.8, 1.0, [
+        [0, '#ffffffcc'],
+        [0.55, '#52fff6aa'],
+        [1, '#52fff600'],
       ]);
     } else if (cfg.glintStyle === 'studio') {
       const studioGlint = e('Eye glint ' + side, -1.9, -2.6, 5.0, 3.0, '#ffffff', 'Iris rig ' + side);
@@ -920,10 +995,10 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
       e('Eye glint small ' + side, 2.1, 3.2, 1.5, 1.5, '#b6dce6', 'Iris rig ' + side);
     }
 
-    const topEyeShadow = e('Eye top shadow ' + side, 0, -10.2, 22, 8.2, null, 'Eye interior ' + side);
-    addRadialFill(topEyeShadow, 0, -2, 11, 4.8, [
-      [0, hexWithAlpha(deepShadow, '46')],
-      [0.65, hexWithAlpha(deepShadow, '14')],
+    const topEyeShadow = e('Eye top shadow ' + side, 0, -10.0, 22, 7.6, null, 'Eye interior ' + side);
+    addRadialFill(topEyeShadow, 0, -2, 11, 4.4, [
+      [0, hexWithAlpha(deepShadow, '3e')],
+      [0.65, hexWithAlpha(deepShadow, '10')],
       [1, hexWithAlpha(deepShadow, '00')],
     ]);
 
@@ -984,19 +1059,33 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     });
     setRoundStroke(upperLash);
 
-    // Subtle portrait outer upper-eyelash accents on Pin's expressive eyes
+    // Signature Pin Portrait Espresso Upper Eye-Rim Arch + 3 Delicate Upturned Outer Lashes!
     if (pin) {
       const s = side === 'L' ? -1 : 1;
+      const upperRimArch = addPath(doc, {
+        parent: 'Eye ' + side,
+        name: 'Eye lash rim ' + side,
+        closed: false,
+        fill: null,
+        stroke: '#231311',
+        strokeWidth: 1.55,
+        points: [
+          { x: -s * 7.2, y: -6.2, outX: s * 2.0, outY: -4.2 },
+          { x: s * 0.6, y: -10.3, inX: -s * 4.4, inY: -0.2, outX: s * 5.2, outY: 0.4 },
+          { x: s * 9.3, y: -2.2, inX: -s * 0.7, inY: -5.2 },
+        ],
+      });
+      setRoundStroke(upperRimArch);
       const lash1 = addPath(doc, {
         parent: 'Eye ' + side,
         name: 'Outer lash A ' + side,
         closed: false,
         fill: null,
-        stroke: lashInk,
+        stroke: '#231311',
         strokeWidth: 1.35,
         points: [
-          { x: s * 8.4, y: -5.4, outX: s * 1.6, outY: -0.9 },
-          { x: s * 11.4, y: -7.1 },
+          { x: s * 7.6, y: -6.6, outX: s * 1.4, outY: -1.4 },
+          { x: s * 10.6, y: -8.9 },
         ],
       });
       setRoundStroke(lash1);
@@ -1005,50 +1094,72 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
         name: 'Outer lash B ' + side,
         closed: false,
         fill: null,
-        stroke: lashInk,
-        strokeWidth: 1.25,
+        stroke: '#231311',
+        strokeWidth: 1.3,
         points: [
-          { x: s * 9.0, y: -2.4, outX: s * 1.4, outY: -0.5 },
-          { x: s * 11.6, y: -3.4 },
+          { x: s * 8.8, y: -4.0, outX: s * 1.6, outY: -0.9 },
+          { x: s * 11.8, y: -5.4 },
         ],
       });
       setRoundStroke(lash2);
+      const lash3 = addPath(doc, {
+        parent: 'Eye ' + side,
+        name: 'Outer lash C ' + side,
+        closed: false,
+        fill: null,
+        stroke: '#231311',
+        strokeWidth: 1.15,
+        points: [
+          { x: s * 9.4, y: -1.4, outX: s * 1.3, outY: -0.3 },
+          { x: s * 11.7, y: -2.0 },
+        ],
+      });
+      setRoundStroke(lash3);
     }
   }
 
-  // Portrait-faithful sculpted 3D rounded button nose on Pin (sits right between eyes and friendly smile!)
+  // Portrait-faithful sculpted 3D rounded button nose on Pin (sits right between eyes and joyful smile!)
   if (pin) {
-    const noseShadow = e('Nose shadow', 0, -0.4, 7.0, 4.4, null, 'Face motion');
-    addRadialFill(noseShadow, 0, 0.6, 3.6, 2.2, [
-      [0, hexWithAlpha(deepShadow, '44')],
-      [0.62, hexWithAlpha(edge, '16')],
+    const noseShadow = e('Nose shadow', 0, 0.5, 7.8, 4.6, null, 'Face motion');
+    addRadialFill(noseShadow, 0, 0.6, 4.0, 2.4, [
+      [0, hexWithAlpha(deepShadow, '4a')],
+      [0.62, hexWithAlpha(edge, '18')],
       [1, hexWithAlpha(edge, '00')],
     ]);
-    const noseDome = e('Nose dome', 0, -1.8, 6.2, 4.6, null, 'Face motion');
-    addRadialFill(noseDome, -1.2, -1.2, 3.6, 3.0, [
+    const noseDome = e('Nose dome', 0, -0.9, 7.0, 5.0, null, 'Face motion');
+    addRadialFill(noseDome, -1.3, -1.3, 4.0, 3.2, [
       [0, warmTop],
       [0.28, litMid],
-      [0.65, base],
+      [0.66, base],
       [1, edge],
     ]);
-    const noseGlint = e('Nose highlight', -1.0, -2.6, 2.4, 1.4, null, 'Face motion');
-    addRadialFill(noseGlint, 0, 0, 1.3, 0.8, [
-      [0, '#ffffff88'],
-      [0.65, hexWithAlpha(warmTop, '28')],
+    const noseGlint = e('Nose highlight', -1.2, -1.8, 2.8, 1.6, null, 'Face motion');
+    addRadialFill(noseGlint, 0, 0, 1.5, 0.9, [
+      [0, '#ffffffa4'],
+      [0.65, hexWithAlpha(warmTop, '30')],
       [1, hexWithAlpha(warmTop, '00')],
     ]);
   }
 
-  // Whisper-soft chin contour shadow beneath mouth
-  const chinDimple = e('Chin dimple', 0, 11.4, 11.5, 3.4, null, 'Face motion');
-  addRadialFill(chinDimple, 0, 0, 6.0, 1.8, [
-    [0, hexWithAlpha(deepShadow, '20')],
+  // Sculpted lower-lip cushion highlight + whisper-soft chin contour shadow beneath Pin's smile
+  const chinDimple = e('Chin dimple', 0, 12.6, 12.2, 3.6, null, 'Face motion');
+  addRadialFill(chinDimple, 0, 0, 6.2, 1.9, [
+    [0, hexWithAlpha(deepShadow, '24')],
     [0.65, hexWithAlpha(edge, '0a')],
     [1, hexWithAlpha(edge, '00')],
   ]);
+  if (pin) {
+    const lowerLipShine = e('Lower lip shine', 0, 10.6, 8.6, 2.4, null, 'Face motion');
+    addRadialFill(lowerLipShine, 0, 0, 4.4, 1.2, [
+      [0, hexWithAlpha(warmTop, '5c')],
+      [0.7, hexWithAlpha(warmTop, '16')],
+      [1, hexWithAlpha(warmTop, '00')],
+    ]);
+  }
 
   // Continuous native smile-cup mouth rig bound to GuideVM mouthWide/mouthOpen/teeth/tongue
-  const mouthFrame = g('Mouth frame', 0, pin ? 5.6 : 4.8, 'Face motion');
+  // Sculpted tall upturned D-smile so resting Pin shows her signature warm portrait smile while all 8 Rhubarb visemes stay crisp!
+  const mouthFrame = g('Mouth frame', 0, pin ? 6.2 : 4.8, 'Face motion');
   mouthFrame.props.scaleX = mouthScale;
   mouthFrame.props.scaleY = mouthScale;
 
@@ -1064,24 +1175,49 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     fill: null,
     stroke: hexWithAlpha(deepShadow, '88'),
     strokeWidth: 0.75,
-    points: [
-      { x: -10.4, y: -3.2, inX: -0.6, inY: 2.1, outX: 3.8, outY: 2.0 },
-      { x: 0, y: -1.1, inX: -3.8, inY: 0, outX: 3.8, outY: 0 },
-      { x: 10.4, y: -3.2, inX: -3.8, inY: 2.0, outX: 0.6, outY: 2.1 },
-      { x: 0, y: 7.2, inX: 6.8, inY: 0, outX: -6.8, outY: 0 },
-    ],
+    points: pin
+      ? [
+          { x: -11.4, y: -5.4, inX: -0.6, inY: 3.4, outX: 4.4, outY: 3.2 },
+          { x: 0, y: -2.0, inX: -4.2, inY: 0, outX: 4.2, outY: 0 },
+          { x: 11.4, y: -5.4, inX: -4.4, inY: 3.2, outX: 0.6, outY: 3.4 },
+          { x: 0, y: 10.8, inX: 7.8, inY: 0, outX: -7.8, outY: 0 },
+        ]
+      : [
+          { x: -10.4, y: -3.2, inX: -0.6, inY: 2.1, outX: 3.8, outY: 2.0 },
+          { x: 0, y: -1.1, inX: -3.8, inY: 0, outX: 3.8, outY: 0 },
+          { x: 10.4, y: -3.2, inX: -3.8, inY: 2.0, outX: 0.6, outY: 2.1 },
+          { x: 0, y: 7.2, inX: 6.8, inY: 0, outX: -6.8, outY: 0 },
+        ],
   });
-  addRadialFill(cavity, 0, -1.6, 11.2, 8.2, [
-    [0, '#6a293c'],
-    [0.45, '#4c1b2c'],
-    [0.82, '#34101d'],
-    [1, '#220912'],
+  addRadialFill(cavity, 0, -1.6, 12.2, 11.2, [
+    [0, '#6a2335'],
+    [0.45, '#4b1625'],
+    [0.82, '#330d19'],
+    [1, '#200710'],
   ]);
 
   const mouthInterior = g('Mouth interior', 0, 0, 'Mouth rig');
   addClip(mouthInterior, cavity);
 
-  const teeth = r('Mouth teeth', 0, -1.6, 13.4, 3.4, null, 1.7, 'Mouth interior');
+  // Subtle warm resting portrait smile upper teeth glint & soft tongue glow (Pin identity at rest + speech!)
+  if (pin) {
+    const restTeeth = r('Smile teeth rest', 0, -2.1, 14.8, 3.6, null, 1.8, 'Mouth interior');
+    addLinearFill(restTeeth, 0, -1.8, 0, 1.8, [
+      [0, '#fffefa'],
+      [0.72, '#f9f1e8'],
+      [1, '#e8d8cc'],
+    ]);
+    restTeeth.props.opacity = 0.88;
+    const restTongue = e('Smile tongue rest', 0, 7.6, 13.8, 7.4, null, 'Mouth interior');
+    addRadialFill(restTongue, 0, -1.4, 7.0, 3.8, [
+      [0, '#ff9a9e'],
+      [0.58, '#de5d6d'],
+      [1, '#9e3246'],
+    ]);
+    restTongue.props.opacity = 0.78;
+  }
+
+  const teeth = r('Mouth teeth', 0, pin ? -1.8 : -1.6, 14.6, 3.8, null, 1.8, 'Mouth interior');
   addLinearFill(teeth, 0, -1.8, 0, 1.8, [
     [0, '#fffdf8'],
     [0.7, '#f8efe4'],
@@ -1090,8 +1226,8 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
   teeth.props.opacity = 0;
   bind(teeth, 18, 'teeth');
 
-  const tongue = e('Mouth tongue', 0, 4.0, 12.6, 5.4, null, 'Mouth interior');
-  addRadialFill(tongue, 0, -1.2, 6.6, 3.2, [
+  const tongue = e('Mouth tongue', 0, pin ? 6.4 : 4.0, 13.4, 6.2, null, 'Mouth interior');
+  addRadialFill(tongue, 0, -1.2, 6.8, 3.4, [
     [0, '#ffb0be'],
     [0.45, '#ee7c92'],
     [0.85, '#c4506b'],
@@ -1101,15 +1237,14 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
   bind(tongue, 18, 'tongue');
 
   // Plane 5: Complete Articulated Arm Chain — Shoulders, Upper Arms, Elbows, Forearms, Wrists & Plush Rounded Hands
-  // Soft, plump Muse-style rounded capsules & compact cushioned hands with short rounded fingers
-  // so limbs read as genuine 3D plush toy anatomy at 64-128 CSS pixels without spindly vector lines.
+  // Smooth continuous glossy coral Pixar limbs (zero harsh sausage-link joint rings!) with soft rounded hands & fingers.
   moving('Limbs', 1.45, 0.72, 0.58, true);
 
-  const shoulderX = pin ? 33.4 : 34.8;
-  const shoulderY = pin ? 4.2 : 3.4;
+  const shoulderX = pin ? 34.4 : 34.8;
+  const shoulderY = pin ? 4.8 : 3.4;
   for (const [side, sx, baseShoulderRot, baseElbowRot] of [
-    ['L', -shoulderX, 14, -18],
-    ['R', shoulderX, -14, 18],
+    ['L', -shoulderX, 16, -18],
+    ['R', shoulderX, -16, 18],
   ] as const) {
     // Explicit Shoulder pivot -> Arm rotation pivot -> WeightShift compensation node
     g('Shoulder ' + side, sx, shoulderY, 'Limbs motion');
@@ -1118,70 +1253,73 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     // Independent weight-shift shoulder compensation node (animated by 11.7s WeightShift layer)
     g('Arm idle ' + side, 0, 0, 'Arm ' + side);
 
-    // Plush sculpted upper arm capsule (purely horizontal cylindrical shading so elbow bends seamlessly)
-    const upperArm = r('Upper arm ' + side, 0, 4.6, 10.0, 14.8, null, 5.0, 'Arm idle ' + side);
-    addLinearFill(upperArm, -5.0, 0, 5.2, 0, [
+    // Smooth continuous glossy coral upper arm (soft lit-to-base studio lighting, zero hard edge ring!)
+    const upperArm = r('Upper arm ' + side, 0, 4.6, 8.6, 14.4, null, 4.3, 'Arm idle ' + side);
+    addLinearFill(upperArm, -4.3, -1.5, 4.3, 1.5, [
       [0, warmTop],
-      [0.18, litMid],
-      [0.46, base],
-      [0.8, shadowMid],
-      [1, edge],
+      [0.26, litMid],
+      [0.62, base],
+      [1, shadowMid],
     ]);
 
-    // Explicit articulated Elbow pivot -> Forearm capsule (matching cylindrical shading for zero seam)
-    g('Elbow ' + side, 0, 9.4, 'Arm idle ' + side);
+    // Explicit articulated Elbow pivot -> Soft blended elbow cap + seamless Forearm capsule
+    g('Elbow ' + side, 0, 9.2, 'Arm idle ' + side);
     const forearm = g('Forearm ' + side, 0, 0, 'Elbow ' + side);
     forearm.props.rotation = (baseElbowRot * Math.PI) / 180;
-    const forearmMesh = r('Forearm mesh ' + side, 0, 4.1, 9.4, 12.8, null, 4.7, 'Forearm ' + side);
-    addLinearFill(forearmMesh, -4.7, 0, 4.9, 0, [
+    const elbowBlend = e('Elbow blend ' + side, 0, 0.2, 8.4, 8.4, null, 'Forearm ' + side);
+    addRadialFill(elbowBlend, -2.0, -1.5, 4.6, 4.6, [
+      [0, litMid],
+      [0.55, base],
+      [1, shadowMid],
+    ]);
+    const forearmMesh = r('Forearm mesh ' + side, 0, 4.0, 8.0, 12.2, null, 4.0, 'Forearm ' + side);
+    addLinearFill(forearmMesh, -4.0, -1.2, 4.0, 1.2, [
       [0, warmTop],
-      [0.18, litMid],
-      [0.46, base],
-      [0.8, shadowMid],
-      [1, edge],
+      [0.26, litMid],
+      [0.62, base],
+      [1, shadowMid],
     ]);
 
     // Explicit articulated Wrist pivot -> independent 9.1s HandLife idle node -> Plush Hand palm & compact rounded fingers
-    g('Wrist ' + side, 0, 8.8, 'Forearm ' + side);
+    g('Wrist ' + side, 0, 8.4, 'Forearm ' + side);
     g('Hand idle ' + side, 0, 0, 'Wrist ' + side);
     g('Hand ' + side, 0, 0, 'Hand idle ' + side);
 
     // Compact plump thumb pivot (inner side of hand)
     const thumbSign = side === 'L' ? 1 : -1;
-    const thumbPivot = g('Thumb pivot ' + side, thumbSign * 3.5, 0.5, 'Hand ' + side);
-    thumbPivot.props.rotation = (-thumbSign * 24 * Math.PI) / 180;
-    const thumbMesh = r('Hand thumb ' + side, 0, 1.3, 3.2, 4.1, null, 1.6, 'Thumb pivot ' + side);
-    addLinearFill(thumbMesh, -1.6, 0, 1.7, 0, [
+    const thumbPivot = g('Thumb pivot ' + side, thumbSign * 3.4, 0.4, 'Hand ' + side);
+    thumbPivot.props.rotation = (-thumbSign * 26 * Math.PI) / 180;
+    const thumbMesh = r('Hand thumb ' + side, 0, 1.3, 3.0, 4.0, null, 1.5, 'Thumb pivot ' + side);
+    addLinearFill(thumbMesh, -1.5, 0, 1.6, 0, [
       [0, litMid],
-      [0.45, base],
+      [0.52, base],
       [1, shadowMid],
     ]);
 
-    // 3 compact, closely-grouped rounded fingers (plush toy proportions, crisp at 64px!)
+    // 3 cute rounded fingers (portrait Pixar toy proportions, crisp at 80px!)
     const fingerSpecs = [
-      { idx: 1, x: thumbSign * 2.15, y: 2.9, len: 3.5, rot: -thumbSign * 6 },
-      { idx: 2, x: 0, y: 3.3, len: 3.9, rot: 0 },
-      { idx: 3, x: -thumbSign * 2.15, y: 2.8, len: 3.4, rot: thumbSign * 6 },
+      { idx: 1, x: thumbSign * 2.1, y: 2.8, len: 3.5, rot: -thumbSign * 7 },
+      { idx: 2, x: 0, y: 3.2, len: 3.9, rot: 0 },
+      { idx: 3, x: -thumbSign * 2.1, y: 2.7, len: 3.4, rot: thumbSign * 7 },
     ];
     for (const f of fingerSpecs) {
       const fPivot = g(`Finger ${f.idx} ${side}`, f.x, f.y, 'Hand ' + side);
       fPivot.props.rotation = (f.rot * Math.PI) / 180;
-      const fMesh = r(`Finger ${f.idx} mesh ${side}`, 0, f.len * 0.4, 2.75, f.len, null, 1.38, `Finger ${f.idx} ${side}`);
-      addLinearFill(fMesh, -1.4, 0, 1.4, 0, [
+      const fMesh = r(`Finger ${f.idx} mesh ${side}`, 0, f.len * 0.4, 2.65, f.len, null, 1.33, `Finger ${f.idx} ${side}`);
+      addLinearFill(fMesh, -1.35, 0, 1.35, 0, [
         [0, litMid],
-        [0.42, base],
-        [0.84, shadowMid],
-        [1, edge],
+        [0.48, base],
+        [1, shadowMid],
       ]);
     }
 
     // Plush cushioned palm seamlessly blending wrist, thumb, and compact finger bases
-    const handMesh = e('Hand mesh ' + side, 0, 1.4, 9.4, 8.8, null, 'Hand ' + side);
-    addRadialFill(handMesh, -2.2, -1.8, 6.2, 5.8, [
+    const handMesh = e('Hand mesh ' + side, 0, 1.2, 8.8, 8.2, null, 'Hand ' + side);
+    addRadialFill(handMesh, -2.0, -1.8, 5.8, 5.4, [
       [0, warmTop],
-      [0.2, litMid],
-      [0.48, base],
-      [0.82, shadowMid],
+      [0.24, litMid],
+      [0.56, base],
+      [0.9, shadowMid],
       [1, edge],
     ]);
   }
@@ -1638,8 +1776,8 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     { duration: 4.2, headTilt: -2.0, faceTilt: -2.3, bodyTilt: -0.6, browLY: -27.2, browRY: -27.2, browLRot: -2.5, browRRot: 2.5, armL: 14, forearmL: -18, handL: -4, armR: -76, forearmR: -28, handR: -10, mode: 'guide' },
     // 10 lookout (IDLE-LOOKOUT) — calm horizon scanning tilt with subtle poised arms
     { duration: 5.2, headTilt: -2.5, faceTilt: -2.9, bodyTilt: -0.8, browLY: -27.4, browRY: -26.9, browLRot: -3.5, browRRot: 2, armL: 18, forearmL: -22, handL: -6, armR: -20, forearmR: 24, handR: 8, mode: 'lookout' },
-    // 11 ponder (TYPE-PONDER) — working headphones + glowing laptop open + right hand genuinely poised near chin!
-    { duration: 4.6, headTilt: -3.6, faceTilt: -4.0, bodyTilt: -1.0, browLY: -25.6, browRY: -27.6, browLRot: 5.0, browRRot: -3.8, armL: -26, forearmL: -26, handL: -8, armR: 40, forearmR: 64, handR: 18, showLaptop: true, wearHeadphones: true, mode: 'ponder' },
+    // 11 ponder (TYPE-PONDER) — working headphones + glowing laptop open + right hand genuinely poised at chin!
+    { duration: 4.6, headTilt: -3.8, faceTilt: -4.2, bodyTilt: -1.1, browLY: -25.4, browRY: -27.8, browLRot: 4.8, browRRot: -4.2, armL: -26, forearmL: -26, handL: -8, armR: 48, forearmR: 78, handR: 22, showLaptop: true, wearHeadphones: true, mode: 'ponder' },
     // 12 speaking (SPEAK-ATTEND) — engaged conversational poise with subtle articulated hand cadence
     { duration: 4.0, headTilt: 1.4, faceTilt: 1.7, bodyTilt: 0.5, browLY: -27.2, browRY: -27.2, browLRot: -2.5, browRRot: 2.5, armL: 6, forearmL: -32, handL: -10, armR: -24, forearmR: -18, handR: -8, mode: 'speak' },
   ];
