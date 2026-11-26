@@ -210,18 +210,29 @@
     .mascot-slot {
       position: relative;
       flex: 0 0 auto;
-      width: 96px;
-      height: 96px;
-      border-radius: 14px;
-      background: radial-gradient(circle at 50% 44%, rgba(36, 198, 181, 0.08), rgba(8, 13, 20, 0.55) 75%);
-      border: 1px solid var(--line);
+      width: 80px;
+      height: 80px;
+      border-radius: 9999px;
+      background: radial-gradient(circle at 50% 42%, #1d2b3e 0%, #101927 62%, #090f18 100%);
+      border: 1.5px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 0 8px 24px rgba(2, 7, 14, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.1);
       overflow: hidden;
-      transition: width 180ms ease, height 180ms ease;
+      padding: 4px;
+      transition: width 180ms ease, height 180ms ease, border-color 280ms ease, box-shadow 280ms ease;
+    }
+    .mascot-slot[data-mood="work"] {
+      border-color: rgba(186, 156, 250, 0.52);
+      box-shadow: 0 8px 26px rgba(2, 7, 14, 0.58), 0 0 0 3px rgba(186, 156, 250, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    }
+    .mascot-slot[data-mood="speak"] {
+      border-color: rgba(113, 205, 252, 0.52);
+      box-shadow: 0 8px 26px rgba(2, 7, 14, 0.58), 0 0 0 3px rgba(113, 205, 252, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.14);
     }
     #companion-canvas {
       display: block;
       width: 100%;
       height: 100%;
+      border-radius: 9999px;
       touch-action: none;
     }
 
@@ -297,20 +308,24 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
+      gap: 10px 14px;
       flex-wrap: wrap;
-      padding: 14px 24px;
+      padding: 12px 24px;
       border-top: 1px solid var(--line);
       background: rgba(11, 17, 26, 0.45);
     }
     .rig-group {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
     }
+    .rig-bar .segmented button {
+      padding: 6px 9px;
+      font-size: 11.5px;
+    }
     .rig-label {
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 600;
       color: var(--muted);
       white-space: nowrap;
@@ -319,8 +334,8 @@
       border: 1px solid var(--line-strong);
       background: transparent;
       color: var(--ink);
-      font: 500 12px/1 inherit;
-      padding: 8px 13px;
+      font: 500 11.5px/1 inherit;
+      padding: 7px 11px;
       border-radius: 8px;
       white-space: nowrap;
       cursor: pointer;
@@ -419,15 +434,18 @@
       gap: 10px;
     }
     .scale-frame {
-      border-radius: 14px;
-      border: 1px solid var(--line);
-      background: radial-gradient(circle at 50% 45%, rgba(36, 198, 181, 0.07), rgba(8, 13, 20, 0.55) 76%);
+      border-radius: 9999px;
+      border: 1.5px solid rgba(255, 255, 255, 0.14);
+      background: radial-gradient(circle at 50% 42%, #1d2b3e 0%, #101927 62%, #090f18 100%);
+      box-shadow: 0 6px 18px rgba(2, 7, 14, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.09);
+      padding: 3px;
       overflow: hidden;
     }
     .scale-frame canvas {
       display: block;
       width: 100%;
       height: 100%;
+      border-radius: 9999px;
     }
     .scale-caption {
       font-size: 12px;
@@ -465,7 +483,7 @@
             <span aria-hidden="true">·</span>
             <span id="mascot-state" class="mono">IDLE-PARKED</span>
             <span aria-hidden="true">·</span>
-            <span id="size-readout" class="mono">96px</span>
+            <span id="size-readout" class="mono">80px</span>
           </div>
         </div>
 
@@ -474,23 +492,23 @@
             <button id="pick-pin" type="button" aria-pressed="true">Pin</button>
             <button id="pick-geo" type="button" aria-pressed="false">Geo</button>
           </div>
-          <div class="segmented" role="group" aria-label="Miniature size in CSS pixels">
+          <div class="segmented" role="group" aria-label="Miniature circular size in CSS pixels">
             <button type="button" class="size-btn" data-size="64" aria-pressed="false">64px</button>
-            <button type="button" class="size-btn" data-size="80" aria-pressed="false">80px</button>
-            <button type="button" class="size-btn" data-size="96" aria-pressed="true">96px</button>
+            <button type="button" class="size-btn" data-size="80" aria-pressed="true">80px</button>
+            <button type="button" class="size-btn" data-size="96" aria-pressed="false">96px</button>
             <button type="button" class="size-btn" data-size="128" aria-pressed="false">128px</button>
           </div>
         </div>
       </div>
 
       <div id="messages" class="messages" aria-live="polite">
-        <div class="msg assistant">Start typing below or run the 60-second showcase — watch the miniature laptop open as you type, pause to ponder mid-thought, keep working while results load, and reply with synchronized mouth movement.</div>
+        <div class="msg assistant">Start typing beside Pin or Geo — watch working headphones glide on and the miniature laptop unfold as you type, pause to ponder mid-thought, and transition cleanly back to resting speech.</div>
       </div>
 
       <div class="composer-dock">
         <div class="companion-row">
-          <div id="mascot-slot" class="mascot-slot">
-            <canvas id="companion-canvas" aria-label="Miniature living Questie mascot"></canvas>
+          <div id="mascot-slot" class="mascot-slot" data-mood="rest">
+            <canvas id="companion-canvas" aria-label="Compact circular living Questie mascot"></canvas>
           </div>
 
           <div class="input-area">
@@ -505,7 +523,7 @@
                 <button type="button" class="prompt-btn" data-prompt="Save this Craftsman as my favorite!">Save favorite</button>
                 <button type="button" class="prompt-btn" data-prompt="We just got pre-approved!">Pre-approved!</button>
               </div>
-              <span id="activity-caption" class="meta-line">Native 9-layer .riv · 13 GuideVM props</span>
+              <span id="activity-caption" class="meta-line">Native 10-layer .riv · 13 GuideVM props</span>
             </div>
           </div>
         </div>
@@ -518,6 +536,15 @@
             <button type="button" class="laptop-btn" data-laptop="auto" aria-pressed="true">Auto</button>
             <button type="button" class="laptop-btn" data-laptop="open" aria-pressed="false">Open</button>
             <button type="button" class="laptop-btn" data-laptop="closed" aria-pressed="false">Closed</button>
+          </div>
+        </div>
+
+        <div class="rig-group">
+          <span class="rig-label">Headphones</span>
+          <div class="segmented" role="group" aria-label="Working headphones mode">
+            <button type="button" class="headphones-btn" data-headphones="auto" aria-pressed="true">Auto</button>
+            <button type="button" class="headphones-btn" data-headphones="on" aria-pressed="false">On</button>
+            <button type="button" class="headphones-btn" data-headphones="off" aria-pressed="false">Off</button>
           </div>
         </div>
 
@@ -619,6 +646,7 @@
     const phaseButtons = [...document.querySelectorAll('.phase-step')];
     const sizeButtons = [...document.querySelectorAll('.size-btn')];
     const laptopButtons = [...document.querySelectorAll('.laptop-btn')];
+    const headphonesButtons = [...document.querySelectorAll('.headphones-btn')];
     const gestureButtons = [...document.querySelectorAll('.gesture-btn')];
     const scaleCanvases = [...document.querySelectorAll('.scale-canvas')];
 
@@ -724,7 +752,7 @@
     }
 
     function setSize(px) {
-      const size = Math.max(64, Math.min(128, Number(px) || 96));
+      const size = Math.max(64, Math.min(128, Number(px) || 80));
       mascotSlot.style.width = `${size}px`;
       mascotSlot.style.height = `${size}px`;
       sizeReadout.textContent = `${size}px`;
@@ -737,10 +765,26 @@
       mirrorToScaleGrid((m) => m.setLaptopMode(mode));
     }
 
+    function setHeadphonesUI(mode) {
+      headphonesButtons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.headphones === mode)));
+      mascot?.setHeadphonesMode(mode);
+      mirrorToScaleGrid((m) => m.setHeadphonesMode(mode));
+    }
+
     function setGestureUI(gesture) {
       gestureButtons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.gesture === gesture)));
       mascot?.setArmGesture(gesture);
       mirrorToScaleGrid((m) => m.setArmGesture(gesture));
+    }
+
+    function syncMoodRing(behaviorId) {
+      if (behaviorId === 'WORK-THINK' || behaviorId === 'TYPE-PONDER') {
+        mascotSlot.dataset.mood = 'work';
+      } else if (behaviorId === 'SPEAK-ATTEND' || behaviorId === 'TYPE-LISTEN') {
+        mascotSlot.dataset.mood = 'speak';
+      } else {
+        mascotSlot.dataset.mood = 'rest';
+      }
     }
 
     async function mountCharacter(id) {
@@ -763,6 +807,7 @@
         initialBehavior: 'IDLE-PARKED',
         onBehaviorChange: (st) => {
           stateLabel.textContent = st.id;
+          syncMoodRing(st.id);
           mirrorToScaleGrid((m) => m.setBehavior(st.id, { preserveAudio: true }));
         },
       });
@@ -778,10 +823,11 @@
         resolveSubmitBehavior: (text) => resolveIntent(text).state,
         onActivity: ({ phase, behavior }) => {
           stateLabel.textContent = behavior;
-          if (phase === 'processing') activityCaption.textContent = 'Processing request at miniature laptop…';
-          else if (phase === 'typing') activityCaption.textContent = 'Synchronized alternating laptop typing';
+          syncMoodRing(behavior);
+          if (phase === 'processing') activityCaption.textContent = 'Working with headphones at miniature laptop…';
+          else if (phase === 'typing') activityCaption.textContent = 'Headphones on · synchronized laptop typing';
           else if (phase === 'ponder') activityCaption.textContent = 'Paused — thoughtful pondering over laptop';
-          else activityCaption.textContent = 'Native 9-layer .riv · 13 GuideVM props';
+          else activityCaption.textContent = 'Native 10-layer .riv · 13 GuideVM props';
         },
       });
 
@@ -839,6 +885,9 @@
     laptopButtons.forEach((btn) => {
       btn.addEventListener('click', () => setLaptopUI(btn.dataset.laptop));
     });
+    headphonesButtons.forEach((btn) => {
+      btn.addEventListener('click', () => setHeadphonesUI(btn.dataset.headphones));
+    });
     gestureButtons.forEach((btn) => {
       btn.addEventListener('click', () => setGestureUI(btn.dataset.gesture));
     });
@@ -857,17 +906,17 @@
 
     // =========================================================================
     // UNINTERRUPTED 60-SECOND ACCEPTANCE DEMONSTRATION
-    // Covers: Living Idle -> User Focus -> Laptop Typing -> Pause & Ponder
-    // -> Application Processing -> Speaking w/ Lip-Sync -> Hand Gestures -> Idle
+    // Covers: Living Idle -> User Focus -> Working (Headphones + Laptop Typing)
+    // -> Pause & Ponder -> App Processing -> Resting + Lip-Sync Speech -> Gestures -> Idle
     // =========================================================================
     const DEMO_DURATION = 60.0;
     const DEMO_PHASES = [
       { id: 0, start: 0, end: 8, label: 'Living Idle — breathing, weight shift, natural blinking & glances' },
       { id: 1, start: 8, end: 13, label: 'User Focus — attentive listening tilt & nod' },
-      { id: 2, start: 13, end: 24, label: 'User Typing — hinged laptop opens, alternating hands & keyboard glances' },
-      { id: 3, start: 24, end: 31, label: 'Pause & Ponder — laptop open, thoughtful chin pose' },
-      { id: 4, start: 31, end: 39, label: 'Application Processing — mascot keeps working at laptop' },
-      { id: 5, start: 39, end: 49, label: 'Speaking — laptop folds closed, continuous lip-sync mouth movement' },
+      { id: 2, start: 13, end: 24, label: 'Working — headphones glide on, hinged laptop opens & hands type' },
+      { id: 3, start: 24, end: 31, label: 'Pause & Ponder — working headphones & laptop open, thoughtful chin pose' },
+      { id: 4, start: 31, end: 39, label: 'Application Processing — focused headphone groove & typing at laptop' },
+      { id: 5, start: 39, end: 49, label: 'Speaking — headphones & laptop glide away, continuous lip-sync speech' },
       { id: 6, start: 49, end: 55, label: 'Small Hand Gestures — welcoming present & greeting wave' },
       { id: 7, start: 55, end: 60, label: 'Graceful Return — serene living idle without static freeze' },
     ];
@@ -896,6 +945,7 @@
       if (!mascot) return;
       clearInterval(demoTypeInterval);
       setLaptopUI('auto');
+      setHeadphonesUI('auto');
       setGestureUI('auto');
 
       if (phaseIdx === 0) {
@@ -1010,6 +1060,7 @@
       stop60sDemo,
       setSize,
       setLaptopMode: setLaptopUI,
+      setHeadphonesMode: setHeadphonesUI,
       setArmGesture: setGestureUI,
       mountCharacter,
       getSnapshot: () => ({
@@ -1018,6 +1069,7 @@
         isSpeaking: !!mascot?.isSpeaking,
         isProcessing: !!mascot?.isProcessing,
         laptopMode: mascot?.laptopMode || 'auto',
+        headphonesMode: mascot?.headphonesMode || 'auto',
         armGesture: mascot?.armGesture || 'auto',
         propertiesCount: mascot?.getProperties()?.length || 0,
         inputs: mascot?.getInputs() || [],

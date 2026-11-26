@@ -30,6 +30,7 @@ export interface VisemeCue {
 
 export type LaptopMode = 'auto' | 'closed' | 'open';
 export type ArmGesture = 'auto' | 'wave' | 'typing' | 'ponder' | 'present' | 'celebrate';
+export type HeadphonesMode = 'auto' | 'off' | 'on';
 
 export interface AttachInputOptions {
   typingBehavior?: BehaviorId;
@@ -77,11 +78,13 @@ export interface QuestieMascotController {
   readonly isReducedMotion: boolean;
   readonly laptopMode: LaptopMode;
   readonly armGesture: ArmGesture;
+  readonly headphonesMode: HeadphonesMode;
   setBehavior(id: BehaviorId, opts?: { preserveAudio?: boolean }): BehaviorStateMeta;
   setReaction(index: number): BehaviorStateMeta | null;
   setMouth(visemeIndex: number, opts?: { pin?: boolean }): void;
   setLaptopMode(mode: LaptopMode | number): LaptopMode;
   setArmGesture(gesture: ArmGesture | number): ArmGesture;
+  setHeadphonesMode(mode: HeadphonesMode | number): HeadphonesMode;
   setProcessing(active: boolean, completionBehavior?: BehaviorId): boolean;
   setProperty(name: string, value: number, opts?: { immediate?: boolean }): number;
   applyProperties(values: Record<string, number>, opts?: { immediate?: boolean }): void;

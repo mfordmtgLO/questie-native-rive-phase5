@@ -101,9 +101,11 @@ export async function mountQuestieMascot(options) {
   let touchReleaseTimer = 0;
   let laptopMode = 'auto';
   let armGesture = 'auto';
+  let headphonesMode = 'auto';
 
   const LAPTOP_MODES = { auto: 0, closed: 1, open: 2 };
   const ARM_GESTURES = { auto: 0, wave: 1, typing: 2, ponder: 3, present: 4, celebrate: 5 };
+  const HEADPHONES_MODES = { auto: 0, off: 1, on: 2 };
 
   function syncPauseState() {
     const next = isEffectivelyPaused();
@@ -352,6 +354,22 @@ export async function mountQuestieMascot(options) {
       player.setInput('armGesture', val);
     }
     return armGesture;
+  }
+
+  /**
+   * Backward-compatible native over-ear working headphones override (`headphonesMode` input on Guide).
+   * Preserves exact 13-property GuideVM interface.
+   */
+  function setHeadphonesMode(mode = 'auto') {
+    const key = typeof mode === 'number'
+      ? (Object.keys(HEADPHONES_MODES).find((k) => HEADPHONES_MODES[k] === mode) || 'auto')
+      : String(mode || 'auto').toLowerCase();
+    const val = HEADPHONES_MODES[key] ?? 0;
+    headphonesMode = key in HEADPHONES_MODES ? key : 'auto';
+    if (!disposed && typeof player.setInput === 'function') {
+      player.setInput('headphonesMode', val);
+    }
+    return headphonesMode;
   }
 
   /**
@@ -702,12 +720,16 @@ export async function mountQuestieMascot(options) {
     get armGesture() {
       return armGesture;
     },
+    get headphonesMode() {
+      return headphonesMode;
+    },
     setBehavior,
     setReaction,
     setMouth,
     setMouthValues,
     setLaptopMode,
     setArmGesture,
+    setHeadphonesMode,
     setProcessing,
     setSpeakingActive(active) {
       activeSpeaking = !!active;

@@ -58,6 +58,7 @@ export function createQuestieReactSDK(React) {
       paused = false,
       laptopMode = 'auto',
       armGesture = 'auto',
+      headphonesMode = 'auto',
       processing = false,
       inputRef,
       inputOptions,
@@ -140,6 +141,10 @@ export function createQuestieReactSDK(React) {
     }, [armGesture, ready]);
 
     useEffect(() => {
+      mascotRef.current?.setHeadphonesMode(headphonesMode);
+    }, [headphonesMode, ready]);
+
+    useEffect(() => {
       if (!mascotRef.current) return;
       if (processing) mascotRef.current.setProcessing(true);
     }, [processing, ready]);
@@ -159,6 +164,7 @@ export function createQuestieReactSDK(React) {
       setBehavior: (id) => mascotRef.current?.setBehavior(id),
       setLaptopMode: (mode) => mascotRef.current?.setLaptopMode(mode),
       setArmGesture: (gesture) => mascotRef.current?.setArmGesture(gesture),
+      setHeadphonesMode: (mode) => mascotRef.current?.setHeadphonesMode(mode),
       setProcessing: (active, completion) => mascotRef.current?.setProcessing(active, completion),
       triggerBlink: (doubleBlink = false) => mascotRef.current?.triggerBlink(doubleBlink),
       speakWithAudio: (audioEl, cues, opts) => mascotRef.current?.speakWithAudio(audioEl, cues, opts),
@@ -186,10 +192,12 @@ export function createQuestieReactSDK(React) {
       paused = false,
       laptopMode = 'auto',
       armGesture = 'auto',
+      headphonesMode = 'auto',
       processing = false,
       inputRef,
       inputOptions,
-      size = 96,
+      size = 80,
+      shape = 'circle',
       width,
       height,
       className,
@@ -214,6 +222,7 @@ export function createQuestieReactSDK(React) {
       paused,
       laptopMode,
       armGesture,
+      headphonesMode,
       processing,
       inputRef,
       inputOptions,
@@ -237,6 +246,7 @@ export function createQuestieReactSDK(React) {
         setBehavior: hook.setBehavior,
         setLaptopMode: hook.setLaptopMode,
         setArmGesture: hook.setArmGesture,
+        setHeadphonesMode: hook.setHeadphonesMode,
         setProcessing: hook.setProcessing,
         triggerBlink: hook.triggerBlink,
         speakWithAudio: hook.speakWithAudio,
@@ -248,6 +258,7 @@ export function createQuestieReactSDK(React) {
 
     const w = width ?? size;
     const h = height ?? size;
+    const borderRadius = shape === 'circle' ? '9999px' : shape === 'rounded' ? '14px' : undefined;
 
     return createElement('canvas', {
       ref: hook.canvasRef,
@@ -257,6 +268,7 @@ export function createQuestieReactSDK(React) {
         display: 'block',
         width: typeof w === 'number' ? `${w}px` : w,
         height: typeof h === 'number' ? `${h}px` : h,
+        borderRadius,
         touchAction: 'none',
         ...style,
       },
