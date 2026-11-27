@@ -21,19 +21,19 @@ export const BEHAVIOR_STATES = [
     verbal: false,
     category: 'Presence',
     note: 'Quietly alive resting companion — native .riv breathing, blinking, and soft ambient poise.',
-    breathHz: 0.155,
-    breathAmp: 0.34,
-    gazeWanderX: 0.34,
+    breathHz: 0.15,
+    breathAmp: 0.32,
+    gazeWanderX: 0.36,
     gazeWanderY: 0.14,
     headBiasX: 0,
     headBiasY: 0,
-    saccadeRange: [2.6, 5.2],
+    saccadeRange: [2.5, 5.1],
     blinkRange: [3.6, 6.8],
     doubleBlinkChance: 0.22,
     anticipationY: 0.03,
     peakY: -0.04,
-    microSmileWide: 0.045,
-    microSmileOpen: -0.012,
+    microSmileWide: 0.055,
+    microSmileOpen: -0.008,
   },
   {
     id: 'IDLE-LOOKOUT',
@@ -96,8 +96,8 @@ export const BEHAVIOR_STATES = [
     anticipationY: 0.025,
     peakY: 0.065,
     listenNod: true,
-    microSmileWide: 0.045,
-    microSmileOpen: -0.012,
+    microSmileWide: 0.055,
+    microSmileOpen: -0.008,
   },
   {
     id: 'TYPE-PONDER',
@@ -107,20 +107,20 @@ export const BEHAVIOR_STATES = [
     category: 'Attention',
     note: 'Nonverbal reflection over the open laptop with chin-resting hand and thoughtful gaze drift.',
     breathHz: 0.13,
-    breathAmp: 0.18,
-    gazeWanderX: 0.16,
-    gazeWanderY: 0.09,
+    breathAmp: 0.2,
+    gazeWanderX: 0.18,
+    gazeWanderY: 0.1,
     headBiasX: -0.09,
     headBiasY: -0.06,
     gazeBiasX: 0.24,
     gazeBiasY: -0.18,
-    saccadeRange: [3.8, 7.2],
+    saccadeRange: [3.6, 6.8],
     blinkRange: [4.2, 8.4],
-    doubleBlinkChance: 0.12,
+    doubleBlinkChance: 0.14,
     anticipationY: 0.035,
     peakY: -0.08,
-    microSmileWide: -0.04,
-    microSmileOpen: -0.02,
+    microSmileWide: -0.025,
+    microSmileOpen: -0.018,
   },
   {
     id: 'WORK-THINK',
@@ -130,20 +130,20 @@ export const BEHAVIOR_STATES = [
     category: 'Attention',
     note: 'Nonverbal focused laptop session with articulated typing hands and smooth reading eye sweeps.',
     breathHz: 0.135,
-    breathAmp: 0.16,
+    breathAmp: 0.18,
     gazeWanderX: 0.26,
-    gazeWanderY: 0.07,
+    gazeWanderY: 0.08,
     headBiasX: -0.04,
     headBiasY: 0.12,
     gazeBiasX: 0.0,
     gazeBiasY: 0.28,
-    saccadeRange: [2.2, 4.4],
+    saccadeRange: [2.1, 4.2],
     blinkRange: [4.0, 7.8],
-    doubleBlinkChance: 0.12,
+    doubleBlinkChance: 0.14,
     anticipationY: 0.03,
     peakY: 0.06,
-    microSmileWide: -0.05,
-    microSmileOpen: -0.025,
+    microSmileWide: -0.055,
+    microSmileOpen: -0.028,
   },
   {
     id: 'SPEAK-ATTEND',
@@ -318,9 +318,9 @@ export function createBehaviorEngine() {
   let saccadeX = 0;
   let saccadeY = 0;
 
-  // Gaze anticipation ring buffer: eyes move first, head receives the gaze ~190ms later
+  // Gaze anticipation ring buffer: eyes lead clearly before head follows (~210ms Muse timing)
   const gazeHistory = [];
-  const GAZE_LEAD_SECONDS = 0.19;
+  const GAZE_LEAD_SECONDS = 0.21;
 
   // Pointer / touch tracking with graceful slow resting return
   let pointerActive = false;
@@ -596,9 +596,9 @@ export function createBehaviorEngine() {
       microSmileWide,
       microSmileOpen,
       // Natural angular frequencies (rad/s) for critically damped 2nd-order springs
-      eyeOmega: 11.5,
-      headOmega: 3.4 / inertia,
-      breathOmega: 3.2,
+      eyeOmega: 11.0,
+      headOmega: 3.1 / inertia,
+      breathOmega: 3.0,
     };
   }
 
