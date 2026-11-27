@@ -81,11 +81,12 @@ try {
         assert.equal(Math.round(box.height), sz, `Size ${sz}px height mismatch`);
       }
 
-      // 5. Circle & transparent backgrounds + optional compact Pin label
-      await page.locator('#bg-toggle').click();
+      // 5. Transparent default + circle background toggle + optional compact Pin label
       assert.equal(await page.locator('#pin-frame').getAttribute('data-bg'), 'transparent');
       await page.locator('#bg-toggle').click();
       assert.equal(await page.locator('#pin-frame').getAttribute('data-bg'), 'circle');
+      await page.locator('#bg-toggle').click();
+      assert.equal(await page.locator('#pin-frame').getAttribute('data-bg'), 'transparent');
 
       await page.locator('#label-toggle').click();
       assert.equal(await page.locator('#pin-label').isVisible(), false);

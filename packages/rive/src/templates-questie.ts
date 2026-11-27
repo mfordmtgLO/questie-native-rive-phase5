@@ -90,7 +90,7 @@ export function defaultQuestieCustomization(preset: 'Pin' | 'Geo'): QuestieCusto
     shellEdge: pin ? '#b94422' : '#0e5b72',
     shellLight: pin ? '#ffdcc5' : '#b8fff0',
     beaconColor: '#1ee2d6',
-    showBackpack: true,
+    showBackpack: !pin,
     backpackColor: pin ? '#e4a141' : '#a87844',
     blushColor: pin ? '#f5646c' : '#ff98ae',
     glossOpacity: pin ? 0.52 : 0.54,
@@ -471,9 +471,9 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
         fill: null,
         points: [
           { x: 0, y: -40.5, inX: -27.5, inY: 0, outX: 27.5, outY: 0 },
-          { x: 38.8, y: -3.5, inX: 2.8, inY: -22.5, outX: -6.8, outY: 22.8 },
-          { x: 0, y: 41.2, inX: 8.6, inY: 0, outX: -8.6, outY: 0 },
-          { x: -38.8, y: -3.5, inX: 6.8, inY: 22.8, outX: -2.8, outY: -22.5 },
+          { x: 38.4, y: -3.2, inX: 2.8, inY: -22.5, outX: -5.2, outY: 23.4 },
+          { x: 0, y: 40.4, inX: 11.2, inY: 0, outX: -11.2, outY: 0 },
+          { x: -38.4, y: -3.2, inX: 5.2, inY: 23.4, outX: -2.8, outY: -22.5 },
         ],
       })
     : addShape(doc, {
@@ -579,11 +579,11 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
   );
 
   // Soft ambient occlusion shadows where arms join torso (grounds overlapping plush limbs in 3D space)
-  for (const [side, ax] of [['L', -34.2], ['R', 34.2]] as const) {
-    const shAO = e('Shoulder AO ' + side, ax, 5.8, 14.8, 18.6, null, 'Shell lighting clip');
-    addRadialFill(shAO, side === 'L' ? 2.4 : -2.4, 0, 7.6, 9.4, [
-      [0, hexWithAlpha(deepShadow, '4a')],
-      [0.52, hexWithAlpha(edge, '1c')],
+  for (const [side, ax] of [['L', pin ? -31.8 : -34.2], ['R', pin ? 31.8 : 34.2]] as const) {
+    const shAO = e('Shoulder AO ' + side, ax, pin ? 7.2 : 5.8, 13.6, 16.4, null, 'Shell lighting clip');
+    addRadialFill(shAO, side === 'L' ? 2.4 : -2.4, 0, 7.0, 8.4, [
+      [0, hexWithAlpha(deepShadow, pin ? '2e' : '4a')],
+      [0.54, hexWithAlpha(edge, '14')],
       [1, hexWithAlpha(edge, '00')],
     ]);
   }
@@ -617,43 +617,49 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
       [1, hexWithAlpha(warmTop, '00')],
     ]);
 
-    // Portrait-accurate curved golden-tan leather backpack straps hugging Pin's chest curve with buckle loop
-    for (const [side, sx, rot] of [['L', -20.5, -24], ['R', 20.5, 24]] as const) {
-      const strapG = g('Shoulder strap ' + side, sx, 17.5, 'Shell lighting clip');
-      strapG.props.rotation = (rot * Math.PI) / 180;
-      const strapShadow = r('Strap AO ' + side, side === 'L' ? 0.9 : -0.9, 0.8, 5.8, 22.0, null, 2.9, 'Shoulder strap ' + side);
-      addRadialFill(strapShadow, 0, 0, 3.4, 11.2, [
-        [0, hexWithAlpha(deepShadow, '46')],
-        [1, hexWithAlpha(deepShadow, '00')],
-      ]);
-      const strap = r('Strap mesh ' + side, 0, 0, 5.0, 21.4, null, 2.5, 'Shoulder strap ' + side);
-      addLinearFill(strap, -2.5, 0, 2.5, 0, [
-        [0, backpackLight],
-        [0.42, cfg.backpackColor],
-        [0.85, backpackMid],
-        [1, backpackDark],
-      ]);
-      const buckle = r('Strap buckle ' + side, 0, 1.5, 5.8, 3.0, null, 1.0, 'Shoulder strap ' + side);
-      addLinearFill(buckle, -2.9, -1.5, 2.9, 1.5, [
-        [0, '#fff2c2'],
-        [0.5, '#e6b249'],
-        [1, '#9c661c'],
-      ]);
+    // Optional full-size explorer backpack straps (omitted completely on default miniature embedded Pin!)
+    if (cfg.showBackpack) {
+      for (const [side, sx, rot] of [['L', -20.5, -24], ['R', 20.5, 24]] as const) {
+        const strapG = g('Shoulder strap ' + side, sx, 17.5, 'Shell lighting clip');
+        strapG.props.rotation = (rot * Math.PI) / 180;
+        const strapShadow = r('Strap AO ' + side, side === 'L' ? 0.9 : -0.9, 0.8, 5.8, 22.0, null, 2.9, 'Shoulder strap ' + side);
+        addRadialFill(strapShadow, 0, 0, 3.4, 11.2, [
+          [0, hexWithAlpha(deepShadow, '46')],
+          [1, hexWithAlpha(deepShadow, '00')],
+        ]);
+        const strap = r('Strap mesh ' + side, 0, 0, 5.0, 21.4, null, 2.5, 'Shoulder strap ' + side);
+        addLinearFill(strap, -2.5, 0, 2.5, 0, [
+          [0, backpackLight],
+          [0.42, cfg.backpackColor],
+          [0.85, backpackMid],
+          [1, backpackDark],
+        ]);
+        const buckle = r('Strap buckle ' + side, 0, 1.5, 5.8, 3.0, null, 1.0, 'Shoulder strap ' + side);
+        addLinearFill(buckle, -2.9, -1.5, 2.9, 1.5, [
+          [0, '#fff2c2'],
+          [0.5, '#e6b249'],
+          [1, '#9c661c'],
+        ]);
+      }
     }
 
-    // Iconic Golden Compass Medallion on V-lanyard connecting cleanly from both shoulder straps
+    // Iconic Gold Compass Pendant (Pin's explorer identity, gracefully seated on the clean rounded coral torso)
     const compassGroup = g('Compass medallion', 0, 25.0, 'Shell lighting clip');
+    const lanyardSpanX = cfg.showBackpack ? 17.5 : 23.2;
+    const lanyardTopY = cfg.showBackpack ? -12.2 : -16.2;
+    const lanyardCurveX = cfg.showBackpack ? 4.8 : 6.4;
+    const lanyardCurveY = cfg.showBackpack ? 4.4 : 6.8;
     const lanyardShadow = addPath(doc, {
       parent: 'Compass medallion',
       name: 'Compass lanyard shadow',
       closed: false,
       fill: null,
-      stroke: hexWithAlpha(deepShadow, '40'),
-      strokeWidth: 3.4,
+      stroke: hexWithAlpha(deepShadow, cfg.showBackpack ? '40' : '28'),
+      strokeWidth: cfg.showBackpack ? 3.4 : 2.1,
       points: [
-        { x: -17.5, y: -11.4, outX: 5.2, outY: 4.8 },
-        { x: 0, y: -5.2, inX: -3.2, inY: -1.8, outX: 3.2, outY: -1.8 },
-        { x: 17.5, y: -11.4, inX: -5.2, inY: 4.8 },
+        { x: -lanyardSpanX, y: lanyardTopY + 0.8, outX: lanyardCurveX, outY: lanyardCurveY },
+        { x: 0, y: -5.2, inX: -4.2, inY: -1.4, outX: 4.2, outY: -1.4 },
+        { x: lanyardSpanX, y: lanyardTopY + 0.8, inX: -lanyardCurveX, inY: lanyardCurveY },
       ],
     });
     setRoundStroke(lanyardShadow);
@@ -662,12 +668,12 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
       name: 'Compass lanyard',
       closed: false,
       fill: null,
-      stroke: cfg.backpackColor,
-      strokeWidth: 2.6,
+      stroke: cfg.showBackpack ? cfg.backpackColor : '#eab94f',
+      strokeWidth: cfg.showBackpack ? 2.6 : 1.5,
       points: [
-        { x: -17.5, y: -12.2, outX: 5.2, outY: 4.8 },
-        { x: 0, y: -6.0, inX: -3.2, inY: -1.8, outX: 3.2, outY: -1.8 },
-        { x: 17.5, y: -12.2, inX: -5.2, inY: 4.8 },
+        { x: -lanyardSpanX, y: lanyardTopY, outX: lanyardCurveX, outY: lanyardCurveY },
+        { x: 0, y: -6.0, inX: -4.2, inY: -1.4, outX: 4.2, outY: -1.4 },
+        { x: lanyardSpanX, y: lanyardTopY, inX: -lanyardCurveX, inY: lanyardCurveY },
       ],
     });
     setRoundStroke(lanyard);
@@ -1240,14 +1246,24 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
   // Smooth continuous glossy coral Pixar limbs (zero harsh sausage-link joint rings!) with soft rounded hands & fingers.
   moving('Limbs', 1.45, 0.72, 0.58, true);
 
-  const shoulderX = pin ? 34.4 : 34.8;
-  const shoulderY = pin ? 4.8 : 3.4;
+  const shoulderX = pin ? 32.4 : 34.8;
+  const shoulderY = pin ? 6.2 : 3.4;
   for (const [side, sx, baseShoulderRot, baseElbowRot] of [
     ['L', -shoulderX, 16, -18],
     ['R', shoulderX, -16, 18],
   ] as const) {
-    // Explicit Shoulder pivot -> Arm rotation pivot -> WeightShift compensation node
+    const sideSign = side === 'L' ? -1 : 1;
+    // Explicit Shoulder pivot -> Soft sculpted shoulder deltoid blend -> Arm rotation pivot -> WeightShift node
     g('Shoulder ' + side, sx, shoulderY, 'Limbs motion');
+    if (pin) {
+      const shoulderCap = e('Shoulder cap ' + side, -sideSign * 1.4, -0.3, 10.6, 10.6, null, 'Shoulder ' + side);
+      addRadialFill(shoulderCap, -2.4, -2.4, 5.8, 5.8, [
+        [0, warmTop],
+        [0.26, litMid],
+        [0.64, base],
+        [1, shadowMid],
+      ]);
+    }
     const armRoot = g('Arm ' + side, 0, 0, 'Shoulder ' + side);
     armRoot.props.rotation = (baseShoulderRot * Math.PI) / 180;
     // Independent weight-shift shoulder compensation node (animated by 11.7s WeightShift layer)
