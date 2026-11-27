@@ -21,18 +21,18 @@ export const BEHAVIOR_STATES = [
     verbal: false,
     category: 'Presence',
     note: 'Quietly alive resting companion — native .riv breathing, blinking, and soft ambient poise.',
-    breathHz: 0.135,
-    breathAmp: 0.18,
-    gazeWanderX: 0.1,
-    gazeWanderY: 0.05,
+    breathHz: 0.155,
+    breathAmp: 0.34,
+    gazeWanderX: 0.34,
+    gazeWanderY: 0.14,
     headBiasX: 0,
     headBiasY: 0,
-    saccadeRange: [4.6, 9.2],
-    blinkRange: [4.2, 8.2],
-    doubleBlinkChance: 0.14,
-    anticipationY: 0.02,
-    peakY: -0.03,
-    microSmileWide: 0.03,
+    saccadeRange: [2.6, 5.2],
+    blinkRange: [3.6, 6.8],
+    doubleBlinkChance: 0.22,
+    anticipationY: 0.03,
+    peakY: -0.04,
+    microSmileWide: 0.045,
     microSmileOpen: -0.012,
   },
   {
@@ -551,11 +551,11 @@ export function createBehaviorEngine() {
     }
 
     // Quasi-periodic non-repeating subtle torso/head idle poise (irrational frequencies)
-    const idleDriftX = (Math.sin(elapsed * 0.31) * 0.042 + Math.sin(elapsed * 0.17 + 1.9) * 0.026) * rmScale;
-    const idleDriftY = (Math.cos(elapsed * 0.23 + 0.5) * 0.028 + Math.sin(elapsed * 0.13) * 0.018) * rmScale;
+    const idleDriftX = (Math.sin(elapsed * 0.42) * 0.125 + Math.sin(elapsed * 0.23 + 1.9) * 0.075) * rmScale;
+    const idleDriftY = (Math.cos(elapsed * 0.31 + 0.5) * 0.08 + Math.sin(elapsed * 0.17) * 0.045) * rmScale;
 
-    const baseLookX = (active.gazeBiasX ?? active.headBiasX) * rmScale + saccadeX + idleDriftX * 0.45;
-    const baseLookY = (active.gazeBiasY ?? active.headBiasY) * rmScale + saccadeY + idleDriftY * 0.4;
+    const baseLookX = (active.gazeBiasX ?? active.headBiasX) * rmScale + saccadeX + idleDriftX * 0.5;
+    const baseLookY = (active.gazeBiasY ?? active.headBiasY) * rmScale + saccadeY + idleDriftY * 0.45;
 
     // Eyes acquire gaze immediately (gaze anticipation!) and glance down at keys while typing
     const rawLookX = baseLookX * (1 - pointerWeight) + pointerX * pointerWeight * rmScale + accentX * 0.25;
@@ -569,12 +569,12 @@ export function createBehaviorEngine() {
 
     // Head follows delayed gaze smoothly with subtle natural inertia & coordinated poise
     const headX = clamp(
-      (active.headBiasX * rmScale + idleDriftX) * (1 - pointerWeight * 0.6) + delayedGaze.x * 0.56 + accentX,
+      (active.headBiasX * rmScale + idleDriftX) * (1 - pointerWeight * 0.6) + delayedGaze.x * 0.62 + accentX,
       -1,
       1,
     );
     const headY = clamp(
-      (active.headBiasY * rmScale + idleDriftY) * (1 - pointerWeight * 0.6) + delayedGaze.y * 0.52 + accentY,
+      (active.headBiasY * rmScale + idleDriftY) * (1 - pointerWeight * 0.6) + delayedGaze.y * 0.58 + accentY,
       -1,
       1,
     );

@@ -578,42 +578,42 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     glossOpacity,
   );
 
-  // Soft ambient occlusion shadows where arms join torso (grounds overlapping plush limbs in 3D space)
-  for (const [side, ax] of [['L', pin ? -31.8 : -34.2], ['R', pin ? 31.8 : 34.2]] as const) {
-    const shAO = e('Shoulder AO ' + side, ax, pin ? 7.2 : 5.8, 13.6, 16.4, null, 'Shell lighting clip');
-    addRadialFill(shAO, side === 'L' ? 2.4 : -2.4, 0, 7.0, 8.4, [
-      [0, hexWithAlpha(deepShadow, pin ? '2e' : '4a')],
-      [0.54, hexWithAlpha(edge, '14')],
+  // Whisper-soft shoulder ambient occlusion (keeps shoulder-to-torso transition soft and unsegmented)
+  for (const [side, ax] of [['L', pin ? -30.6 : -34.2], ['R', pin ? 30.6 : 34.2]] as const) {
+    const shAO = e('Shoulder AO ' + side, ax, pin ? 10.0 : 5.8, 12.0, 14.0, null, 'Shell lighting clip');
+    addRadialFill(shAO, side === 'L' ? 2.6 : -2.6, 0, 6.2, 7.2, [
+      [0, hexWithAlpha(deepShadow, pin ? '14' : '42')],
+      [0.54, hexWithAlpha(edge, '08')],
       [1, hexWithAlpha(edge, '00')],
     ]);
   }
 
-  // Portrait-faithful sculpted inner facial cushion rim & connected golden explorer accessories (Pin identity!)
+  // Portrait-faithful sculpted inner facial cushion rim & connected golden explorer compass pendant (Pin identity!)
   if (pin) {
-    // Sculpted recessed oval groove separating the outer glossy coral map-pin bezel from Pin's plush inner face dome
-    const faceCushionAO = e('Face cushion AO', 0, -6.4, 62.0, 56.8, null, 'Shell lighting clip');
-    addRadialFill(faceCushionAO, 0, 2.2, 31.4, 28.8, [
+    // Softly sculpted oval groove separating outer glossy map-pin bezel from Pin's plush inner face dome
+    const faceCushionAO = e('Face cushion AO', 0, -6.2, 62.6, 57.4, null, 'Shell lighting clip');
+    addRadialFill(faceCushionAO, 0, 2.4, 31.8, 29.2, [
       [0, hexWithAlpha(base, '00')],
-      [0.78, hexWithAlpha(edge, '12')],
-      [0.91, hexWithAlpha(deepShadow, '52')],
-      [0.97, hexWithAlpha(deepShadow, '24')],
+      [0.78, hexWithAlpha(edge, '0e')],
+      [0.91, hexWithAlpha(deepShadow, '3e')],
+      [0.97, hexWithAlpha(deepShadow, '1c')],
       [1, hexWithAlpha(deepShadow, '00')],
     ]);
-    // Plump convex inner face cushion with smooth glossy coral-orange dome (zero milky haze!)
-    const faceCushionDome = e('Face cushion dome', 0, -6.8, 57.4, 52.0, null, 'Shell lighting clip');
+    // Plump convex inner face cushion with smooth glossy coral-orange dome
+    const faceCushionDome = e('Face cushion dome', 0, -6.6, 58.0, 52.8, null, 'Shell lighting clip');
     addRadialFill(faceCushionDome, -10, -14, 32, 30, [
       [0, litMid],
-      [0.36, base],
+      [0.38, base],
       [0.76, shadowMid],
       [0.94, edge],
-      [1, hexWithAlpha(deepShadow, '44')],
+      [1, hexWithAlpha(deepShadow, '36')],
     ]);
     // Soft luminous specular highlight tucked cleanly on Pin's inner upper forehead just like IMG_2945
-    const foreheadGlint = e('Forehead gloss', -10.5, -26.5, 18.0, 6.2, null, 'Shell lighting clip');
+    const foreheadGlint = e('Forehead gloss', -10.2, -26.2, 18.6, 6.4, null, 'Shell lighting clip');
     foreheadGlint.props.rotation = (-10 * Math.PI) / 180;
-    addRadialFill(foreheadGlint, 0, 0, 9.2, 3.2, [
-      [0, '#ffffff48'],
-      [0.55, hexWithAlpha(warmTop, '22')],
+    addRadialFill(foreheadGlint, 0, 0, 9.5, 3.3, [
+      [0, '#ffffff46'],
+      [0.55, hexWithAlpha(warmTop, '20')],
       [1, hexWithAlpha(warmTop, '00')],
     ]);
 
@@ -644,18 +644,18 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     }
 
     // Iconic Gold Compass Pendant (Pin's explorer identity, gracefully seated on the clean rounded coral torso)
-    const compassGroup = g('Compass medallion', 0, 25.0, 'Shell lighting clip');
-    const lanyardSpanX = cfg.showBackpack ? 17.5 : 23.2;
-    const lanyardTopY = cfg.showBackpack ? -12.2 : -16.2;
-    const lanyardCurveX = cfg.showBackpack ? 4.8 : 6.4;
-    const lanyardCurveY = cfg.showBackpack ? 4.4 : 6.8;
+    const compassGroup = g('Compass medallion', 0, cfg.showBackpack ? 25.0 : 25.8, 'Shell lighting clip');
+    const lanyardSpanX = cfg.showBackpack ? 17.5 : 22.8;
+    const lanyardTopY = cfg.showBackpack ? -12.2 : -16.4;
+    const lanyardCurveX = cfg.showBackpack ? 4.8 : 6.2;
+    const lanyardCurveY = cfg.showBackpack ? 4.4 : 6.6;
     const lanyardShadow = addPath(doc, {
       parent: 'Compass medallion',
       name: 'Compass lanyard shadow',
       closed: false,
       fill: null,
-      stroke: hexWithAlpha(deepShadow, cfg.showBackpack ? '40' : '28'),
-      strokeWidth: cfg.showBackpack ? 3.4 : 2.1,
+      stroke: hexWithAlpha(deepShadow, cfg.showBackpack ? '40' : '24'),
+      strokeWidth: cfg.showBackpack ? 3.4 : 2.0,
       points: [
         { x: -lanyardSpanX, y: lanyardTopY + 0.8, outX: lanyardCurveX, outY: lanyardCurveY },
         { x: 0, y: -5.2, inX: -4.2, inY: -1.4, outX: 4.2, outY: -1.4 },
@@ -759,11 +759,11 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     closed: false,
     fill: null,
     stroke: '#0a0f185a',
-    strokeWidth: 7.4,
+    strokeWidth: 7.2,
     points: [
-      { x: -39.0, y: -11.5, outX: -0.5, outY: -23.5 },
-      { x: 0, y: -40.4, inX: -24.5, inY: 0, outX: 24.5, outY: 0 },
-      { x: 39.0, y: -11.5, inX: 0.5, inY: -23.5 },
+      { x: -37.8, y: -10.5, outX: -0.5, outY: -22.5 },
+      { x: 0, y: -38.8, inX: -24.0, inY: 0, outX: 24.0, outY: 0 },
+      { x: 37.8, y: -10.5, inX: 0.5, inY: -22.5 },
     ],
   });
   setRoundStroke(hpBandShadow);
@@ -774,11 +774,11 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     closed: false,
     fill: null,
     stroke: '#3c4654',
-    strokeWidth: 5.4,
+    strokeWidth: 5.2,
     points: [
-      { x: -39.0, y: -12.5, outX: -0.5, outY: -23.5 },
-      { x: 0, y: -41.2, inX: -24.5, inY: 0, outX: 24.5, outY: 0 },
-      { x: 39.0, y: -12.5, inX: 0.5, inY: -23.5 },
+      { x: -37.8, y: -11.5, outX: -0.5, outY: -22.5 },
+      { x: 0, y: -39.6, inX: -24.0, inY: 0, outX: 24.0, outY: 0 },
+      { x: 37.8, y: -11.5, inX: 0.5, inY: -22.5 },
     ],
   });
   setRoundStroke(hpBand);
@@ -789,22 +789,22 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     closed: false,
     fill: null,
     stroke: '#b6c3d499',
-    strokeWidth: 1.7,
+    strokeWidth: 1.6,
     points: [
-      { x: -33.0, y: -24.2, outX: 4.5, outY: -12.2 },
-      { x: 0, y: -42.4, inX: -19.0, inY: 0, outX: 19.0, outY: 0 },
-      { x: 29.5, y: -26.2, inX: -4.0, inY: -10.8 },
+      { x: -31.8, y: -23.0, outX: 4.5, outY: -11.5 },
+      { x: 0, y: -40.8, inX: -18.5, inY: 0, outX: 18.5, outY: 0 },
+      { x: 28.5, y: -25.0, inX: -4.0, inY: -10.2 },
     ],
   });
   setRoundStroke(hpBandHighlight);
 
   // Volumetric left & right over-ear cushions, satin-silver/graphite outer shells, and luminous status LED accents
   for (const [side, sx, tilt] of [
-    ['L', -39.0, -5],
-    ['R', 39.0, 5],
+    ['L', -37.8, -5],
+    ['R', 37.8, 5],
   ] as const) {
     const sign = side === 'L' ? -1 : 1;
-    const cupGroup = g('Headphone cup ' + side, sx, -8.2, 'Headphones rig');
+    const cupGroup = g('Headphone cup ' + side, sx, -7.6, 'Headphones rig');
     cupGroup.props.rotation = (tilt * Math.PI) / 180;
 
     const hpAO = e('HP AO ' + side, -sign * 2.2, 0.8, 9.5, 24.5, null, 'Headphone cup ' + side);
@@ -834,17 +834,33 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     hpLed.props.opacity = 0.92;
   }
 
-  // Plane 3: Mid-face soft sculptural cheek warmth & speaking glow
+  // Plane 3: Mid-face soft sculptural cheek apple volume, muzzle warmth & speaking glow
   moving('MidFace', 3.05, 1.5, 0.8, true);
-  for (const [side, x] of [['L', -22.4], ['R', 22.4]] as const) {
-    const cheek = e('Cheek ' + side, x, 2.0, 14.8, 8.6, null, 'MidFace motion');
-    addRadialFill(cheek, 0, 0, 7.6, 0, [
-      [0, hexWithAlpha(cfg.blushColor, '86')],
-      [0.48, hexWithAlpha(cfg.blushColor, '38')],
-      [0.82, hexWithAlpha(cfg.blushColor, '0e')],
+  if (pin) {
+    const muzzleDome = e('Muzzle dome', 0, 4.2, 34.0, 19.0, null, 'MidFace motion');
+    addRadialFill(muzzleDome, -3.0, -2.5, 17.5, 9.8, [
+      [0, hexWithAlpha(warmTop, '30')],
+      [0.58, hexWithAlpha(litMid, '14')],
+      [1, hexWithAlpha(litMid, '00')],
+    ]);
+  }
+  for (const [side, x] of [['L', -22.2], ['R', 22.2]] as const) {
+    if (pin) {
+      const cheekApple = e('Cheek volume ' + side, x * 0.94, 0.8, 16.5, 10.6, null, 'MidFace motion');
+      addRadialFill(cheekApple, -1.5, -1.5, 8.6, 5.6, [
+        [0, hexWithAlpha(warmTop, '38')],
+        [0.62, hexWithAlpha(litMid, '10')],
+        [1, hexWithAlpha(litMid, '00')],
+      ]);
+    }
+    const cheek = e('Cheek ' + side, x, 2.4, 14.4, 8.2, null, 'MidFace motion');
+    addRadialFill(cheek, 0, 0, 7.4, 0, [
+      [0, hexWithAlpha(cfg.blushColor, '7c')],
+      [0.48, hexWithAlpha(cfg.blushColor, '32')],
+      [0.82, hexWithAlpha(cfg.blushColor, '0c')],
       [1, hexWithAlpha(cfg.blushColor, '00')],
     ]);
-    const blush = e('Speech blush ' + side, x, 2.0, 16.5, 9.6, null, 'MidFace motion');
+    const blush = e('Speech blush ' + side, x, 2.4, 16.5, 9.6, null, 'MidFace motion');
     addRadialFill(blush, 0, 0, 8.4, 0, [
       [0, hexWithAlpha(cfg.blushColor, '66')],
       [0.55, hexWithAlpha(cfg.blushColor, '22')],
@@ -859,57 +875,74 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
 
   for (const [side, x] of [['L', -14.0], ['R', 14.0]] as const) {
     const browLift = shift('Brow lift ' + side, 'Face motion', 0.42 * eyeTrack, 1.3 * eyeTrack, 'lookX', 'lookY');
-    // Dedicated independent brow microexpression node (driven by 13.9s AutoGaze layer)
+    // Dedicated independent brow microexpression node (driven by 11.7s AutoGaze layer)
     g('Brow micro ' + side, 0, 0, browLift);
-    g('Brow rig ' + side, x, -25.8, 'Brow micro ' + side);
-    const archY = -4.2 - browArch;
-    // Soft brow ambient shadow grounds the sculpted 3D brow ridge onto Pin's forehead
-    const browShadow = addPath(doc, {
-      parent: 'Brow rig ' + side,
-      name: 'Brow shadow ' + side,
-      x: 0,
-      y: 1.1,
-      closed: false,
-      fill: null,
-      stroke: hexWithAlpha(deepShadow, '3e'),
-      strokeWidth: browThickness + 1.1,
-      points: [
-        { x: -6.2, y: 0.6, outX: 3.0, outY: archY },
-        { x: 6.2, y: 0.6, inX: -3.0, inY: archY },
-      ],
-    });
-    setRoundStroke(browShadow);
-    const browShape = addPath(doc, {
-      parent: 'Brow rig ' + side,
-      name: 'Brow ' + side,
-      x: 0,
-      y: 0,
-      closed: false,
-      fill: null,
-      stroke: pin ? '#a63c1c' : browInk,
-      strokeWidth: browThickness,
-      points: [
-        { x: -6.2, y: 0.6, outX: 3.0, outY: archY },
-        { x: 6.2, y: 0.6, inX: -3.0, inY: archY },
-      ],
-    });
-    setRoundStroke(browShape);
+    g('Brow rig ' + side, x, pin ? -24.8 : -25.8, 'Brow micro ' + side);
     if (pin) {
-      const browGlint = addPath(doc, {
+      // Sculpted, softly tapered warm 3D coral-sienna brow crescent (relaxed gentle curve matching IMG_2945)
+      const s = side === 'L' ? -1 : 1;
+      const archLift = -2.25 - browArch * 0.7;
+      const browAO = e('Brow shadow ' + side, 0, 0.9, 13.8, 4.4, null, 'Brow rig ' + side);
+      addRadialFill(browAO, 0, 0, 6.9, 2.2, [
+        [0, hexWithAlpha(deepShadow, '28')],
+        [0.65, hexWithAlpha(edge, '0c')],
+        [1, hexWithAlpha(edge, '00')],
+      ]);
+      const browSculpt = addPath(doc, {
         parent: 'Brow rig ' + side,
-        name: 'Brow highlight ' + side,
-        x: 0,
-        y: -0.55,
-        closed: false,
+        name: 'Brow ' + side,
         fill: null,
-        stroke: hexWithAlpha(warmTop, '42'),
-        strokeWidth: 0.85,
         points: [
-          { x: -4.2, y: -0.1, outX: 2.0, outY: archY * 0.65 },
-          { x: 4.2, y: -0.1, inX: -2.0, inY: archY * 0.65 },
+          { x: -s * 5.8, y: 0.25, inX: 0, inY: -1.1, outX: s * 2.8, outY: archLift * 0.72 },
+          { x: s * 0.3, y: archLift, inX: -s * 2.8, inY: -0.1, outX: s * 3.0, outY: 0.1 },
+          { x: s * 6.4, y: 0.95, inX: -s * 2.0, inY: archLift * 0.55, outX: -s * 0.2, outY: 0.9 },
+          { x: s * 0.2, y: archLift + 2.05, inX: s * 2.6, inY: 0.05, outX: -s * 2.7, outY: 0.15 },
+          { x: -s * 5.8, y: 2.05, inX: s * 2.3, inY: archLift * 0.35, outX: 0, outY: -0.8 },
         ],
       });
-      setRoundStroke(browGlint);
+      addLinearFill(browSculpt, 0, archLift, 0, 2.1, [
+        [0, '#c85028'],
+        [0.45, '#b23e1c'],
+        [1, '#8c2e14'],
+      ]);
+      const browGlint = e('Brow highlight ' + side, -s * 0.8, archLift + 0.75, 7.6, 1.3, null, 'Brow rig ' + side);
+      addRadialFill(browGlint, 0, 0, 3.8, 0.65, [
+        [0, hexWithAlpha(warmTop, '46')],
+        [0.7, hexWithAlpha(warmTop, '10')],
+        [1, hexWithAlpha(warmTop, '00')],
+      ]);
+    } else {
+      const archY = -4.2 - browArch;
+      const browShadow = addPath(doc, {
+        parent: 'Brow rig ' + side,
+        name: 'Brow shadow ' + side,
+        x: 0,
+        y: 1.1,
+        closed: false,
+        fill: null,
+        stroke: hexWithAlpha(deepShadow, '3e'),
+        strokeWidth: browThickness + 1.1,
+        points: [
+          { x: -6.2, y: 0.6, outX: 3.0, outY: archY },
+          { x: 6.2, y: 0.6, inX: -3.0, inY: archY },
+        ],
+      });
+      setRoundStroke(browShadow);
+      const browShape = addPath(doc, {
+        parent: 'Brow rig ' + side,
+        name: 'Brow ' + side,
+        x: 0,
+        y: 0,
+        closed: false,
+        fill: null,
+        stroke: browInk,
+        strokeWidth: browThickness,
+        points: [
+          { x: -6.2, y: 0.6, outX: 3.0, outY: archY },
+          { x: 6.2, y: 0.6, inX: -3.0, inY: archY },
+        ],
+      });
+      setRoundStroke(browShape);
     }
 
     const eyeGroup = g('Eye ' + side, x, -10.8, 'Face motion');
@@ -1242,101 +1275,125 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
   tongue.props.opacity = 0;
   bind(tongue, 18, 'tongue');
 
-  // Plane 5: Complete Articulated Arm Chain — Shoulders, Upper Arms, Elbows, Forearms, Wrists & Plush Rounded Hands
-  // Smooth continuous glossy coral Pixar limbs (zero harsh sausage-link joint rings!) with soft rounded hands & fingers.
+  // Plane 5: Complete Articulated Arm Chain — Smoothly Connected Shoulders, Elbows, Wrists & Plush Rounded Hands
+  // Zero dark joint seams: tapered organic contours share continuous matching cylindrical coral shading across every pivot.
   moving('Limbs', 1.45, 0.72, 0.58, true);
 
-  const shoulderX = pin ? 32.4 : 34.8;
-  const shoulderY = pin ? 6.2 : 3.4;
+  const shoulderX = pin ? 30.8 : 34.4;
+  const shoulderY = pin ? 9.8 : 4.2;
   for (const [side, sx, baseShoulderRot, baseElbowRot] of [
-    ['L', -shoulderX, 16, -18],
-    ['R', shoulderX, -16, 18],
+    ['L', -shoulderX, pin ? 6 : 16, pin ? -14 : -18],
+    ['R', shoulderX, pin ? -6 : -16, pin ? 14 : 18],
   ] as const) {
     const sideSign = side === 'L' ? -1 : 1;
-    // Explicit Shoulder pivot -> Soft sculpted shoulder deltoid blend -> Arm rotation pivot -> WeightShift node
+    // Explicit Shoulder pivot -> Feathered coral shoulder blend -> Arm rotation pivot -> WeightShift compensation node
     g('Shoulder ' + side, sx, shoulderY, 'Limbs motion');
-    if (pin) {
-      const shoulderCap = e('Shoulder cap ' + side, -sideSign * 1.4, -0.3, 10.6, 10.6, null, 'Shoulder ' + side);
-      addRadialFill(shoulderCap, -2.4, -2.4, 5.8, 5.8, [
-        [0, warmTop],
-        [0.26, litMid],
-        [0.64, base],
-        [1, shadowMid],
-      ]);
-    }
+    const shoulderBlend = e('Shoulder cap ' + side, -sideSign * 1.2, 0.2, 10.8, 11.4, null, 'Shoulder ' + side);
+    addRadialFill(shoulderBlend, -sideSign * 0.8, 0.2, 5.4, 5.7, [
+      [0, base],
+      [0.52, hexWithAlpha(base, 'a8')],
+      [0.82, hexWithAlpha(shadowMid, '34')],
+      [1, hexWithAlpha(shadowMid, '00')],
+    ]);
     const armRoot = g('Arm ' + side, 0, 0, 'Shoulder ' + side);
     armRoot.props.rotation = (baseShoulderRot * Math.PI) / 180;
-    // Independent weight-shift shoulder compensation node (animated by 11.7s WeightShift layer)
+    // Independent weight-shift shoulder compensation node
     g('Arm idle ' + side, 0, 0, 'Arm ' + side);
 
-    // Smooth continuous glossy coral upper arm (soft lit-to-base studio lighting, zero hard edge ring!)
-    const upperArm = r('Upper arm ' + side, 0, 4.6, 8.6, 14.4, null, 4.3, 'Arm idle ' + side);
-    addLinearFill(upperArm, -4.3, -1.5, 4.3, 1.5, [
-      [0, warmTop],
-      [0.26, litMid],
-      [0.62, base],
+    // Smoothly tapered glossy coral upper arm (soft deltoid crown fading smoothly from shoulder into rounded elbow)
+    const upperArm = addPath(doc, {
+      parent: 'Arm idle ' + side,
+      name: 'Upper arm ' + side,
+      fill: null,
+      points: [
+        { x: 0, y: -3.4, inX: -2.5, inY: 0, outX: 2.5, outY: 0 },
+        { x: 3.9, y: 0.6, inX: 0, inY: -2.1, outX: -0.1, outY: 4.2 },
+        { x: 3.6, y: 9.6, inX: 0.2, inY: -3.2, outX: 0, outY: 2.2 },
+        { x: 0, y: 13.3, inX: 2.2, inY: 0, outX: -2.2, outY: 0 },
+        { x: -3.6, y: 9.6, inX: 0, inY: 2.2, outX: -0.2, outY: -3.2 },
+        { x: -3.9, y: 0.6, inX: 0.1, inY: 4.2, outX: 0, outY: -2.1 },
+      ],
+    });
+    addLinearFill(upperArm, -4.1, 0, 4.1, 0, [
+      [0, litMid],
+      [0.42, base],
       [1, shadowMid],
     ]);
 
-    // Explicit articulated Elbow pivot -> Soft blended elbow cap + seamless Forearm capsule
-    g('Elbow ' + side, 0, 9.2, 'Arm idle ' + side);
+    // Explicit articulated Elbow pivot -> Seamless matching cylindrical elbow blend -> Smoothly tapered Forearm
+    g('Elbow ' + side, 0, 9.6, 'Arm idle ' + side);
     const forearm = g('Forearm ' + side, 0, 0, 'Elbow ' + side);
     forearm.props.rotation = (baseElbowRot * Math.PI) / 180;
-    const elbowBlend = e('Elbow blend ' + side, 0, 0.2, 8.4, 8.4, null, 'Forearm ' + side);
-    addRadialFill(elbowBlend, -2.0, -1.5, 4.6, 4.6, [
+    const elbowBlend = e('Elbow blend ' + side, 0, 0, 7.2, 7.2, null, 'Forearm ' + side);
+    addLinearFill(elbowBlend, -3.6, 0, 3.6, 0, [
       [0, litMid],
-      [0.55, base],
+      [0.42, base],
       [1, shadowMid],
     ]);
-    const forearmMesh = r('Forearm mesh ' + side, 0, 4.0, 8.0, 12.2, null, 4.0, 'Forearm ' + side);
-    addLinearFill(forearmMesh, -4.0, -1.2, 4.0, 1.2, [
-      [0, warmTop],
-      [0.26, litMid],
-      [0.62, base],
+    const forearmMesh = addPath(doc, {
+      parent: 'Forearm ' + side,
+      name: 'Forearm mesh ' + side,
+      fill: null,
+      points: [
+        { x: 0, y: -3.6, inX: -2.2, inY: 0, outX: 2.2, outY: 0 },
+        { x: 3.6, y: 0.2, inX: 0, inY: -2.0, outX: -0.2, outY: 4.2 },
+        { x: 3.1, y: 8.8, inX: 0.2, inY: -3.0, outX: 0, outY: 1.8 },
+        { x: 0, y: 12.0, inX: 1.9, inY: 0, outX: -1.9, outY: 0 },
+        { x: -3.1, y: 8.8, inX: 0, inY: 1.8, outX: -0.2, outY: -3.0 },
+        { x: -3.6, y: 0.2, inX: 0.2, inY: 4.2, outX: 0, outY: -2.0 },
+      ],
+    });
+    addLinearFill(forearmMesh, -3.6, 0, 3.6, 0, [
+      [0, litMid],
+      [0.42, base],
       [1, shadowMid],
     ]);
 
-    // Explicit articulated Wrist pivot -> independent 9.1s HandLife idle node -> Plush Hand palm & compact rounded fingers
-    g('Wrist ' + side, 0, 8.4, 'Forearm ' + side);
+    // Explicit articulated Wrist pivot -> Seamless wrist bridge -> HandIdle -> Plump soft Hand & fingers
+    g('Wrist ' + side, 0, 8.8, 'Forearm ' + side);
+    const wristBlend = e('Wrist blend ' + side, 0, 0, 6.2, 6.2, null, 'Wrist ' + side);
+    addLinearFill(wristBlend, -3.1, 0, 3.1, 0, [
+      [0, litMid],
+      [0.42, base],
+      [1, shadowMid],
+    ]);
     g('Hand idle ' + side, 0, 0, 'Wrist ' + side);
     g('Hand ' + side, 0, 0, 'Hand idle ' + side);
 
     // Compact plump thumb pivot (inner side of hand)
     const thumbSign = side === 'L' ? 1 : -1;
-    const thumbPivot = g('Thumb pivot ' + side, thumbSign * 3.4, 0.4, 'Hand ' + side);
-    thumbPivot.props.rotation = (-thumbSign * 26 * Math.PI) / 180;
-    const thumbMesh = r('Hand thumb ' + side, 0, 1.3, 3.0, 4.0, null, 1.5, 'Thumb pivot ' + side);
-    addLinearFill(thumbMesh, -1.5, 0, 1.6, 0, [
+    const thumbPivot = g('Thumb pivot ' + side, thumbSign * 2.9, 1.0, 'Hand ' + side);
+    thumbPivot.props.rotation = (-thumbSign * 24 * Math.PI) / 180;
+    const thumbMesh = r('Hand thumb ' + side, 0, 1.2, 2.8, 3.6, null, 1.4, 'Thumb pivot ' + side);
+    addLinearFill(thumbMesh, -1.4, 0, 1.4, 0, [
       [0, litMid],
-      [0.52, base],
+      [0.45, base],
       [1, shadowMid],
     ]);
 
-    // 3 cute rounded fingers (portrait Pixar toy proportions, crisp at 80px!)
+    // 3 soft plump rounded fingers integrated naturally into palm
     const fingerSpecs = [
-      { idx: 1, x: thumbSign * 2.1, y: 2.8, len: 3.5, rot: -thumbSign * 7 },
-      { idx: 2, x: 0, y: 3.2, len: 3.9, rot: 0 },
-      { idx: 3, x: -thumbSign * 2.1, y: 2.7, len: 3.4, rot: thumbSign * 7 },
+      { idx: 1, x: thumbSign * 1.9, y: 2.7, len: 3.3, rot: -thumbSign * 6 },
+      { idx: 2, x: 0, y: 3.0, len: 3.7, rot: 0 },
+      { idx: 3, x: -thumbSign * 1.9, y: 2.6, len: 3.2, rot: thumbSign * 6 },
     ];
     for (const f of fingerSpecs) {
       const fPivot = g(`Finger ${f.idx} ${side}`, f.x, f.y, 'Hand ' + side);
       fPivot.props.rotation = (f.rot * Math.PI) / 180;
-      const fMesh = r(`Finger ${f.idx} mesh ${side}`, 0, f.len * 0.4, 2.65, f.len, null, 1.33, `Finger ${f.idx} ${side}`);
-      addLinearFill(fMesh, -1.35, 0, 1.35, 0, [
+      const fMesh = r(`Finger ${f.idx} mesh ${side}`, 0, f.len * 0.36, 2.55, f.len, null, 1.28, `Finger ${f.idx} ${side}`);
+      addLinearFill(fMesh, -1.3, 0, 1.3, 0, [
         [0, litMid],
-        [0.48, base],
+        [0.45, base],
         [1, shadowMid],
       ]);
     }
 
-    // Plush cushioned palm seamlessly blending wrist, thumb, and compact finger bases
-    const handMesh = e('Hand mesh ' + side, 0, 1.2, 8.8, 8.2, null, 'Hand ' + side);
-    addRadialFill(handMesh, -2.0, -1.8, 5.8, 5.4, [
-      [0, warmTop],
-      [0.24, litMid],
-      [0.56, base],
-      [0.9, shadowMid],
-      [1, edge],
+    // Plush cushioned palm sharing continuous soft coral shading across the wrist junction (zero hard wrist ring!)
+    const handMesh = e('Hand mesh ' + side, 0, 1.8, 7.6, 7.2, null, 'Hand ' + side);
+    addLinearFill(handMesh, -3.6, -1.8, 3.8, 3.4, [
+      [0, litMid],
+      [0.48, base],
+      [1, shadowMid],
     ]);
   }
 
@@ -1344,48 +1401,48 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
   // Smoothly unfolds open from the base hinge (`Laptop hinge` scaleY: 0.08 -> 1.0) during typing/thinking
   // and folds smoothly shut when finished, keeping Pin/Geo's face & mouth 100% unobstructed even at 64px.
   moving('Prop', 2.4, 1.15, 0.55, true);
-  const laptopRig = g('Laptop rig', 0, 31.5, 'Prop motion');
+  const laptopRig = g('Laptop rig', 0, 33.2, 'Prop motion');
   laptopRig.props.opacity = 0;
 
   // Soft accessory drop shadow beneath the miniature laptop base deck
-  const laptopShadow = e('Laptop shadow', 0, 12.2, 50, 7.6, null, 'Laptop rig');
-  addRadialFill(laptopShadow, 0, 0, 25, 3.8, [
+  const laptopShadow = e('Laptop shadow', 0, 11.2, 42, 6.8, null, 'Laptop rig');
+  addRadialFill(laptopShadow, 0, 0, 21, 3.4, [
     [0, '#040a127a'],
     [0.52, '#060e1836'],
     [1, '#060e1800'],
   ]);
 
-  // Miniature laptop base deck (dimensional metallic chassis + subtle keyboard deck rim)
-  const laptopBase = r('Laptop base', 0, 10.2, 47, 4.0, null, 2.0, 'Laptop rig');
-  addLinearFill(laptopBase, -23.5, 0, 23.5, 0, [
+  // Miniature laptop base deck (compact dimensional chassis so typing hands & wrists remain visible beside the lid)
+  const laptopBase = r('Laptop base', 0, 9.4, 39, 3.8, null, 1.9, 'Laptop rig');
+  addLinearFill(laptopBase, -19.5, 0, 19.5, 0, [
     [0, '#273547'],
     [0.22, '#5f748d'],
     [0.52, '#91a7c0'],
     [0.82, '#475b72'],
     [1, '#1b2634'],
   ]);
-  const laptopLip = r('Laptop base lip', 0, 11.4, 34, 1.2, null, 0.6, 'Laptop rig');
-  addLinearFill(laptopLip, -17, 0, 17, 0, [
+  const laptopLip = r('Laptop base lip', 0, 10.6, 28, 1.1, null, 0.55, 'Laptop rig');
+  addLinearFill(laptopLip, -14, 0, 14, 0, [
     [0, '#ffffff00'],
     [0.5, '#d8ecff44'],
     [1, '#ffffff00'],
   ]);
 
   // Articulated clamshell hinge along rear of base deck (scaleY animates 0.08 closed <-> 1.0 open!)
-  const laptopHinge = g('Laptop hinge', 0, 8.8, 'Laptop rig');
+  const laptopHinge = g('Laptop hinge', 0, 8.2, 'Laptop rig');
   laptopHinge.props.scaleY = 0.08;
 
   // Soft luminous screen glow radiating upward from the open lid
-  const laptopAura = e('Laptop aura', 0, -20.0, 50, 22, null, 'Laptop hinge');
-  addRadialFill(laptopAura, 0, 4, 25, 11, [
+  const laptopAura = e('Laptop aura', 0, -14.5, 38, 16, null, 'Laptop hinge');
+  addRadialFill(laptopAura, 0, 3, 19, 8, [
     [0, '#9eeeff72'],
     [0.5, '#6eb8ff2e'],
     [1, '#6eb8ff00'],
   ]);
 
-  // Sculpted anodized aluminum miniature laptop lid (anchored above hinge at y = -11.2)
-  const laptopLid = r('Laptop lid', 0, -11.2, 42, 23.0, null, 4.4, 'Laptop hinge');
-  addLinearFill(laptopLid, -19, -23, 19, 2, [
+  // Sculpted anodized aluminum miniature laptop lid (32x16 compact screen back keeping hands visible on keyboard edges)
+  const laptopLid = r('Laptop lid', 0, -8.0, 32, 16.0, null, 3.8, 'Laptop hinge');
+  addLinearFill(laptopLid, -15, -16, 15, 2, [
     [0, '#647994'],
     [0.3, '#384a61'],
     [0.72, '#1f2c3c'],
@@ -1395,17 +1452,17 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
   addClip(laptopLidClip, laptopLid);
 
   // Subtle brushed-aluminum diagonal studio specular sweep across laptop lid
-  const laptopSheen = e('Laptop sheen', -10, -17, 32, 14, null, 'Laptop lid clip');
+  const laptopSheen = e('Laptop sheen', -8, -12, 24, 10, null, 'Laptop lid clip');
   laptopSheen.props.rotation = (-18 * Math.PI) / 180;
-  addRadialFill(laptopSheen, -4, -3, 16, 8, [
+  addRadialFill(laptopSheen, -3, -2, 12, 5, [
     [0, '#ffffff42'],
     [0.55, '#cce8ff18'],
     [1, '#cce8ff00'],
   ]);
 
   // Crisp luminous active screen-rim highlight along the top bevel of the laptop lid
-  const laptopScreenRim = r('Laptop screen rim', 0, -22.2, 36, 1.5, null, 0.75, 'Laptop lid clip');
-  addLinearFill(laptopScreenRim, -18, 0, 18, 0, [
+  const laptopScreenRim = r('Laptop screen rim', 0, -15.4, 27, 1.3, null, 0.65, 'Laptop lid clip');
+  addLinearFill(laptopScreenRim, -13.5, 0, 13.5, 0, [
     [0, '#9beaff00'],
     [0.2, '#9beaff88'],
     [0.5, '#eefcffcc'],
@@ -1414,14 +1471,14 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
   ]);
 
   // Crisp glowing Questie beacon emblem centered on the miniature laptop lid
-  const laptopLogoHalo = e('Laptop logo halo', 0, -11.2, 12.2, 12.2, null, 'Laptop hinge');
-  addRadialFill(laptopLogoHalo, 0, 0, 6.2, 6.2, [
+  const laptopLogoHalo = e('Laptop logo halo', 0, -8.0, 10.6, 10.6, null, 'Laptop hinge');
+  addRadialFill(laptopLogoHalo, 0, 0, 5.4, 5.4, [
     [0, hexWithAlpha(cfg.beaconColor, '72')],
     [0.55, hexWithAlpha(cfg.beaconColor, '20')],
     [1, hexWithAlpha(cfg.beaconColor, '00')],
   ]);
-  e('Laptop logo', 0, -11.2, 5.4, 5.4, cfg.beaconColor, 'Laptop hinge');
-  e('Laptop logo glint', -0.9, -12.1, 1.8, 1.6, '#f2fffd', 'Laptop hinge').props.opacity = 0.92;
+  e('Laptop logo', 0, -8.0, 4.6, 4.6, cfg.beaconColor, 'Laptop hinge');
+  e('Laptop logo glint', -0.8, -8.8, 1.6, 1.4, '#f2fffd', 'Laptop hinge').props.opacity = 0.92;
 
   // =========================================================================
   // NATIVE RIVE ANIMATIONS & 9-LAYER MULTI-PERIOD AUTONOMOUS STATE MACHINE
@@ -1435,125 +1492,141 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
   const pose = (animation: string, object: string, property: string, value: number | string) =>
     key(animation, object, property, [{ frame: 0, value }]);
 
-  // LAYER 1: Continuous Native Subtle Breathing (`Breathe`, 7.3s prime-offset serene loop)
-  // Includes organic vertical rib/head lift + subtle squash/stretch + floor shadow counter-breath.
-  addAnimation(doc, { name: 'Breathe', duration: 7.3, loop: 'loop' });
+  // LAYER 1: Continuous Native Subtle Breathing (`Breathe`, 6.4s prime-offset serene loop)
+  // Visibly alive at 80px embedded scale: coordinated torso, head, shoulders & floor shadow swell.
+  addAnimation(doc, { name: 'Breathe', duration: 6.4, loop: 'loop' });
   const breathAmp = 1.0 * breathScale;
   key('Breathe', 'Body idle', 'y', [
     { time: 0, value: 0, ease: 'easeInOut' },
-    { time: 3.1, value: -0.95 * breathAmp, ease: 'easeInOut' },
-    { time: 7.3, value: 0 },
+    { time: 2.7, value: -1.9 * breathAmp, ease: 'easeInOut' },
+    { time: 6.4, value: 0 },
   ]);
   key('Breathe', 'Body idle', 'scaleX', [
     { time: 0, value: 1, ease: 'easeInOut' },
-    { time: 3.1, value: 1 + 0.011 * breathAmp, ease: 'easeInOut' },
-    { time: 7.3, value: 1 },
+    { time: 2.7, value: 1 + 0.02 * breathAmp, ease: 'easeInOut' },
+    { time: 6.4, value: 1 },
   ]);
   key('Breathe', 'Body idle', 'scaleY', [
     { time: 0, value: 1, ease: 'easeInOut' },
-    { time: 3.1, value: 1 - 0.008 * breathAmp, ease: 'easeInOut' },
-    { time: 7.3, value: 1 },
+    { time: 2.7, value: 1 - 0.014 * breathAmp, ease: 'easeInOut' },
+    { time: 6.4, value: 1 },
   ]);
   key('Breathe', 'Head idle', 'y', [
     { time: 0, value: 0, ease: 'easeInOut' },
-    { time: 3.2, value: -1.45 * breathAmp, ease: 'easeInOut' },
-    { time: 7.3, value: 0 },
+    { time: 2.8, value: -2.45 * breathAmp, ease: 'easeInOut' },
+    { time: 6.4, value: 0 },
   ]);
   key('Breathe', 'Head idle', 'scaleX', [
     { time: 0, value: 1, ease: 'easeInOut' },
-    { time: 3.2, value: 1 + 0.009 * breathAmp, ease: 'easeInOut' },
-    { time: 7.3, value: 1 },
+    { time: 2.8, value: 1 + 0.015 * breathAmp, ease: 'easeInOut' },
+    { time: 6.4, value: 1 },
   ]);
   key('Breathe', 'Head idle', 'scaleY', [
     { time: 0, value: 1, ease: 'easeInOut' },
-    { time: 3.2, value: 1 - 0.007 * breathAmp, ease: 'easeInOut' },
-    { time: 7.3, value: 1 },
+    { time: 2.8, value: 1 - 0.011 * breathAmp, ease: 'easeInOut' },
+    { time: 6.4, value: 1 },
   ]);
   key('Breathe', 'MidFace idle', 'y', [
     { time: 0, value: 0, ease: 'easeInOut' },
-    { time: 3.25, value: -1.55 * breathAmp, ease: 'easeInOut' },
-    { time: 7.3, value: 0 },
+    { time: 2.85, value: -2.65 * breathAmp, ease: 'easeInOut' },
+    { time: 6.4, value: 0 },
   ]);
   key('Breathe', 'Face idle', 'y', [
     { time: 0, value: 0, ease: 'easeInOut' },
-    { time: 3.3, value: -1.65 * breathAmp, ease: 'easeInOut' },
-    { time: 7.3, value: 0 },
+    { time: 2.9, value: -2.85 * breathAmp, ease: 'easeInOut' },
+    { time: 6.4, value: 0 },
   ]);
   key('Breathe', 'Limbs idle', 'y', [
     { time: 0, value: 0, ease: 'easeInOut' },
-    { time: 3.15, value: -1.15 * breathAmp, ease: 'easeInOut' },
-    { time: 7.3, value: 0 },
+    { time: 2.75, value: -2.0 * breathAmp, ease: 'easeInOut' },
+    { time: 6.4, value: 0 },
   ]);
   key('Breathe', 'Prop idle', 'y', [
     { time: 0, value: 0, ease: 'easeInOut' },
-    { time: 3.15, value: -0.9 * breathAmp, ease: 'easeInOut' },
-    { time: 7.3, value: 0 },
+    { time: 2.75, value: -1.4 * breathAmp, ease: 'easeInOut' },
+    { time: 6.4, value: 0 },
   ]);
   key('Breathe', 'Ground shadow', 'scaleX', [
     { time: 0, value: 1, ease: 'easeInOut' },
-    { time: 3.2, value: 0.96, ease: 'easeInOut' },
-    { time: 7.3, value: 1 },
+    { time: 2.8, value: 0.93, ease: 'easeInOut' },
+    { time: 6.4, value: 1 },
   ]);
 
-  // LAYER 2: Independent Body Weight Shifts & Head Counter-Balance (`BodySway`, 11.7s loop)
-  // Incommensurate period (11.7s vs 7.3s breath) prevents mechanical loop synchronization!
-  addAnimation(doc, { name: 'BodySway', duration: 11.7, loop: 'loop' });
+  // LAYER 2: Coordinated Multi-Plane Torso, Head & Shoulder Weight Shifts (`BodySway`, 10.3s loop)
+  // Incommensurate period (10.3s vs 6.4s breath) creates continuous, non-repeating Muse-style organic poise!
+  addAnimation(doc, { name: 'BodySway', duration: 10.3, loop: 'loop' });
   key('BodySway', 'Body weight', 'x', [
-    { time: 0, value: -0.65, ease: 'easeInOut' },
-    { time: 5.4, value: 0.72, ease: 'easeInOut' },
-    { time: 11.7, value: -0.65 },
+    { time: 0, value: -1.35, ease: 'easeInOut' },
+    { time: 3.4, value: 1.45, ease: 'easeInOut' },
+    { time: 6.9, value: -0.45, ease: 'easeInOut' },
+    { time: 10.3, value: -1.35 },
   ]);
   key('BodySway', 'Body weight', 'rotationDegrees', [
-    { time: 0, value: -0.55, ease: 'easeInOut' },
-    { time: 5.5, value: 0.62, ease: 'easeInOut' },
-    { time: 11.7, value: -0.55 },
+    { time: 0, value: -1.25, ease: 'easeInOut' },
+    { time: 3.5, value: 1.35, ease: 'easeInOut' },
+    { time: 7.0, value: -0.4, ease: 'easeInOut' },
+    { time: 10.3, value: -1.25 },
   ]);
   key('BodySway', 'Head weight', 'x', [
-    { time: 0, value: -0.85, ease: 'easeInOut' },
-    { time: 5.6, value: 0.92, ease: 'easeInOut' },
-    { time: 11.7, value: -0.85 },
+    { time: 0, value: -1.85, ease: 'easeInOut' },
+    { time: 3.6, value: 1.98, ease: 'easeInOut' },
+    { time: 7.1, value: -0.58, ease: 'easeInOut' },
+    { time: 10.3, value: -1.85 },
   ]);
   key('BodySway', 'Head weight', 'rotationDegrees', [
-    { time: 0, value: -0.95, ease: 'easeInOut' },
-    { time: 5.8, value: 1.05, ease: 'easeInOut' },
-    { time: 11.7, value: -0.95 },
+    { time: 0, value: -2.6, ease: 'easeInOut' },
+    { time: 3.7, value: 2.75, ease: 'easeInOut' },
+    { time: 7.2, value: -0.82, ease: 'easeInOut' },
+    { time: 10.3, value: -2.6 },
   ]);
   key('BodySway', 'MidFace weight', 'x', [
-    { time: 0, value: -1.0, ease: 'easeInOut' },
-    { time: 5.65, value: 1.08, ease: 'easeInOut' },
-    { time: 11.7, value: -1.0 },
+    { time: 0, value: -2.2, ease: 'easeInOut' },
+    { time: 3.65, value: 2.35, ease: 'easeInOut' },
+    { time: 7.15, value: -0.72, ease: 'easeInOut' },
+    { time: 10.3, value: -2.2 },
   ]);
   key('BodySway', 'Face weight', 'x', [
-    { time: 0, value: -1.15, ease: 'easeInOut' },
-    { time: 5.7, value: 1.24, ease: 'easeInOut' },
-    { time: 11.7, value: -1.15 },
+    { time: 0, value: -2.6, ease: 'easeInOut' },
+    { time: 3.7, value: 2.75, ease: 'easeInOut' },
+    { time: 7.2, value: -0.82, ease: 'easeInOut' },
+    { time: 10.3, value: -2.6 },
   ]);
   key('BodySway', 'Face weight', 'rotationDegrees', [
-    { time: 0, value: -1.05, ease: 'easeInOut' },
-    { time: 5.85, value: 1.15, ease: 'easeInOut' },
-    { time: 11.7, value: -1.05 },
+    { time: 0, value: -2.8, ease: 'easeInOut' },
+    { time: 3.75, value: 2.95, ease: 'easeInOut' },
+    { time: 7.25, value: -0.92, ease: 'easeInOut' },
+    { time: 10.3, value: -2.8 },
   ]);
   key('BodySway', 'Limbs weight', 'x', [
-    { time: 0, value: -0.78, ease: 'easeInOut' },
-    { time: 5.5, value: 0.84, ease: 'easeInOut' },
-    { time: 11.7, value: -0.78 },
+    { time: 0, value: -1.55, ease: 'easeInOut' },
+    { time: 3.55, value: 1.65, ease: 'easeInOut' },
+    { time: 7.05, value: -0.52, ease: 'easeInOut' },
+    { time: 10.3, value: -1.55 },
+  ]);
+  key('BodySway', 'Limbs weight', 'rotationDegrees', [
+    { time: 0, value: -1.45, ease: 'easeInOut' },
+    { time: 3.6, value: 1.55, ease: 'easeInOut' },
+    { time: 7.1, value: -0.46, ease: 'easeInOut' },
+    { time: 10.3, value: -1.45 },
   ]);
   key('BodySway', 'Prop weight', 'x', [
-    { time: 0, value: -0.5, ease: 'easeInOut' },
-    { time: 5.5, value: 0.55, ease: 'easeInOut' },
-    { time: 11.7, value: -0.5 },
+    { time: 0, value: -0.95, ease: 'easeInOut' },
+    { time: 3.55, value: 1.05, ease: 'easeInOut' },
+    { time: 7.05, value: -0.35, ease: 'easeInOut' },
+    { time: 10.3, value: -0.95 },
   ]);
+  // Subtle shoulder counter-sway synchronized with torso weight shifts
   key('BodySway', 'Arm idle L', 'rotationDegrees', [
-    { time: 0, value: -1.6, ease: 'easeInOut' },
-    { time: 4.1, value: 2.4, ease: 'easeInOut' },
-    { time: 8.2, value: -0.8, ease: 'easeInOut' },
-    { time: 11.7, value: -1.6 },
+    { time: 0, value: -4.4, ease: 'easeInOut' },
+    { time: 3.8, value: 4.8, ease: 'easeInOut' },
+    { time: 7.4, value: -1.8, ease: 'easeInOut' },
+    { time: 10.3, value: -4.4 },
   ]);
   key('BodySway', 'Arm idle R', 'rotationDegrees', [
-    { time: 0, value: 1.8, ease: 'easeInOut' },
-    { time: 4.5, value: -2.3, ease: 'easeInOut' },
-    { time: 8.6, value: 0.9, ease: 'easeInOut' },
-    { time: 11.7, value: 1.8 },
+    { time: 0, value: 4.6, ease: 'easeInOut' },
+    { time: 4.1, value: -4.6, ease: 'easeInOut' },
+    { time: 7.7, value: 2.0, ease: 'easeInOut' },
+    { time: 10.3, value: 4.6 },
   ]);
 
   // LAYER 3: Continuous Native Autonomous Blinking (`Blink`, 10.3s irregular single + double blink)
@@ -1593,68 +1666,80 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     ]);
   }
 
-  // LAYER 4: Subtle Native Autonomous Eye Glances & Brow Microexpressions (`GazeDrift`, 13.9s loop)
-  addAnimation(doc, { name: 'GazeDrift', duration: 13.9, loop: 'loop' });
+  // LAYER 4: Subtle Native Autonomous Eye Glances & Brow Microexpressions (`GazeDrift`, 11.7s loop)
+  addAnimation(doc, { name: 'GazeDrift', duration: 11.7, loop: 'loop' });
   for (const side of ['L', 'R']) {
     key('GazeDrift', 'Native gaze ' + side, 'x', [
       { time: 0, value: 0, ease: 'easeInOut' },
-      { time: 2.9, value: 0.76 * eyeTrack, ease: 'easeInOut' },
-      { time: 5.4, value: 0.62 * eyeTrack, ease: 'easeInOut' },
-      { time: 7.1, value: -0.82 * eyeTrack, ease: 'easeInOut' },
-      { time: 10.2, value: -0.48 * eyeTrack, ease: 'easeInOut' },
-      { time: 12.1, value: 0.16 * eyeTrack, ease: 'easeInOut' },
-      { time: 13.9, value: 0 },
+      { time: 2.3, value: 1.05 * eyeTrack, ease: 'easeInOut' },
+      { time: 4.5, value: 0.78 * eyeTrack, ease: 'easeInOut' },
+      { time: 6.1, value: -1.12 * eyeTrack, ease: 'easeInOut' },
+      { time: 8.7, value: -0.64 * eyeTrack, ease: 'easeInOut' },
+      { time: 10.2, value: 0.24 * eyeTrack, ease: 'easeInOut' },
+      { time: 11.7, value: 0 },
     ]);
     key('GazeDrift', 'Native gaze ' + side, 'y', [
       { time: 0, value: 0, ease: 'easeInOut' },
-      { time: 3.4, value: -0.34 * eyeTrack, ease: 'easeInOut' },
-      { time: 7.4, value: 0.28 * eyeTrack, ease: 'easeInOut' },
-      { time: 10.8, value: -0.24 * eyeTrack, ease: 'easeInOut' },
-      { time: 13.9, value: 0 },
+      { time: 2.7, value: -0.45 * eyeTrack, ease: 'easeInOut' },
+      { time: 6.2, value: 0.36 * eyeTrack, ease: 'easeInOut' },
+      { time: 9.1, value: -0.32 * eyeTrack, ease: 'easeInOut' },
+      { time: 11.7, value: 0 },
     ]);
   }
   // Independent left/right eyebrow microexpressions (quiet living curiosity & empathy)
   key('GazeDrift', 'Brow micro L', 'y', [
     { time: 0, value: 0, ease: 'easeInOut' },
-    { time: 3.6, value: -0.65, ease: 'easeInOut' },
-    { time: 6.4, value: 0.18, ease: 'easeInOut' },
-    { time: 10.4, value: -0.42, ease: 'easeInOut' },
-    { time: 13.9, value: 0 },
+    { time: 2.9, value: -0.82, ease: 'easeInOut' },
+    { time: 5.4, value: 0.24, ease: 'easeInOut' },
+    { time: 8.6, value: -0.52, ease: 'easeInOut' },
+    { time: 11.7, value: 0 },
   ]);
   key('GazeDrift', 'Brow micro R', 'y', [
     { time: 0, value: 0, ease: 'easeInOut' },
-    { time: 3.9, value: -0.35, ease: 'easeInOut' },
-    { time: 7.2, value: -0.78, ease: 'easeInOut' },
-    { time: 10.9, value: 0.15, ease: 'easeInOut' },
-    { time: 13.9, value: 0 },
+    { time: 3.2, value: -0.45, ease: 'easeInOut' },
+    { time: 6.1, value: -0.92, ease: 'easeInOut' },
+    { time: 9.2, value: 0.2, ease: 'easeInOut' },
+    { time: 11.7, value: 0 },
   ]);
   key('GazeDrift', 'Brow micro L', 'rotationDegrees', [
     { time: 0, value: 0, ease: 'easeInOut' },
-    { time: 3.6, value: -1.6, ease: 'easeInOut' },
-    { time: 8.5, value: 0.9, ease: 'easeInOut' },
-    { time: 13.9, value: 0 },
+    { time: 2.9, value: -2.0, ease: 'easeInOut' },
+    { time: 7.2, value: 1.1, ease: 'easeInOut' },
+    { time: 11.7, value: 0 },
   ]);
   key('GazeDrift', 'Brow micro R', 'rotationDegrees', [
     { time: 0, value: 0, ease: 'easeInOut' },
-    { time: 7.2, value: 1.8, ease: 'easeInOut' },
-    { time: 11.1, value: -0.8, ease: 'easeInOut' },
-    { time: 13.9, value: 0 },
+    { time: 6.1, value: 2.2, ease: 'easeInOut' },
+    { time: 9.4, value: -1.0, ease: 'easeInOut' },
+    { time: 11.7, value: 0 },
   ]);
 
-  // LAYER 5: Ambient Hand & Wrist Micro-Motion (`HandIdle`, 9.1s loop)
-  // Keeps hands & wrists subtly alive even during quiet resting periods.
-  addAnimation(doc, { name: 'HandIdle', duration: 9.1, loop: 'loop' });
+  // LAYER 5: Ambient Hand & Wrist Micro-Motion (`HandIdle`, 8.3s loop)
+  // Keeps hands & wrists visibly, calmly alive with gentle wrist float even during quiet resting periods.
+  addAnimation(doc, { name: 'HandIdle', duration: 8.3, loop: 'loop' });
   key('HandIdle', 'Hand idle L', 'rotationDegrees', [
-    { time: 0, value: -2.0, ease: 'easeInOut' },
-    { time: 3.8, value: 2.8, ease: 'easeInOut' },
-    { time: 6.7, value: -0.6, ease: 'easeInOut' },
-    { time: 9.1, value: -2.0 },
+    { time: 0, value: -4.8, ease: 'easeInOut' },
+    { time: 3.1, value: 6.2, ease: 'easeInOut' },
+    { time: 5.9, value: -1.8, ease: 'easeInOut' },
+    { time: 8.3, value: -4.8 },
+  ]);
+  key('HandIdle', 'Hand idle L', 'y', [
+    { time: 0, value: 0, ease: 'easeInOut' },
+    { time: 3.4, value: -0.85, ease: 'easeInOut' },
+    { time: 6.2, value: 0.35, ease: 'easeInOut' },
+    { time: 8.3, value: 0 },
   ]);
   key('HandIdle', 'Hand idle R', 'rotationDegrees', [
-    { time: 0, value: 1.6, ease: 'easeInOut' },
-    { time: 4.4, value: -2.9, ease: 'easeInOut' },
-    { time: 7.2, value: 0.8, ease: 'easeInOut' },
-    { time: 9.1, value: 1.6 },
+    { time: 0, value: 4.2, ease: 'easeInOut' },
+    { time: 3.7, value: -6.4, ease: 'easeInOut' },
+    { time: 6.4, value: 1.9, ease: 'easeInOut' },
+    { time: 8.3, value: 4.2 },
+  ]);
+  key('HandIdle', 'Hand idle R', 'y', [
+    { time: 0, value: 0.2, ease: 'easeInOut' },
+    { time: 4.0, value: -0.8, ease: 'easeInOut' },
+    { time: 6.8, value: 0.4, ease: 'easeInOut' },
+    { time: 8.3, value: 0.2 },
   ]);
 
   // LAYER 6: Independent Status Ball Ambient Pulse (`StatusGlow`, 5.9s loop)
@@ -1758,6 +1843,10 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     browRY: number;
     browLRot: number;
     browRRot: number;
+    shoulderLX?: number;
+    shoulderLY?: number;
+    shoulderRX?: number;
+    shoulderRY?: number;
     armL: number;
     forearmL: number;
     handL: number;
@@ -1769,33 +1858,34 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     mode?: 'rest' | 'typing' | 'listen' | 'favorite' | 'pricedrop' | 'newhome' | 'travel' | 'wave' | 'achieve' | 'guide' | 'lookout' | 'ponder' | 'speak';
   }
 
+  const bY = pin ? -24.8 : -25.8;
   const reactionSpecs: ReactionPoseSpec[] = [
-    // 0 ready (IDLE-PARKED) — serene, quietly alive resting companion with relaxed curved arms
-    { duration: 4.8, headTilt: 0, faceTilt: 0, bodyTilt: 0, browLY: -26.2, browRY: -26.2, browLRot: 0, browRRot: 0, armL: 14, forearmL: -18, handL: -4, armR: -14, forearmR: 18, handR: 4, mode: 'rest' },
-    // 1 thinking (WORK-THINK) — over-ear headphones on + hands tucked onto glowing miniature laptop keyboard!
-    { duration: 3.6, headTilt: -2.4, faceTilt: -2.8, bodyTilt: -0.7, browLY: -25.4, browRY: -27.2, browLRot: 4.0, browRRot: -2.8, armL: -26, forearmL: -28, handL: -8, armR: 26, forearmR: 28, handR: 8, showLaptop: true, wearHeadphones: true, mode: 'typing' },
+    // 0 ready (IDLE-PARKED) — serene, quietly alive resting companion with soft natural arms
+    { duration: 4.8, headTilt: 0, faceTilt: 0, bodyTilt: 0, browLY: bY, browRY: bY, browLRot: 0, browRRot: 0, armL: pin ? 5 : 14, forearmL: pin ? -15 : -18, handL: -4, armR: pin ? -5 : -14, forearmR: pin ? 15 : 18, handR: 4, mode: 'rest' },
+    // 1 thinking (WORK-THINK) — over-ear headphones on + natural shoulders + hands visibly typing along miniature laptop edges
+    { duration: 3.6, headTilt: -2.4, faceTilt: -2.8, bodyTilt: -0.7, browLY: bY + 0.8, browRY: bY - 0.8, browLRot: 3.6, browRRot: -2.6, shoulderLX: -shoulderX, shoulderLY: shoulderY + 0.2, shoulderRX: shoulderX, shoulderRY: shoulderY + 0.2, armL: -24, forearmL: -28, handL: -10, armR: 24, forearmR: 28, handR: 10, showLaptop: true, wearHeadphones: true, mode: 'typing' },
     // 2 listening (TYPE-LISTEN) — warm attentive lean-in with gentle occasional native micro-nod
-    { duration: 4.4, headTilt: 2.2, faceTilt: 2.6, bodyTilt: 0.7, browLY: -27.2, browRY: -27.2, browLRot: -2.5, browRRot: 2.5, armL: 8, forearmL: -26, handL: -8, armR: -8, forearmR: 26, handR: 8, mode: 'listen' },
+    { duration: 4.4, headTilt: 2.2, faceTilt: 2.6, bodyTilt: 0.7, browLY: bY - 0.9, browRY: bY - 0.9, browLRot: -2.2, browRRot: 2.2, armL: 6, forearmL: -24, handL: -8, armR: -6, forearmR: 24, handR: 8, mode: 'listen' },
     // 3 favorite (FAVORITE) — affectionate tilt, hands warmly folded inward over chest
-    { duration: 4.0, headTilt: 3.0, faceTilt: 3.4, bodyTilt: 1.1, browLY: -27.8, browRY: -27.8, browLRot: -4.5, browRRot: 4.5, armL: -34, forearmL: -52, handL: -12, armR: 34, forearmR: 52, handR: 12, mode: 'favorite' },
+    { duration: 4.0, headTilt: 3.0, faceTilt: 3.4, bodyTilt: 1.1, browLY: bY - 1.4, browRY: bY - 1.4, browLRot: -4.0, browRRot: 4.0, armL: -32, forearmL: -50, handL: -12, armR: 32, forearmR: 50, handR: 12, mode: 'favorite' },
     // 4 pricedrop (PRICE DROP) — crisp alert intrigue, raised brows & poised attentive hands
-    { duration: 3.8, headTilt: -2.4, faceTilt: -2.8, bodyTilt: -0.7, browLY: -28.4, browRY: -28.4, browLRot: -3.5, browRRot: 3.5, armL: 24, forearmL: -44, handL: -12, armR: -24, forearmR: 44, handR: 12, mode: 'pricedrop' },
+    { duration: 3.8, headTilt: -2.4, faceTilt: -2.8, bodyTilt: -0.7, browLY: bY - 1.8, browRY: bY - 1.8, browLRot: -3.2, browRRot: 3.2, armL: 20, forearmL: -42, handL: -12, armR: -20, forearmR: 42, handR: 12, mode: 'pricedrop' },
     // 5 newhome (NEW HOME) — hopeful discovery with open welcoming right-hand presenting gesture
-    { duration: 4.2, headTilt: 2.8, faceTilt: 3.2, bodyTilt: 1.0, browLY: -27.9, browRY: -27.5, browLRot: -4.5, browRRot: 2.5, armL: 16, forearmL: -24, handL: -6, armR: -62, forearmR: -32, handR: -10, mode: 'newhome' },
+    { duration: 4.2, headTilt: 2.8, faceTilt: 3.2, bodyTilt: 1.0, browLY: bY - 1.5, browRY: bY - 1.1, browLRot: -4.0, browRRot: 2.4, armL: 8, forearmL: -20, handL: -6, armR: -60, forearmR: -30, handR: -10, mode: 'newhome' },
     // 6 traveling (NAV-EXPLORE) — exploratory forward poise with calm scouting arm rhythm
-    { duration: 4.0, headTilt: 3.1, faceTilt: 3.6, bodyTilt: 1.4, browLY: -27.0, browRY: -26.7, browLRot: -2, browRRot: 2, armL: 22, forearmL: -20, handL: -4, armR: -10, forearmR: 22, handR: 6, mode: 'travel' },
+    { duration: 4.0, headTilt: 3.1, faceTilt: 3.6, bodyTilt: 1.4, browLY: bY - 0.8, browRY: bY - 0.5, browLRot: -2, browRRot: 2, armL: 16, forearmL: -18, handL: -4, armR: -8, forearmR: 20, handR: 6, mode: 'travel' },
     // 7 arrived (ARRIVED) — calm grounded arrival with graceful high right-hand greeting wave
-    { duration: 3.6, headTilt: 1.6, faceTilt: 1.9, bodyTilt: 0.5, browLY: -27.5, browRY: -27.5, browLRot: -3.5, browRRot: 3.5, armL: 14, forearmL: -18, handL: -4, armR: -110, forearmR: -40, handR: -8, mode: 'wave' },
+    { duration: 3.6, headTilt: 1.6, faceTilt: 1.9, bodyTilt: 0.5, browLY: bY - 1.2, browRY: bY - 1.2, browLRot: -3.2, browRRot: 3.2, armL: 6, forearmL: -16, handL: -4, armR: -108, forearmR: -38, handR: -8, mode: 'wave' },
     // 8 achievement (ACHIEVEMENT) — dignified pride, both articulated arms raised joyfully
-    { duration: 4.0, headTilt: 3.0, faceTilt: 3.5, bodyTilt: 1.2, browLY: -28.2, browRY: -28.2, browLRot: -5.5, browRRot: 5.5, armL: 118, forearmL: 34, handL: 8, armR: -118, forearmR: -34, handR: -8, mode: 'achieve' },
+    { duration: 4.0, headTilt: 3.0, faceTilt: 3.5, bodyTilt: 1.2, browLY: bY - 1.8, browRY: bY - 1.8, browLRot: -4.8, browRRot: 4.8, armL: 116, forearmL: 34, handL: 8, armR: -116, forearmR: -34, handR: -8, mode: 'achieve' },
     // 9 guide (GUIDE) — gentle presenting right-hand gesture
-    { duration: 4.2, headTilt: -2.0, faceTilt: -2.3, bodyTilt: -0.6, browLY: -27.2, browRY: -27.2, browLRot: -2.5, browRRot: 2.5, armL: 14, forearmL: -18, handL: -4, armR: -76, forearmR: -28, handR: -10, mode: 'guide' },
+    { duration: 4.2, headTilt: -2.0, faceTilt: -2.3, bodyTilt: -0.6, browLY: bY - 0.9, browRY: bY - 0.9, browLRot: -2.2, browRRot: 2.2, armL: 6, forearmL: -16, handL: -4, armR: -74, forearmR: -28, handR: -10, mode: 'guide' },
     // 10 lookout (IDLE-LOOKOUT) — calm horizon scanning tilt with subtle poised arms
-    { duration: 5.2, headTilt: -2.5, faceTilt: -2.9, bodyTilt: -0.8, browLY: -27.4, browRY: -26.9, browLRot: -3.5, browRRot: 2, armL: 18, forearmL: -22, handL: -6, armR: -20, forearmR: 24, handR: 8, mode: 'lookout' },
-    // 11 ponder (TYPE-PONDER) — working headphones + glowing laptop open + right hand genuinely poised at chin!
-    { duration: 4.6, headTilt: -3.8, faceTilt: -4.2, bodyTilt: -1.1, browLY: -25.4, browRY: -27.8, browLRot: 4.8, browRRot: -4.2, armL: -26, forearmL: -26, handL: -8, armR: 48, forearmR: 78, handR: 22, showLaptop: true, wearHeadphones: true, mode: 'ponder' },
+    { duration: 5.2, headTilt: -2.5, faceTilt: -2.9, bodyTilt: -0.8, browLY: bY - 1.1, browRY: bY - 0.6, browLRot: -3.2, browRRot: 2, armL: 12, forearmL: -20, handL: -6, armR: -14, forearmR: 22, handR: 8, mode: 'lookout' },
+    // 11 ponder (TYPE-PONDER) — working headphones + compact laptop open + natural 90-deg bent right arm resting hand at chin!
+    { duration: 4.6, headTilt: -3.8, faceTilt: -4.2, bodyTilt: -1.1, browLY: bY + 0.8, browRY: bY - 1.5, browLRot: 4.2, browRRot: -3.8, shoulderLX: -shoulderX, shoulderLY: shoulderY + 0.2, shoulderRX: shoulderX - 1.6, shoulderRY: shoulderY + 0.4, armL: -22, forearmL: -28, handL: -10, armR: 26, forearmR: 92, handR: 16, showLaptop: true, wearHeadphones: true, mode: 'ponder' },
     // 12 speaking (SPEAK-ATTEND) — engaged conversational poise with subtle articulated hand cadence
-    { duration: 4.0, headTilt: 1.4, faceTilt: 1.7, bodyTilt: 0.5, browLY: -27.2, browRY: -27.2, browLRot: -2.5, browRRot: 2.5, armL: 6, forearmL: -32, handL: -10, armR: -24, forearmR: -18, handR: -8, mode: 'speak' },
+    { duration: 4.0, headTilt: 1.4, faceTilt: 1.7, bodyTilt: 0.5, browLY: bY - 0.9, browRY: bY - 0.9, browLRot: -2.2, browRRot: 2.2, armL: 4, forearmL: -28, handL: -10, armR: -22, forearmR: -18, handR: -8, mode: 'speak' },
   ];
 
   const reactions = GUIDE_REACTIONS.map((rx) => 'Reaction ' + rx[0]);
@@ -1810,15 +1900,21 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     pose(animation, 'HP led L', 'fill', color);
     pose(animation, 'HP led R', 'fill', color);
 
+    // Shoulder protraction coordinates (returns smoothly to anatomical rest in non-laptop states)
+    pose(animation, 'Shoulder L', 'x', spec.shoulderLX ?? -shoulderX);
+    pose(animation, 'Shoulder L', 'y', spec.shoulderLY ?? shoulderY);
+    pose(animation, 'Shoulder R', 'x', spec.shoulderRX ?? shoulderX);
+    pose(animation, 'Shoulder R', 'y', spec.shoulderRY ?? shoulderY);
+
     // Hinged clamshell laptop prop visibility, lid unfold/fold (`Laptop hinge` scaleY), torso AO & screen glow
     if (spec.showLaptop) {
       pose(animation, 'Laptop rig', 'opacity', 1);
       pose(animation, 'Laptop hinge', 'scaleY', 1);
       pose(animation, 'Laptop torso AO', 'opacity', 0.88);
       key(animation, 'Laptop rig', 'y', [
-        { time: 0, value: 30.8, ease: 'easeInOut' },
-        { time: dur * 0.5, value: 29.9, ease: 'easeInOut' },
-        { time: dur, value: 30.8 },
+        { time: 0, value: 33.2, ease: 'easeInOut' },
+        { time: dur * 0.5, value: 32.5, ease: 'easeInOut' },
+        { time: dur, value: 33.2 },
       ]);
       key(animation, 'Laptop face glow', 'opacity', [
         { time: 0, value: 0.74, ease: 'easeInOut' },
@@ -1828,7 +1924,7 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     } else {
       pose(animation, 'Laptop rig', 'opacity', 0);
       pose(animation, 'Laptop hinge', 'scaleY', 0.08);
-      pose(animation, 'Laptop rig', 'y', 39.5);
+      pose(animation, 'Laptop rig', 'y', 41.0);
       pose(animation, 'Laptop torso AO', 'opacity', 0);
       pose(animation, 'Laptop face glow', 'opacity', 0);
     }
@@ -1861,10 +1957,10 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     }
 
     // Base posture + subtle organic breathing choreography per reaction
-    const sway = spec.mode === 'lookout' ? 2.4 : spec.mode === 'travel' ? 1.8 : 0.7;
+    const sway = spec.mode === 'lookout' ? 2.6 : spec.mode === 'travel' ? 2.0 : spec.mode === 'rest' ? 1.5 : 0.85;
     key(animation, 'Body motion', 'rotationDegrees', [
       { time: 0, value: spec.bodyTilt, ease: 'easeInOut' },
-      { time: dur * 0.5, value: spec.bodyTilt + sway * 0.3, ease: 'easeInOut' },
+      { time: dur * 0.5, value: spec.bodyTilt + sway * 0.4, ease: 'easeInOut' },
       { time: dur, value: spec.bodyTilt },
     ]);
     key(animation, 'Head motion', 'rotationDegrees', [
@@ -1879,12 +1975,12 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     ]);
     key(animation, 'Face motion', 'rotationDegrees', [
       { time: 0, value: spec.faceTilt, ease: 'easeInOut' },
-      { time: dur * 0.5, value: spec.faceTilt + sway * 1.1, ease: 'easeInOut' },
+      { time: dur * 0.5, value: spec.faceTilt + sway * 1.12, ease: 'easeInOut' },
       { time: dur, value: spec.faceTilt },
     ]);
     key(animation, 'Limbs motion', 'rotationDegrees', [
       { time: 0, value: spec.bodyTilt * 1.1, ease: 'easeInOut' },
-      { time: dur * 0.5, value: (spec.bodyTilt + sway * 0.35) * 1.1, ease: 'easeInOut' },
+      { time: dur * 0.5, value: (spec.bodyTilt + sway * 0.45) * 1.1, ease: 'easeInOut' },
       { time: dur, value: spec.bodyTilt * 1.1 },
     ]);
     pose(animation, 'Prop motion', 'rotationDegrees', spec.bodyTilt * 0.6);
@@ -1908,16 +2004,16 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     } else if (spec.mode === 'typing') {
       key(animation, 'Head motion', 'y', [
         { time: 0, value: 0, ease: 'easeInOut' },
-        { time: 0.9, value: 0.95, ease: 'easeInOut' },
-        { time: 1.8, value: 0.1, ease: 'easeInOut' },
-        { time: 2.7, value: 1.05, ease: 'easeInOut' },
+        { time: 0.9, value: 1.0, ease: 'easeInOut' },
+        { time: 1.8, value: 0.15, ease: 'easeInOut' },
+        { time: 2.7, value: 1.1, ease: 'easeInOut' },
         { time: dur, value: 0 },
       ]);
       key(animation, 'Face motion', 'y', [
         { time: 0, value: 0, ease: 'easeInOut' },
-        { time: 0.95, value: 1.15, ease: 'easeInOut' },
-        { time: 1.85, value: 0.15, ease: 'easeInOut' },
-        { time: 2.75, value: 1.25, ease: 'easeInOut' },
+        { time: 0.95, value: 1.2, ease: 'easeInOut' },
+        { time: 1.85, value: 0.2, ease: 'easeInOut' },
+        { time: 2.75, value: 1.3, ease: 'easeInOut' },
         { time: dur, value: 0 },
       ]);
     } else {
@@ -1964,8 +2060,8 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
           ]),
           { time: dur, value: base },
         ];
-        key(animation, 'Forearm ' + side, 'rotationDegrees', tapKeys(forearm, 2.6));
-        key(animation, 'Hand ' + side, 'rotationDegrees', tapKeys(wrist, 5.2));
+        key(animation, 'Forearm ' + side, 'rotationDegrees', tapKeys(forearm, 3.0));
+        key(animation, 'Hand ' + side, 'rotationDegrees', tapKeys(wrist, 5.8));
       }
 
       // Independent staggered 6-finger keystroke taps + spacebar thumb taps!
@@ -2043,25 +2139,25 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
         { time: dur, value: spec.handR },
       ]);
     } else if (spec.mode === 'ponder') {
-      // Laptop open + left hand resting + right index finger gently poised near chin!
+      // Laptop open + left hand resting + right index finger genuinely tucked thoughtfully at chin!
       pose(animation, 'Arm L', 'rotationDegrees', spec.armL);
       pose(animation, 'Forearm L', 'rotationDegrees', spec.forearmL);
       pose(animation, 'Hand L', 'rotationDegrees', spec.handL);
       setHandFingers('L', 9, [0.9, 0.92, 0.88], -22);
-      setHandFingers('R', 8, [1.08, 0.74, 0.7], 18);
+      setHandFingers('R', 7, [1.08, 0.72, 0.68], 18);
       key(animation, 'Arm R', 'rotationDegrees', [
         { time: 0, value: spec.armR, ease: 'easeInOut' },
-        { time: dur * 0.5, value: spec.armR + 4, ease: 'easeInOut' },
+        { time: dur * 0.5, value: spec.armR + 3, ease: 'easeInOut' },
         { time: dur, value: spec.armR },
       ]);
       key(animation, 'Forearm R', 'rotationDegrees', [
         { time: 0, value: spec.forearmR, ease: 'easeInOut' },
-        { time: dur * 0.5, value: spec.forearmR + 5, ease: 'easeInOut' },
+        { time: dur * 0.5, value: spec.forearmR + 4, ease: 'easeInOut' },
         { time: dur, value: spec.forearmR },
       ]);
       key(animation, 'Hand R', 'rotationDegrees', [
         { time: 0, value: spec.handR, ease: 'easeInOut' },
-        { time: dur * 0.5, value: spec.handR + 6, ease: 'easeInOut' },
+        { time: dur * 0.5, value: spec.handR + 5, ease: 'easeInOut' },
         { time: dur, value: spec.handR },
       ]);
     } else if (spec.mode === 'speak' || spec.mode === 'guide' || spec.mode === 'newhome') {
@@ -2124,8 +2220,42 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
         { time: dur, value: spec.forearmR },
       ]);
       pose(animation, 'Hand R', 'rotationDegrees', spec.handR);
+    } else if (spec.mode === 'rest') {
+      // Quietly alive Muse-style asymmetric arm, forearm, wrist & finger micro-float during rest
+      setHandFingers('L', 9, [0.92, 0.95, 0.9], -24);
+      setHandFingers('R', 9, [0.92, 0.95, 0.9], 24);
+      key(animation, 'Arm L', 'rotationDegrees', [
+        { time: 0, value: spec.armL - 2.5, ease: 'easeInOut' },
+        { time: dur * 0.45, value: spec.armL + 4.5, ease: 'easeInOut' },
+        { time: dur, value: spec.armL - 2.5 },
+      ]);
+      key(animation, 'Forearm L', 'rotationDegrees', [
+        { time: 0, value: spec.forearmL + 2.5, ease: 'easeInOut' },
+        { time: dur * 0.5, value: spec.forearmL - 6.0, ease: 'easeInOut' },
+        { time: dur, value: spec.forearmL + 2.5 },
+      ]);
+      key(animation, 'Hand L', 'rotationDegrees', [
+        { time: 0, value: spec.handL - 4.0, ease: 'easeInOut' },
+        { time: dur * 0.54, value: spec.handL + 6.5, ease: 'easeInOut' },
+        { time: dur, value: spec.handL - 4.0 },
+      ]);
+      key(animation, 'Arm R', 'rotationDegrees', [
+        { time: 0, value: spec.armR + 2.0, ease: 'easeInOut' },
+        { time: dur * 0.52, value: spec.armR - 4.8, ease: 'easeInOut' },
+        { time: dur, value: spec.armR + 2.0 },
+      ]);
+      key(animation, 'Forearm R', 'rotationDegrees', [
+        { time: 0, value: spec.forearmR - 2.0, ease: 'easeInOut' },
+        { time: dur * 0.58, value: spec.forearmR + 6.2, ease: 'easeInOut' },
+        { time: dur, value: spec.forearmR - 2.0 },
+      ]);
+      key(animation, 'Hand R', 'rotationDegrees', [
+        { time: 0, value: spec.handR + 4.2, ease: 'easeInOut' },
+        { time: dur * 0.62, value: spec.handR - 6.8, ease: 'easeInOut' },
+        { time: dur, value: spec.handR + 4.2 },
+      ]);
     } else {
-      // Serene organic breathing hand poise for rest, favorite, pricedrop, achieve, lookout, listen
+      // Serene organic breathing hand poise for favorite, pricedrop, achieve, lookout, listen
       const openSpread = spec.mode === 'achieve' ? 16 : spec.mode === 'favorite' ? 6 : 9;
       const openScale: [number, number, number] =
         spec.mode === 'achieve' ? [1.04, 1.08, 1.02] : spec.mode === 'favorite' ? [0.84, 0.86, 0.82] : [0.92, 0.95, 0.9];
@@ -2133,23 +2263,23 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
       setHandFingers('R', openSpread, openScale, spec.mode === 'achieve' ? 34 : 24);
       key(animation, 'Arm L', 'rotationDegrees', [
         { time: 0, value: spec.armL, ease: 'easeInOut' },
-        { time: dur * 0.5, value: spec.armL + 3, ease: 'easeInOut' },
+        { time: dur * 0.5, value: spec.armL + 4, ease: 'easeInOut' },
         { time: dur, value: spec.armL },
       ]);
       key(animation, 'Forearm L', 'rotationDegrees', [
         { time: 0, value: spec.forearmL, ease: 'easeInOut' },
-        { time: dur * 0.52, value: spec.forearmL - 4, ease: 'easeInOut' },
+        { time: dur * 0.52, value: spec.forearmL - 5, ease: 'easeInOut' },
         { time: dur, value: spec.forearmL },
       ]);
       pose(animation, 'Hand L', 'rotationDegrees', spec.handL);
       key(animation, 'Arm R', 'rotationDegrees', [
         { time: 0, value: spec.armR, ease: 'easeInOut' },
-        { time: dur * 0.5, value: spec.armR - 3, ease: 'easeInOut' },
+        { time: dur * 0.5, value: spec.armR - 4, ease: 'easeInOut' },
         { time: dur, value: spec.armR },
       ]);
       key(animation, 'Forearm R', 'rotationDegrees', [
         { time: 0, value: spec.forearmR, ease: 'easeInOut' },
-        { time: dur * 0.52, value: spec.forearmR + 4, ease: 'easeInOut' },
+        { time: dur * 0.52, value: spec.forearmR + 5, ease: 'easeInOut' },
         { time: dur, value: spec.forearmR },
       ]);
       pose(animation, 'Hand R', 'rotationDegrees', spec.handR);
@@ -2164,7 +2294,7 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
   addAnimation(doc, { name: 'Laptop Closed', duration: 0.5, loop: 'loop' });
   pose('Laptop Closed', 'Laptop rig', 'opacity', 0);
   pose('Laptop Closed', 'Laptop hinge', 'scaleY', 0.08);
-  pose('Laptop Closed', 'Laptop rig', 'y', 39.5);
+  pose('Laptop Closed', 'Laptop rig', 'y', 41.0);
   pose('Laptop Closed', 'Laptop torso AO', 'opacity', 0);
   pose('Laptop Closed', 'Laptop face glow', 'opacity', 0);
 
@@ -2173,9 +2303,9 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
   pose('Laptop Open', 'Laptop hinge', 'scaleY', 1);
   pose('Laptop Open', 'Laptop torso AO', 'opacity', 0.88);
   key('Laptop Open', 'Laptop rig', 'y', [
-    { time: 0, value: 30.8, ease: 'easeInOut' },
-    { time: 1.7, value: 29.9, ease: 'easeInOut' },
-    { time: 3.4, value: 30.8 },
+    { time: 0, value: 33.2, ease: 'easeInOut' },
+    { time: 1.7, value: 32.5, ease: 'easeInOut' },
+    { time: 3.4, value: 33.2 },
   ]);
   key('Laptop Open', 'Laptop face glow', 'opacity', [
     { time: 0, value: 0.76, ease: 'easeInOut' },
