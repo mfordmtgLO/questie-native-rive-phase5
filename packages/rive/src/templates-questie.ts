@@ -578,12 +578,12 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     glossOpacity,
   );
 
-  // Whisper-soft shoulder ambient occlusion (dissolves smoothly into plush torso contour)
-  for (const [side, ax] of [['L', pin ? -30.2 : -34.0], ['R', pin ? 30.2 : 34.0]] as const) {
-    const shAO = e('Shoulder AO ' + side, ax, pin ? 10.6 : 5.8, 12.6, 14.2, null, 'Shell lighting clip');
-    addRadialFill(shAO, side === 'L' ? 2.6 : -2.6, 0.8, 6.4, 7.2, [
-      [0, hexWithAlpha(deepShadow, pin ? '10' : '38')],
-      [0.54, hexWithAlpha(edge, '06')],
+  // Whisper-soft shoulder ambient occlusion (dissolves imperceptibly into plush torso contour)
+  for (const [side, ax] of [['L', pin ? -29.0 : -34.0], ['R', pin ? 29.0 : 34.0]] as const) {
+    const shAO = e('Shoulder AO ' + side, ax, pin ? 11.6 : 5.8, 13.4, 15.0, null, 'Shell lighting clip');
+    addRadialFill(shAO, side === 'L' ? 2.4 : -2.4, 0.8, 6.8, 7.6, [
+      [0, hexWithAlpha(deepShadow, pin ? '08' : '38')],
+      [0.54, hexWithAlpha(edge, pin ? '03' : '06')],
       [1, hexWithAlpha(edge, '00')],
     ]);
   }
@@ -1291,49 +1291,51 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
   tongue.props.opacity = 0;
   bind(tongue, 18, 'tongue');
 
-  // Plane 5: Organic Connected Arm Chain — World-Lit Seamless Shoulders, Elbows, Wrists & Sculpted Plush Hands
-  // Directional studio shading matches each side of the torso so arms emerge organically without cutout seams or joint breaks.
+  // Plane 5: Organic Connected Arm Chain — Seamless Torso-Integrated Shoulders, Plush Elbows, Wrists & Sculpted Hands
+  // Low-contrast cohesive coral shading + feathered radial joint cushions prevent shading seams or hinged breaks at any bend.
   moving('Limbs', 1.45, 0.72, 0.58, true);
 
-  const shoulderX = pin ? 31.2 : 34.4;
-  const shoulderY = pin ? 10.0 : 4.2;
-  const armLitL = mixHex(litMid, warmTop, 0.22);
-  const armMidL = mixHex(base, litMid, 0.36);
-  const armShadeL = mixHex(base, shadowMid, 0.34);
-  const armInnerR = mixHex(base, shadowMid, 0.32);
-  const armMidR = mixHex(base, shadowMid, 0.54);
-  const armRimR = mixHex(base, litMid, 0.12);
+  const shoulderX = pin ? 29.8 : 34.4;
+  const shoulderY = pin ? 11.2 : 4.2;
+  // Cohesive, low-contrast plush coral tones matched to each side of the torso so shoulder/elbow overlap reads as continuous clay
+  const armLitL = mixHex(base, litMid, 0.42);
+  const armMidL = mixHex(base, litMid, 0.22);
+  const armShadeL = mixHex(base, shadowMid, 0.14);
+  const armInnerR = mixHex(base, shadowMid, 0.36);
+  const armMidR = mixHex(base, shadowMid, 0.46);
+  const armRimR = mixHex(base, shadowMid, 0.24);
 
   for (const [side, sx, baseShoulderRot, baseElbowRot] of [
-    ['L', -shoulderX, pin ? 6 : 16, pin ? -14 : -18],
-    ['R', shoulderX, pin ? -6 : -16, pin ? 14 : 18],
+    ['L', -shoulderX, pin ? 3.5 : 16, pin ? -10.5 : -18],
+    ['R', shoulderX, pin ? -4.5 : -16, pin ? 12.0 : 18],
   ] as const) {
     const isLeft = side === 'L';
     const sideSign = isLeft ? -1 : 1;
-    // Unified low-contrast directional stops per side so elbow/wrist overlap never creates a color seam at any rotation
+    // Gentle, unified plush stops per side so rotating forearm/wrist never creates a diagonal lighting seam across the elbow
     const limbStops: Array<[number, string]> = isLeft
       ? [
           [0, armLitL],
-          [0.48, armMidL],
+          [0.52, armMidL],
           [1, armShadeL],
         ]
       : [
           [0, armInnerR],
-          [0.54, armMidR],
-          [0.88, armRimR],
+          [0.55, armMidR],
+          [0.9, armRimR],
           [1, armMidR],
         ];
     const jointCoreColor = isLeft ? armMidL : armMidR;
+    const shoulderBlendCore = isLeft ? mixHex(base, litMid, 0.28) : mixHex(base, shadowMid, 0.34);
 
-    // Explicit Shoulder pivot -> Shoulder breath lift -> Feathered torso-matched deltoid gusset -> Arm -> Arm idle
+    // Explicit Shoulder pivot -> Shoulder breath glide -> Broad feathered torso-integrated deltoid fillet -> Arm -> Arm idle
     g('Shoulder ' + side, sx, shoulderY, 'Limbs motion');
     g('Shoulder breath ' + side, 0, 0, 'Shoulder ' + side);
-    const shoulderBlend = e('Shoulder cap ' + side, -sideSign * 1.8, -0.4, 12.6, 13.8, null, 'Shoulder breath ' + side);
-    addRadialFill(shoulderBlend, -sideSign * 1.4, -0.2, 6.4, 7.0, [
-      [0, isLeft ? armMidL : armInnerR],
-      [0.48, hexWithAlpha(isLeft ? armMidL : armInnerR, 'b8')],
-      [0.78, hexWithAlpha(isLeft ? base : shadowMid, '36')],
-      [1, hexWithAlpha(isLeft ? base : shadowMid, '00')],
+    const shoulderBlend = e('Shoulder cap ' + side, -sideSign * 3.0, -1.0, 12.8, 15.6, null, 'Shoulder breath ' + side);
+    addRadialFill(shoulderBlend, -sideSign * 1.2, -0.4, 6.4, 7.8, [
+      [0, shoulderBlendCore],
+      [0.44, hexWithAlpha(shoulderBlendCore, 'd6')],
+      [0.74, hexWithAlpha(shoulderBlendCore, '52')],
+      [1, hexWithAlpha(shoulderBlendCore, '00')],
     ]);
 
     const armRoot = g('Arm ' + side, 0, 0, 'Shoulder breath ' + side);
@@ -1341,60 +1343,68 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     // Independent weight-shift shoulder compensation node
     g('Arm idle ' + side, 0, 0, 'Arm ' + side);
 
-    // Smoothly tapered plush upper arm flowing naturally out of the deltoid into a concentric 3.6px elbow cap
+    // Softly flared organic upper arm emerging seamlessly out of the deltoid into a concentric 3.55px elbow cap
+    // Gently bowed outward along outer edge and tucked inward toward the body for a natural plush curve (no stiff cylinder)
     const upperArm = addPath(doc, {
       parent: 'Arm idle ' + side,
       name: 'Upper arm ' + side,
       fill: null,
       points: [
-        { x: 0, y: -4.0, inX: -3.0, inY: 0, outX: 3.0, outY: 0 },
-        { x: 4.3, y: 0.6, inX: 0, inY: -2.4, outX: -0.2, outY: 4.2 },
-        { x: 3.6, y: 9.4, inX: 0.2, inY: -3.2, outX: 0, outY: 2.0 },
-        { x: 0, y: 13.0, inX: 2.0, inY: 0, outX: -2.0, outY: 0 },
-        { x: -3.6, y: 9.4, inX: 0, inY: 2.0, outX: -0.2, outY: -3.2 },
-        { x: -4.3, y: 0.6, inX: 0.2, inY: 4.2, outX: 0, outY: -2.4 },
+        { x: -sideSign * 0.5, y: -4.2, inX: -3.2, inY: 0, outX: 3.2, outY: 0 },
+        { x: 4.45 + (isLeft ? 0.3 : 0.0), y: 0.4, inX: 0, inY: -2.6, outX: -0.15, outY: 4.4 },
+        { x: 3.55, y: 9.2, inX: 0.35, inY: -3.2, outX: 0, outY: 1.98 },
+        { x: 0, y: 12.75, inX: 1.98, inY: 0, outX: -1.98, outY: 0 },
+        { x: -3.55, y: 9.2, inX: 0, inY: 1.98, outX: -0.35, outY: -3.2 },
+        { x: -4.45 - (isLeft ? 0.0 : 0.3), y: 0.4, inX: 0.15, inY: 4.4, outX: 0, outY: -2.6 },
       ],
     });
-    addLinearFill(upperArm, -4.3, 0, 4.3, 0, limbStops);
+    addLinearFill(upperArm, -4.5, 0, 4.5, 0, limbStops);
 
-    // Soft specular deltoid highlight along light-facing outer contour (unifies vinyl plushness with torso)
-    const upperSheen = e('Upper arm sheen ' + side, isLeft ? -1.8 : 1.6, 2.2, 2.2, 7.6, null, 'Arm idle ' + side);
-    addRadialFill(upperSheen, 0, 0, 1.1, 3.8, [
-      [0, hexWithAlpha(warmTop, isLeft ? '4c' : '26')],
-      [0.7, hexWithAlpha(warmTop, '0c')],
+    // Whisper-soft outer-bicep highlight shifted below the shoulder crest so it never draws a "ball cap" seam on the torso
+    const upperSheen = e('Upper arm sheen ' + side, isLeft ? -1.9 : 1.7, 3.8, 2.0, 6.2, null, 'Arm idle ' + side);
+    addRadialFill(upperSheen, 0, 0, 1.0, 3.1, [
+      [0, hexWithAlpha(warmTop, isLeft ? '26' : '14')],
+      [0.68, hexWithAlpha(warmTop, '08')],
       [1, hexWithAlpha(warmTop, '00')],
     ]);
 
-    // Explicit articulated Elbow pivot -> Forearm idle micro-settle -> Forearm -> Concentric elbow cushion -> Tapered Forearm
-    g('Elbow ' + side, 0, 9.4, 'Arm idle ' + side);
+    // Explicit articulated Elbow pivot -> Forearm idle micro-settle -> Forearm -> Curved Forearm + Rotation-Invariant Plush Cushion
+    g('Elbow ' + side, 0, 9.2, 'Arm idle ' + side);
     g('Forearm idle ' + side, 0, 0, 'Elbow ' + side);
     const forearm = g('Forearm ' + side, 0, 0, 'Forearm idle ' + side);
     forearm.props.rotation = (baseElbowRot * Math.PI) / 180;
 
-    const elbowBlend = e('Elbow blend ' + side, 0, 0, 7.2, 7.2, null, 'Forearm ' + side);
-    addLinearFill(elbowBlend, -3.6, 0, 3.6, 0, limbStops);
-
+    // Gently curved plush forearm matching the exact 3.55px concentric elbow radius so outer contours stay silky at every angle
     const forearmMesh = addPath(doc, {
       parent: 'Forearm ' + side,
       name: 'Forearm mesh ' + side,
       fill: null,
       points: [
-        { x: 0, y: -3.6, inX: -2.0, inY: 0, outX: 2.0, outY: 0 },
-        { x: 3.6, y: 0, inX: 0, inY: -2.0, outX: -0.22, outY: 4.0 },
-        { x: 2.8, y: 8.6, inX: 0.18, inY: -2.8, outX: 0, outY: 1.5 },
-        { x: 0, y: 11.4, inX: 1.7, inY: 0, outX: -1.7, outY: 0 },
-        { x: -2.8, y: 8.6, inX: 0, inY: 1.5, outX: -0.18, outY: -2.8 },
-        { x: -3.6, y: 0, inX: 0.22, inY: 4.0, outX: 0, outY: -2.0 },
+        { x: 0, y: -3.55, inX: -1.98, inY: 0, outX: 1.98, outY: 0 },
+        { x: 3.55, y: 0, inX: 0, inY: -1.98, outX: -0.18 + sideSign * 0.16, outY: 3.9 },
+        { x: 2.75 - sideSign * 0.15, y: 8.5, inX: 0.22, inY: -2.9, outX: 0, outY: 1.5 },
+        { x: -sideSign * 0.15, y: 11.2, inX: 1.65, inY: 0, outX: -1.65, outY: 0 },
+        { x: -2.75 - sideSign * 0.15, y: 8.5, inX: 0, inY: 1.5, outX: -0.22, outY: -2.9 },
+        { x: -3.55, y: 0, inX: 0.18 + sideSign * 0.16, inY: 3.9, outX: 0, outY: -1.98 },
       ],
     });
-    addLinearFill(forearmMesh, -3.6, 0, 3.6, 0, limbStops);
+    addLinearFill(forearmMesh, -3.55, 0, 3.55, 0, limbStops);
+
+    // Rotation-invariant feathered radial elbow cushion rendered seamlessly across the joint to dissolve any shading angle step
+    const elbowBlend = e('Elbow blend ' + side, 0, 0.1, 7.6, 7.6, null, 'Forearm ' + side);
+    addRadialFill(elbowBlend, isLeft ? -0.7 : 0.5, -0.3, 3.8, 3.8, [
+      [0, jointCoreColor],
+      [0.54, hexWithAlpha(jointCoreColor, 'dc')],
+      [0.82, hexWithAlpha(jointCoreColor, '5c')],
+      [1, hexWithAlpha(jointCoreColor, '00')],
+    ]);
 
     // Explicit articulated Wrist pivot -> Feathered wrist bridge -> HandIdle -> Connected sculpted plush Hand & rounded fingers
-    g('Wrist ' + side, 0, 8.6, 'Forearm ' + side);
+    g('Wrist ' + side, -sideSign * 0.15, 8.5, 'Forearm ' + side);
     const wristBlend = e('Wrist blend ' + side, 0, 0, 5.8, 5.8, null, 'Wrist ' + side);
     addRadialFill(wristBlend, 0, 0, 2.9, 2.9, [
       [0, jointCoreColor],
-      [0.65, hexWithAlpha(jointCoreColor, 'cc')],
+      [0.62, hexWithAlpha(jointCoreColor, 'd0')],
       [1, hexWithAlpha(jointCoreColor, '00')],
     ]);
     g('Hand idle ' + side, 0, 0, 'Wrist ' + side);
@@ -1427,14 +1437,14 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
       fill: null,
       points: [
         { x: 0, y: -2.0, inX: -1.8, inY: 0, outX: 1.8, outY: 0 },
-        { x: 2.85, y: 0.1, inX: -0.1, inY: -1.2, outX: 0.8, outY: 1.2 },
-        { x: 3.55, y: 2.5, inX: 0.2, inY: -1.2, outX: -0.1, outY: 1.8 },
+        { x: 2.8, y: 0.1, inX: -0.1, inY: -1.2, outX: 0.8, outY: 1.2 },
+        { x: 3.5, y: 2.5, inX: 0.2, inY: -1.2, outX: -0.1, outY: 1.8 },
         { x: 0, y: 5.0, inX: 2.4, inY: 0, outX: -2.4, outY: 0 },
-        { x: -3.55, y: 2.5, inX: 0.1, inY: 1.8, outX: -0.2, outY: -1.2 },
-        { x: -2.85, y: 0.1, inX: -0.8, inY: 1.2, outX: 0.1, outY: -1.2 },
+        { x: -3.5, y: 2.5, inX: 0.1, inY: 1.8, outX: -0.2, outY: -1.2 },
+        { x: -2.8, y: 0.1, inX: -0.8, inY: 1.2, outX: 0.1, outY: -1.2 },
       ],
     });
-    addLinearFill(handMesh, -3.55, 0, 3.55, 0, limbStops);
+    addLinearFill(handMesh, -3.5, 0, 3.5, 0, limbStops);
   }
 
   // Plane 6: Dimensional Hinged Clamshell Miniature Laptop Prop
@@ -1591,16 +1601,26 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     { time: 2.8, value: 0.93, ease: 'easeInOut' },
     { time: 6.4, value: 1 },
   ]);
-  // Subtle asymmetric shoulder breath lift (runs continuously across every active state!)
+  // Organic asymmetric shoulder breath lift & subtle chest-expansion roll (runs continuously across every active state!)
   key('Breathe', 'Shoulder breath L', 'y', [
     { time: 0, value: 0, ease: 'easeInOut' },
-    { time: 2.65, value: -0.78 * breathAmp, ease: 'easeInOut' },
+    { time: 2.65, value: -0.86 * breathAmp, ease: 'easeInOut' },
+    { time: 6.4, value: 0 },
+  ]);
+  key('Breathe', 'Shoulder breath L', 'x', [
+    { time: 0, value: 0, ease: 'easeInOut' },
+    { time: 2.75, value: -0.45 * breathAmp, ease: 'easeInOut' },
     { time: 6.4, value: 0 },
   ]);
   key('Breathe', 'Shoulder breath R', 'y', [
     { time: 0, value: 0.08, ease: 'easeInOut' },
-    { time: 2.85, value: -0.7 * breathAmp, ease: 'easeInOut' },
+    { time: 2.85, value: -0.78 * breathAmp, ease: 'easeInOut' },
     { time: 6.4, value: 0.08 },
+  ]);
+  key('Breathe', 'Shoulder breath R', 'x', [
+    { time: 0, value: 0, ease: 'easeInOut' },
+    { time: 2.95, value: 0.45 * breathAmp, ease: 'easeInOut' },
+    { time: 6.4, value: 0 },
   ]);
 
   // LAYER 2: Coordinated Multi-Plane Torso, Head & Shoulder Weight Shifts (`BodySway`, 10.3s loop)
@@ -1766,25 +1786,25 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
   ]);
 
   // LAYER 5: Ambient Hand, Wrist & Forearm Micro-Settling (`HandIdle`, 8.9s prime-offset loop)
-  // Keeps forearms, wrists & hands softly settling with natural asymmetry across every state.
+  // Overlapping follow-through: forearm leads softly and wrist/hand trails ~0.45s behind so limbs never move like stiff hinges.
   addAnimation(doc, { name: 'HandIdle', duration: 8.9, loop: 'loop' });
   key('HandIdle', 'Forearm idle L', 'rotationDegrees', [
-    { time: 0, value: -1.6, ease: 'easeInOut' },
-    { time: 3.3, value: 2.6, ease: 'easeInOut' },
-    { time: 6.4, value: -0.8, ease: 'easeInOut' },
-    { time: 8.9, value: -1.6 },
+    { time: 0, value: -1.8, ease: 'easeInOut' },
+    { time: 3.1, value: 3.0, ease: 'easeInOut' },
+    { time: 6.1, value: -1.0, ease: 'easeInOut' },
+    { time: 8.9, value: -1.8 },
   ]);
   key('HandIdle', 'Forearm idle R', 'rotationDegrees', [
-    { time: 0, value: 1.8, ease: 'easeInOut' },
-    { time: 4.1, value: -2.7, ease: 'easeInOut' },
-    { time: 7.0, value: 0.9, ease: 'easeInOut' },
-    { time: 8.9, value: 1.8 },
+    { time: 0, value: 2.0, ease: 'easeInOut' },
+    { time: 3.85, value: -3.1, ease: 'easeInOut' },
+    { time: 6.75, value: 1.1, ease: 'easeInOut' },
+    { time: 8.9, value: 2.0 },
   ]);
   key('HandIdle', 'Hand idle L', 'rotationDegrees', [
-    { time: 0, value: -4.4, ease: 'easeInOut' },
-    { time: 3.4, value: 5.8, ease: 'easeInOut' },
-    { time: 6.3, value: -1.6, ease: 'easeInOut' },
-    { time: 8.9, value: -4.4 },
+    { time: 0, value: -4.2, ease: 'easeInOut' },
+    { time: 3.55, value: 6.0, ease: 'easeInOut' },
+    { time: 6.55, value: -1.8, ease: 'easeInOut' },
+    { time: 8.9, value: -4.2 },
   ]);
   key('HandIdle', 'Hand idle L', 'y', [
     { time: 0, value: 0, ease: 'easeInOut' },
@@ -1793,15 +1813,15 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
     { time: 8.9, value: 0 },
   ]);
   key('HandIdle', 'Hand idle R', 'rotationDegrees', [
-    { time: 0, value: 3.9, ease: 'easeInOut' },
-    { time: 4.0, value: -6.0, ease: 'easeInOut' },
-    { time: 6.9, value: 1.8, ease: 'easeInOut' },
-    { time: 8.9, value: 3.9 },
+    { time: 0, value: 3.8, ease: 'easeInOut' },
+    { time: 4.3, value: -6.2, ease: 'easeInOut' },
+    { time: 7.2, value: 1.9, ease: 'easeInOut' },
+    { time: 8.9, value: 3.8 },
   ]);
   key('HandIdle', 'Hand idle R', 'y', [
     { time: 0, value: 0.18, ease: 'easeInOut' },
-    { time: 4.3, value: -0.74, ease: 'easeInOut' },
-    { time: 7.3, value: 0.36, ease: 'easeInOut' },
+    { time: 4.45, value: -0.74, ease: 'easeInOut' },
+    { time: 7.45, value: 0.36, ease: 'easeInOut' },
     { time: 8.9, value: 0.18 },
   ]);
 
@@ -1933,32 +1953,32 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
 
   const bY = pin ? -25.6 : -25.8;
   const reactionSpecs: ReactionPoseSpec[] = [
-    // 0 ready (IDLE-PARKED) — serene, quietly alive resting companion with soft natural arms
-    { duration: 4.8, headTilt: 0, faceTilt: 0, bodyTilt: 0, browLY: bY, browRY: bY, browLRot: 0, browRRot: 0, armL: pin ? 5 : 14, forearmL: pin ? -15 : -18, handL: -4, armR: pin ? -5 : -14, forearmR: pin ? 15 : 18, handR: 4, mode: 'rest' },
-    // 1 thinking (WORK-THINK) — over-ear headphones on + natural shoulders + hands visibly typing along miniature laptop edges
-    { duration: 3.6, headTilt: -2.4, faceTilt: -2.8, bodyTilt: -0.7, browLY: bY + 0.8, browRY: bY - 0.8, browLRot: 3.6, browRRot: -2.6, shoulderLX: -shoulderX, shoulderLY: shoulderY + 0.2, shoulderRX: shoulderX, shoulderRY: shoulderY + 0.2, armL: -24, forearmL: -28, handL: -10, armR: 24, forearmR: 28, handR: 10, showLaptop: true, wearHeadphones: true, mode: 'typing' },
+    // 0 ready (IDLE-PARKED) — serene, quietly alive resting companion with softly curved, slightly asymmetric natural arms
+    { duration: 4.8, headTilt: 0, faceTilt: 0, bodyTilt: 0, browLY: bY, browRY: bY, browLRot: 0, browRRot: 0, armL: pin ? 3.5 : 14, forearmL: pin ? -10.5 : -18, handL: -6, armR: pin ? -4.5 : -14, forearmR: pin ? 12.0 : 18, handR: 6.5, mode: 'rest' },
+    // 1 thinking (WORK-THINK) — over-ear headphones on + softly protracted shoulders + curved arms typing along laptop edges
+    { duration: 3.6, headTilt: -2.4, faceTilt: -2.8, bodyTilt: -0.7, browLY: bY + 0.8, browRY: bY - 0.8, browLRot: 3.6, browRRot: -2.6, shoulderLX: -shoulderX + 1.4, shoulderLY: shoulderY + 0.7, shoulderRX: shoulderX - 1.4, shoulderRY: shoulderY + 0.7, armL: -19, forearmL: -25, handL: -12, armR: 19, forearmR: 25, handR: 12, showLaptop: true, wearHeadphones: true, mode: 'typing' },
     // 2 listening (TYPE-LISTEN) — warm attentive lean-in with gentle occasional native micro-nod
-    { duration: 4.4, headTilt: 2.2, faceTilt: 2.6, bodyTilt: 0.7, browLY: bY - 0.9, browRY: bY - 0.9, browLRot: -2.2, browRRot: 2.2, armL: 6, forearmL: -24, handL: -8, armR: -6, forearmR: 24, handR: 8, mode: 'listen' },
+    { duration: 4.4, headTilt: 2.2, faceTilt: 2.6, bodyTilt: 0.7, browLY: bY - 0.9, browRY: bY - 0.9, browLRot: -2.2, browRRot: 2.2, armL: 4, forearmL: -20, handL: -8, armR: -4, forearmR: 20, handR: 8, mode: 'listen' },
     // 3 favorite (FAVORITE) — affectionate tilt, hands warmly folded inward over chest
-    { duration: 4.0, headTilt: 3.0, faceTilt: 3.4, bodyTilt: 1.1, browLY: bY - 1.4, browRY: bY - 1.4, browLRot: -4.0, browRRot: 4.0, armL: -32, forearmL: -50, handL: -12, armR: 32, forearmR: 50, handR: 12, mode: 'favorite' },
+    { duration: 4.0, headTilt: 3.0, faceTilt: 3.4, bodyTilt: 1.1, browLY: bY - 1.4, browRY: bY - 1.4, browLRot: -4.0, browRRot: 4.0, shoulderLX: -shoulderX + 1.2, shoulderLY: shoulderY + 0.5, shoulderRX: shoulderX - 1.2, shoulderRY: shoulderY + 0.5, armL: -28, forearmL: -46, handL: -12, armR: 28, forearmR: 46, handR: 12, mode: 'favorite' },
     // 4 pricedrop (PRICE DROP) — crisp alert intrigue, raised brows & poised attentive hands
-    { duration: 3.8, headTilt: -2.4, faceTilt: -2.8, bodyTilt: -0.7, browLY: bY - 1.8, browRY: bY - 1.8, browLRot: -3.2, browRRot: 3.2, armL: 20, forearmL: -42, handL: -12, armR: -20, forearmR: 42, handR: 12, mode: 'pricedrop' },
+    { duration: 3.8, headTilt: -2.4, faceTilt: -2.8, bodyTilt: -0.7, browLY: bY - 1.8, browRY: bY - 1.8, browLRot: -3.2, browRRot: 3.2, armL: 16, forearmL: -38, handL: -12, armR: -16, forearmR: 38, handR: 12, mode: 'pricedrop' },
     // 5 newhome (NEW HOME) — hopeful discovery with open welcoming right-hand presenting gesture
-    { duration: 4.2, headTilt: 2.8, faceTilt: 3.2, bodyTilt: 1.0, browLY: bY - 1.5, browRY: bY - 1.1, browLRot: -4.0, browRRot: 2.4, armL: 8, forearmL: -20, handL: -6, armR: -60, forearmR: -30, handR: -10, mode: 'newhome' },
+    { duration: 4.2, headTilt: 2.8, faceTilt: 3.2, bodyTilt: 1.0, browLY: bY - 1.5, browRY: bY - 1.1, browLRot: -4.0, browRRot: 2.4, armL: 6, forearmL: -16, handL: -6, armR: -56, forearmR: -28, handR: -10, mode: 'newhome' },
     // 6 traveling (NAV-EXPLORE) — exploratory forward poise with calm scouting arm rhythm
-    { duration: 4.0, headTilt: 3.1, faceTilt: 3.6, bodyTilt: 1.4, browLY: bY - 0.8, browRY: bY - 0.5, browLRot: -2, browRRot: 2, armL: 16, forearmL: -18, handL: -4, armR: -8, forearmR: 20, handR: 6, mode: 'travel' },
+    { duration: 4.0, headTilt: 3.1, faceTilt: 3.6, bodyTilt: 1.4, browLY: bY - 0.8, browRY: bY - 0.5, browLRot: -2, browRRot: 2, armL: 14, forearmL: -16, handL: -4, armR: -8, forearmR: 18, handR: 6, mode: 'travel' },
     // 7 arrived (ARRIVED) — calm grounded arrival with graceful high right-hand greeting wave
-    { duration: 3.6, headTilt: 1.6, faceTilt: 1.9, bodyTilt: 0.5, browLY: bY - 1.2, browRY: bY - 1.2, browLRot: -3.2, browRRot: 3.2, armL: 6, forearmL: -16, handL: -4, armR: -108, forearmR: -38, handR: -8, mode: 'wave' },
+    { duration: 3.6, headTilt: 1.6, faceTilt: 1.9, bodyTilt: 0.5, browLY: bY - 1.2, browRY: bY - 1.2, browLRot: -3.2, browRRot: 3.2, armL: 4, forearmL: -14, handL: -4, armR: -104, forearmR: -36, handR: -8, mode: 'wave' },
     // 8 achievement (ACHIEVEMENT) — dignified pride, both articulated arms raised joyfully
-    { duration: 4.0, headTilt: 3.0, faceTilt: 3.5, bodyTilt: 1.2, browLY: bY - 1.8, browRY: bY - 1.8, browLRot: -4.8, browRRot: 4.8, armL: 116, forearmL: 34, handL: 8, armR: -116, forearmR: -34, handR: -8, mode: 'achieve' },
+    { duration: 4.0, headTilt: 3.0, faceTilt: 3.5, bodyTilt: 1.2, browLY: bY - 1.8, browRY: bY - 1.8, browLRot: -4.8, browRRot: 4.8, armL: 112, forearmL: 32, handL: 8, armR: -112, forearmR: -32, handR: -8, mode: 'achieve' },
     // 9 guide (GUIDE) — gentle presenting right-hand gesture
-    { duration: 4.2, headTilt: -2.0, faceTilt: -2.3, bodyTilt: -0.6, browLY: bY - 0.9, browRY: bY - 0.9, browLRot: -2.2, browRRot: 2.2, armL: 6, forearmL: -16, handL: -4, armR: -74, forearmR: -28, handR: -10, mode: 'guide' },
+    { duration: 4.2, headTilt: -2.0, faceTilt: -2.3, bodyTilt: -0.6, browLY: bY - 0.9, browRY: bY - 0.9, browLRot: -2.2, browRRot: 2.2, armL: 4, forearmL: -14, handL: -4, armR: -70, forearmR: -26, handR: -10, mode: 'guide' },
     // 10 lookout (IDLE-LOOKOUT) — calm horizon scanning tilt with subtle poised arms
-    { duration: 5.2, headTilt: -2.5, faceTilt: -2.9, bodyTilt: -0.8, browLY: bY - 1.1, browRY: bY - 0.6, browLRot: -3.2, browRRot: 2, armL: 12, forearmL: -20, handL: -6, armR: -14, forearmR: 22, handR: 8, mode: 'lookout' },
-    // 11 ponder (TYPE-PONDER) — working headphones + compact laptop open + natural bent right arm resting hand thoughtfully at chin!
-    { duration: 4.6, headTilt: -3.8, faceTilt: -4.2, bodyTilt: -1.1, browLY: bY + 0.8, browRY: bY - 1.5, browLRot: 4.2, browRRot: -3.8, shoulderLX: -shoulderX, shoulderLY: shoulderY + 0.2, shoulderRX: shoulderX - 1.6, shoulderRY: shoulderY + 0.4, armL: -22, forearmL: -28, handL: -10, armR: 28, forearmR: 96, handR: 18, showLaptop: true, wearHeadphones: true, mode: 'ponder' },
+    { duration: 5.2, headTilt: -2.5, faceTilt: -2.9, bodyTilt: -0.8, browLY: bY - 1.1, browRY: bY - 0.6, browLRot: -3.2, browRRot: 2, armL: 10, forearmL: -16, handL: -6, armR: -12, forearmR: 18, handR: 8, mode: 'lookout' },
+    // 11 ponder (TYPE-PONDER) — working headphones + compact laptop + softly protracted right shoulder curving gently to chin!
+    { duration: 4.6, headTilt: -3.8, faceTilt: -4.2, bodyTilt: -1.1, browLY: bY + 0.8, browRY: bY - 1.5, browLRot: 4.2, browRRot: -3.8, shoulderLX: -shoulderX + 1.3, shoulderLY: shoulderY + 0.7, shoulderRX: shoulderX - 2.3, shoulderRY: shoulderY - 0.4, armL: -18, forearmL: -25, handL: -12, armR: 22, forearmR: 88, handR: 20, showLaptop: true, wearHeadphones: true, mode: 'ponder' },
     // 12 speaking (SPEAK-ATTEND) — engaged conversational poise with subtle articulated hand cadence
-    { duration: 4.0, headTilt: 1.4, faceTilt: 1.7, bodyTilt: 0.5, browLY: bY - 0.9, browRY: bY - 0.9, browLRot: -2.2, browRRot: 2.2, armL: 4, forearmL: -28, handL: -10, armR: -22, forearmR: -18, handR: -8, mode: 'speak' },
+    { duration: 4.0, headTilt: 1.4, faceTilt: 1.7, bodyTilt: 0.5, browLY: bY - 0.9, browRY: bY - 0.9, browLRot: -2.2, browRRot: 2.2, armL: 3, forearmL: -24, handL: -10, armR: -20, forearmR: -16, handR: -8, mode: 'speak' },
   ];
 
   const reactions = GUIDE_REACTIONS.map((rx) => 'Reaction ' + rx[0]);
@@ -2114,26 +2134,26 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
 
     // Articulated shoulder / forearm / wrist / finger choreography per behavior state!
     if (spec.mode === 'typing') {
-      // Organic whole-arm alternating typing: subtle shoulder follow-through + soft forearm + alternating wrist taps.
+      // Phase-lagged whole-arm alternating typing: shoulder leads subtly, forearm follows, wrist rebounds softly.
       for (const side of ['L', 'R'] as const) {
         const left = side === 'L';
         const arm = left ? spec.armL : spec.armR;
         const forearm = left ? spec.forearmL : spec.forearmR;
         const wrist = left ? spec.handL : spec.handR;
         const sign = left ? -1 : 1;
-        const taps = left ? [0.32, 1.44, 2.56] : [0.86, 1.98, 3.10];
-        const tapKeys = (base: number, amount: number) => [
+        const taps = left ? [0.34, 1.46, 2.58] : [0.88, 2.0, 3.12];
+        const tapKeys = (base: number, amount: number, lag: number) => [
           { time: 0, value: base },
           ...taps.flatMap((t) => [
-            { time: Number((t - 0.14).toFixed(2)), value: base, ease: 'easeInOut' as const },
-            { time: t, value: base + sign * amount, ease: 'easeInOut' as const },
-            { time: Number((t + 0.18).toFixed(2)), value: base, ease: 'easeInOut' as const },
+            { time: Number(Math.max(0.05, t + lag - 0.16).toFixed(2)), value: base, ease: 'easeInOut' as const },
+            { time: Number(Math.min(dur - 0.14, t + lag).toFixed(2)), value: base + sign * amount, ease: 'easeInOut' as const },
+            { time: Number(Math.min(dur - 0.04, t + lag + 0.2).toFixed(2)), value: base, ease: 'easeInOut' as const },
           ]),
           { time: dur, value: base },
         ];
-        key(animation, 'Arm ' + side, 'rotationDegrees', tapKeys(arm, 2.0));
-        key(animation, 'Forearm ' + side, 'rotationDegrees', tapKeys(forearm, 3.4));
-        key(animation, 'Hand ' + side, 'rotationDegrees', tapKeys(wrist, 6.2));
+        key(animation, 'Arm ' + side, 'rotationDegrees', tapKeys(arm, 2.4, -0.05));
+        key(animation, 'Forearm ' + side, 'rotationDegrees', tapKeys(forearm, 3.8, 0));
+        key(animation, 'Hand ' + side, 'rotationDegrees', tapKeys(wrist, 6.8, 0.05));
       }
 
       // Independent staggered 6-finger keystroke taps + spacebar thumb taps!
@@ -2211,123 +2231,131 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
         { time: dur, value: spec.handR },
       ]);
     } else if (spec.mode === 'ponder') {
-      // Laptop open + left hand resting + right index finger genuinely tucked thoughtfully at chin!
-      pose(animation, 'Arm L', 'rotationDegrees', spec.armL);
-      pose(animation, 'Forearm L', 'rotationDegrees', spec.forearmL);
+      // Laptop open + softly resting left arm + phase-lagged gentle chin-pondering sway on right arm
+      key(animation, 'Arm L', 'rotationDegrees', [
+        { time: 0, value: spec.armL, ease: 'easeInOut' },
+        { time: dur * 0.48, value: spec.armL - 1.8, ease: 'easeInOut' },
+        { time: dur, value: spec.armL },
+      ]);
+      key(animation, 'Forearm L', 'rotationDegrees', [
+        { time: 0, value: spec.forearmL, ease: 'easeInOut' },
+        { time: dur * 0.56, value: spec.forearmL + 2.6, ease: 'easeInOut' },
+        { time: dur, value: spec.forearmL },
+      ]);
       pose(animation, 'Hand L', 'rotationDegrees', spec.handL);
       setHandFingers('L', 9, [0.9, 0.92, 0.88], -22);
       setHandFingers('R', 7, [1.08, 0.72, 0.68], 18);
       key(animation, 'Arm R', 'rotationDegrees', [
         { time: 0, value: spec.armR, ease: 'easeInOut' },
-        { time: dur * 0.5, value: spec.armR + 3, ease: 'easeInOut' },
+        { time: dur * 0.46, value: spec.armR + 2.8, ease: 'easeInOut' },
         { time: dur, value: spec.armR },
       ]);
       key(animation, 'Forearm R', 'rotationDegrees', [
         { time: 0, value: spec.forearmR, ease: 'easeInOut' },
-        { time: dur * 0.5, value: spec.forearmR + 4, ease: 'easeInOut' },
+        { time: dur * 0.54, value: spec.forearmR + 4.2, ease: 'easeInOut' },
         { time: dur, value: spec.forearmR },
       ]);
       key(animation, 'Hand R', 'rotationDegrees', [
         { time: 0, value: spec.handR, ease: 'easeInOut' },
-        { time: dur * 0.5, value: spec.handR + 5, ease: 'easeInOut' },
+        { time: dur * 0.62, value: spec.handR + 5.2, ease: 'easeInOut' },
         { time: dur, value: spec.handR },
       ]);
     } else if (spec.mode === 'speak' || spec.mode === 'guide' || spec.mode === 'newhome') {
-      // Subtle, refined conversational & welcoming open hand gestures
+      // Fluid overlapping-action conversational & welcoming open hand gestures
       setHandFingers('L', 11, [0.96, 0.98, 0.94], -28);
       setHandFingers('R', 14, [1.02, 1.04, 0.98], 32);
       key(animation, 'Arm L', 'rotationDegrees', [
         { time: 0, value: spec.armL, ease: 'easeInOut' },
-        { time: dur * 0.48, value: spec.armL - 5, ease: 'easeInOut' },
+        { time: dur * 0.44, value: spec.armL - 5.2, ease: 'easeInOut' },
         { time: dur, value: spec.armL },
       ]);
       key(animation, 'Forearm L', 'rotationDegrees', [
         { time: 0, value: spec.forearmL, ease: 'easeInOut' },
-        { time: dur * 0.52, value: spec.forearmL - 9, ease: 'easeInOut' },
+        { time: dur * 0.53, value: spec.forearmL - 9.2, ease: 'easeInOut' },
         { time: dur, value: spec.forearmL },
       ]);
       key(animation, 'Hand L', 'rotationDegrees', [
         { time: 0, value: spec.handL, ease: 'easeInOut' },
-        { time: dur * 0.55, value: spec.handL - 8, ease: 'easeInOut' },
+        { time: dur * 0.61, value: spec.handL - 8.5, ease: 'easeInOut' },
         { time: dur, value: spec.handL },
       ]);
       key(animation, 'Arm R', 'rotationDegrees', [
         { time: 0, value: spec.armR, ease: 'easeInOut' },
-        { time: dur * 0.45, value: spec.armR - 7, ease: 'easeInOut' },
+        { time: dur * 0.42, value: spec.armR - 6.8, ease: 'easeInOut' },
         { time: dur, value: spec.armR },
       ]);
       key(animation, 'Forearm R', 'rotationDegrees', [
         { time: 0, value: spec.forearmR, ease: 'easeInOut' },
-        { time: dur * 0.5, value: spec.forearmR - 10, ease: 'easeInOut' },
+        { time: dur * 0.51, value: spec.forearmR - 10.2, ease: 'easeInOut' },
         { time: dur, value: spec.forearmR },
       ]);
       key(animation, 'Hand R', 'rotationDegrees', [
         { time: 0, value: spec.handR, ease: 'easeInOut' },
-        { time: dur * 0.54, value: spec.handR - 9, ease: 'easeInOut' },
+        { time: dur * 0.59, value: spec.handR - 9.4, ease: 'easeInOut' },
         { time: dur, value: spec.handR },
       ]);
     } else if (spec.mode === 'travel') {
-      // Calm scouting alternating stride poise
+      // Calm scouting alternating stride poise with gentle elbow follow-through
       setHandFingers('L', 8, [0.92, 0.94, 0.9], -24);
       setHandFingers('R', 8, [0.92, 0.94, 0.9], 24);
       key(animation, 'Arm L', 'rotationDegrees', [
         { time: 0, value: spec.armL - 5, ease: 'easeInOut' },
-        { time: dur * 0.5, value: spec.armL + 6, ease: 'easeInOut' },
+        { time: dur * 0.46, value: spec.armL + 6, ease: 'easeInOut' },
         { time: dur, value: spec.armL - 5 },
       ]);
       key(animation, 'Forearm L', 'rotationDegrees', [
         { time: 0, value: spec.forearmL, ease: 'easeInOut' },
-        { time: dur * 0.5, value: spec.forearmL - 6, ease: 'easeInOut' },
+        { time: dur * 0.55, value: spec.forearmL - 6.5, ease: 'easeInOut' },
         { time: dur, value: spec.forearmL },
       ]);
       pose(animation, 'Hand L', 'rotationDegrees', spec.handL);
       key(animation, 'Arm R', 'rotationDegrees', [
         { time: 0, value: spec.armR + 5, ease: 'easeInOut' },
-        { time: dur * 0.5, value: spec.armR - 6, ease: 'easeInOut' },
+        { time: dur * 0.46, value: spec.armR - 6, ease: 'easeInOut' },
         { time: dur, value: spec.armR + 5 },
       ]);
       key(animation, 'Forearm R', 'rotationDegrees', [
         { time: 0, value: spec.forearmR, ease: 'easeInOut' },
-        { time: dur * 0.5, value: spec.forearmR + 6, ease: 'easeInOut' },
+        { time: dur * 0.55, value: spec.forearmR + 6.5, ease: 'easeInOut' },
         { time: dur, value: spec.forearmR },
       ]);
       pose(animation, 'Hand R', 'rotationDegrees', spec.handR);
     } else if (spec.mode === 'rest') {
-      // Quietly alive Muse-style asymmetric arm, forearm, wrist & finger micro-float during rest
+      // Fluid Muse-style overlapping action: shoulder leads -> elbow trails -> wrist drifts softly without stiffness
       setHandFingers('L', 9, [0.92, 0.95, 0.9], -24);
       setHandFingers('R', 9, [0.92, 0.95, 0.9], 24);
       key(animation, 'Arm L', 'rotationDegrees', [
-        { time: 0, value: spec.armL - 2.5, ease: 'easeInOut' },
-        { time: dur * 0.45, value: spec.armL + 4.5, ease: 'easeInOut' },
-        { time: dur, value: spec.armL - 2.5 },
+        { time: 0, value: spec.armL - 2.6, ease: 'easeInOut' },
+        { time: dur * 0.42, value: spec.armL + 4.4, ease: 'easeInOut' },
+        { time: dur, value: spec.armL - 2.6 },
       ]);
       key(animation, 'Forearm L', 'rotationDegrees', [
-        { time: 0, value: spec.forearmL + 2.5, ease: 'easeInOut' },
-        { time: dur * 0.5, value: spec.forearmL - 6.0, ease: 'easeInOut' },
-        { time: dur, value: spec.forearmL + 2.5 },
+        { time: 0, value: spec.forearmL + 2.8, ease: 'easeInOut' },
+        { time: dur * 0.52, value: spec.forearmL - 5.8, ease: 'easeInOut' },
+        { time: dur, value: spec.forearmL + 2.8 },
       ]);
       key(animation, 'Hand L', 'rotationDegrees', [
-        { time: 0, value: spec.handL - 4.0, ease: 'easeInOut' },
-        { time: dur * 0.54, value: spec.handL + 6.5, ease: 'easeInOut' },
-        { time: dur, value: spec.handL - 4.0 },
+        { time: 0, value: spec.handL - 4.2, ease: 'easeInOut' },
+        { time: dur * 0.62, value: spec.handL + 6.4, ease: 'easeInOut' },
+        { time: dur, value: spec.handL - 4.2 },
       ]);
       key(animation, 'Arm R', 'rotationDegrees', [
-        { time: 0, value: spec.armR + 2.0, ease: 'easeInOut' },
-        { time: dur * 0.52, value: spec.armR - 4.8, ease: 'easeInOut' },
-        { time: dur, value: spec.armR + 2.0 },
+        { time: 0, value: spec.armR + 2.2, ease: 'easeInOut' },
+        { time: dur * 0.48, value: spec.armR - 4.6, ease: 'easeInOut' },
+        { time: dur, value: spec.armR + 2.2 },
       ]);
       key(animation, 'Forearm R', 'rotationDegrees', [
-        { time: 0, value: spec.forearmR - 2.0, ease: 'easeInOut' },
-        { time: dur * 0.58, value: spec.forearmR + 6.2, ease: 'easeInOut' },
-        { time: dur, value: spec.forearmR - 2.0 },
+        { time: 0, value: spec.forearmR - 2.4, ease: 'easeInOut' },
+        { time: dur * 0.58, value: spec.forearmR + 6.0, ease: 'easeInOut' },
+        { time: dur, value: spec.forearmR - 2.4 },
       ]);
       key(animation, 'Hand R', 'rotationDegrees', [
-        { time: 0, value: spec.handR + 4.2, ease: 'easeInOut' },
-        { time: dur * 0.62, value: spec.handR - 6.8, ease: 'easeInOut' },
-        { time: dur, value: spec.handR + 4.2 },
+        { time: 0, value: spec.handR + 4.4, ease: 'easeInOut' },
+        { time: dur * 0.68, value: spec.handR - 6.6, ease: 'easeInOut' },
+        { time: dur, value: spec.handR + 4.4 },
       ]);
     } else {
-      // Serene organic breathing hand poise for favorite, pricedrop, achieve, lookout, listen
+      // Serene organic overlapping-action poise for favorite, pricedrop, achieve, lookout, listen
       const openSpread = spec.mode === 'achieve' ? 16 : spec.mode === 'favorite' ? 6 : 9;
       const openScale: [number, number, number] =
         spec.mode === 'achieve' ? [1.04, 1.08, 1.02] : spec.mode === 'favorite' ? [0.84, 0.86, 0.82] : [0.92, 0.95, 0.9];
@@ -2335,29 +2363,37 @@ export function buildQuestieGuide(name: 'Pin' | 'Geo', custom?: Partial<QuestieC
       setHandFingers('R', openSpread, openScale, spec.mode === 'achieve' ? 34 : 24);
       key(animation, 'Arm L', 'rotationDegrees', [
         { time: 0, value: spec.armL, ease: 'easeInOut' },
-        { time: dur * 0.5, value: spec.armL + 4, ease: 'easeInOut' },
+        { time: dur * 0.46, value: spec.armL + 4.2, ease: 'easeInOut' },
         { time: dur, value: spec.armL },
       ]);
       key(animation, 'Forearm L', 'rotationDegrees', [
         { time: 0, value: spec.forearmL, ease: 'easeInOut' },
-        { time: dur * 0.52, value: spec.forearmL - 5, ease: 'easeInOut' },
+        { time: dur * 0.55, value: spec.forearmL - 5.4, ease: 'easeInOut' },
         { time: dur, value: spec.forearmL },
       ]);
-      pose(animation, 'Hand L', 'rotationDegrees', spec.handL);
+      key(animation, 'Hand L', 'rotationDegrees', [
+        { time: 0, value: spec.handL, ease: 'easeInOut' },
+        { time: dur * 0.62, value: spec.handL - 4.0, ease: 'easeInOut' },
+        { time: dur, value: spec.handL },
+      ]);
       key(animation, 'Arm R', 'rotationDegrees', [
         { time: 0, value: spec.armR, ease: 'easeInOut' },
-        { time: dur * 0.5, value: spec.armR - 4, ease: 'easeInOut' },
+        { time: dur * 0.46, value: spec.armR - 4.2, ease: 'easeInOut' },
         { time: dur, value: spec.armR },
       ]);
       key(animation, 'Forearm R', 'rotationDegrees', [
         { time: 0, value: spec.forearmR, ease: 'easeInOut' },
-        { time: dur * 0.52, value: spec.forearmR + 5, ease: 'easeInOut' },
+        { time: dur * 0.55, value: spec.forearmR + 5.4, ease: 'easeInOut' },
         { time: dur, value: spec.forearmR },
       ]);
-      pose(animation, 'Hand R', 'rotationDegrees', spec.handR);
+      key(animation, 'Hand R', 'rotationDegrees', [
+        { time: 0, value: spec.handR, ease: 'easeInOut' },
+        { time: dur * 0.62, value: spec.handR + 4.0, ease: 'easeInOut' },
+        { time: dur, value: spec.handR },
+      ]);
     }
   }
-  poses('Emotion', 'emotion', reactions, 540);
+  poses('Emotion', 'emotion', reactions, 580);
 
   // LAYER 8: Backward-Compatible Accessory Override (`Accessory` layer driven by `laptopMode` input)
   // 0 = Auto (empty timeline so Emotion layer smoothly opens/closes laptop),
